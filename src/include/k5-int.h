@@ -573,6 +573,9 @@ extern char *strdup (const char *);
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>                  /* MAXPATHLEN */
 #endif
+#ifndef MAXPATHLEN
+# define MAXPATHLEN 4096
+#endif
 
 #ifdef HAVE_SYS_FILE_H
 #include <sys/file.h>                   /* prototypes for file-related
