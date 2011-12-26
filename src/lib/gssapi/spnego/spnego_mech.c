@@ -65,6 +65,9 @@
 #include	"gssapiP_spnego.h"
 #include	<gssapi_err_generic.h>
 
+#ifndef MAXHOSTNAMELEN
+#define MAXHOSTNAMELEN 64
+#endif
 
 #undef g_token_size
 #undef g_verify_token_header
