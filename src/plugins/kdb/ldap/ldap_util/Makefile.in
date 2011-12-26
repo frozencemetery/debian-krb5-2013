@@ -2,6 +2,7 @@ mydir=plugins$(S)kdb$(S)ldap$(S)ldap_util
 BUILDTOP=$(REL)..$(S)..$(S)..$(S)..
 DEFINES = -DKDB4_DISABLE
 LOCALINCLUDES = -I. -I$(srcdir)/../libkdb_ldap -I$(top_srcdir)/lib/kdb
+PROG_LIBPATH=-L$(TOPLIBD) $(KRB4_LIBPATH)  -Wl,-rpath,$(KRB5_LIBDIR)/krb5
 #KDB_DEP_LIB=$(DL_LIB) $(THREAD_LINKOPTS)
 KDB_DEP_LIB=$(DL_LIB) -lkdb_ldap $(THREAD_LINKOPTS)
 
