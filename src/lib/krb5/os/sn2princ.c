@@ -130,6 +130,10 @@ find_trailer(const char *hostname)
     return p;
 }
 
+#ifndef MAXHOSTNAMELEN
+# define MAXHOSTNAMELEN 256
+#endif
+
 krb5_error_code KRB5_CALLCONV
 krb5_sname_to_principal(krb5_context context, const char *hostname,
                         const char *sname, krb5_int32 type,
