@@ -72,7 +72,7 @@ configure-stamp:
 		$(SYSTEM) $(CACHE)
 	touch configure-stamp
 
-# Build the info pages in a separate directory, since otherwise we'll
+# Build the documentation in a separate directory, since otherwise we'll
 # overwrite the info pages provided upstream and then debian/rules clean won't
 # get back to a virgin copy of the package.
 build: build-arch build-indep
@@ -86,10 +86,7 @@ build-stamp: configure-stamp
 	touch build-stamp
 
 build-indep-stamp: build-stamp
-	-mkdir build/info
-	cd build/info && makeinfo ../../doc/admin.texinfo
-	cd build/info && makeinfo ../../doc/install.texinfo
-	cd build/info && makeinfo ../../doc/user-guide.texinfo
+	cd build/doc && make html pdf
 	touch build-indep-stamp
 
 clean:
