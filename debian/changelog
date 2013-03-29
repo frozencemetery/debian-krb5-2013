@@ -1,3 +1,9 @@
+krb5 (1.11.1+dfsg-1) UNRELEASED; urgency=low
+
+  * New upstream release, Closes: #697662
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 29 Mar 2013 15:31:53 -0400
+
 krb5 (1.10.1+dfsg-5) unstable; urgency=low
 
   * Import workaround for getaddrinfo bug from upstream.  Described in
