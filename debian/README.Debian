@@ -44,7 +44,9 @@ Debian-Specific Information
   tarred up into a single .tar file.  In order to create the Debian
   original upstream source (.orig.tar.gz), I untarred the parent tarball,
   checked the PGP signature, and used the contained tarball as the
-  upstream source.
+  upstream source.  Since krb5-1.7, a separate "krb5-appl" tarball contains
+  the kerberized client utilities (rlogin, rsh, etc.) with a similar
+  nested-tarball scheme.
 
   MIT Kerberos is built against the libcom_err and libss provided by the
   e2fsprogs source package.  It is built against the version of db
