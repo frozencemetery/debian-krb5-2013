@@ -87,6 +87,10 @@ build-stamp: configure-stamp
 
 build-indep-stamp: build-stamp
 	cd build/doc && make substhtml substpdf
+	ln -sf /usr/share/javascript/jquery/jquery.js build/doc/html_subst/_static/jquery.js
+	ln -sf /usr/share/javascript/underscore/underscore.js build/doc/html_subst/_static/underscore.js
+	ln -sf /usr/share/javascript/sphinxdoc/1.0/doctools.js build/doc/html_subst/_static/doctools.js
+	ln -sf /usr/share/javascript/sphinxdoc/1.0/searchtools.js build/doc/html_subst/_static/searchtools.js
 	touch build-indep-stamp
 
 clean:
