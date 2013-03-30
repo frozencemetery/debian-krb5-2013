@@ -86,7 +86,7 @@ build-stamp: configure-stamp
 	touch build-stamp
 
 build-indep-stamp: build-stamp
-	cd build/doc && make html pdf
+	cd build/doc && make substhtml substpdf
 	touch build-indep-stamp
 
 clean:
