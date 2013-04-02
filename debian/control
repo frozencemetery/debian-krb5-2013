@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 8.1.3), byacc | bison,
  libncurses5-dev, libssl-dev, python-cheetah, python-sphinx, ss-dev, 
  libverto-dev, pkg-config
 Build-Depends-Indep: texinfo
-Standards-Version: 3.9.1
+Standards-Version: 3.9.4
 Maintainer: Sam Hartman <hartmans@debian.org>
 Uploaders: Russ Allbery <rra@debian.org>
 Homepage: http://web.mit.edu/kerberos/
