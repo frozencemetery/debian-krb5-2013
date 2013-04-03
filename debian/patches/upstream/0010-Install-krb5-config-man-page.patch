@@ -1,0 +1,34 @@
+From 10630f56e7434a0e483342d3aa13f74d48ac784b Mon Sep 17 00:00:00 2001
+From: Ben Kaduk <kaduk@mit.edu>
+Date: Wed, 3 Apr 2013 18:46:25 -0400
+Subject: Install krb5-config man page
+
+Don't just build it.
+
+ticket: 7601
+
+Patch-Category: upstream
+---
+ src/man/Makefile.in |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/man/Makefile.in b/src/man/Makefile.in
+index 1738501..bcb68cb 100644
+--- a/src/man/Makefile.in
++++ b/src/man/Makefile.in
+@@ -63,6 +63,7 @@ install-clientman::
+ 	$(INSTALL_DATA) kinit.sub $(DESTDIR)$(CLIENT_MANDIR)/kinit.1
+ 	$(INSTALL_DATA) klist.sub $(DESTDIR)$(CLIENT_MANDIR)/klist.1
+ 	$(INSTALL_DATA) kpasswd.sub $(DESTDIR)$(CLIENT_MANDIR)/kpasswd.1
++	$(INSTALL_DATA) krb5-config.sub $(DESTDIR)$(CLIENT_MANDIR)/krb5-config.1
+ 	$(INSTALL_DATA) ksu.sub $(DESTDIR)$(CLIENT_MANDIR)/ksu.1
+ 	$(INSTALL_DATA) kswitch.sub $(DESTDIR)$(CLIENT_MANDIR)/kswitch.1
+ 	$(INSTALL_DATA) ktutil.sub $(DESTDIR)$(CLIENT_MANDIR)/ktutil.1
+@@ -102,6 +103,7 @@ install-clientcat::
+ 	$(GROFF_MAN) kinit.sub > $(DESTDIR)$(CLIENT_CATDIR)/kinit.1
+ 	$(GROFF_MAN) klist.sub > $(DESTDIR)$(CLIENT_CATDIR)/klist.1
+ 	$(GROFF_MAN) kpasswd.sub > $(DESTDIR)$(CLIENT_CATDIR)/kpasswd.1
++	$(GROFF_MAN) krb5-config.sub > $(DESTDIR)$(CLIENT_CATDIR)/krb5-config.1
+ 	$(GROFF_MAN) ksu.sub > $(DESTDIR)$(CLIENT_CATDIR)/ksu.1
+ 	$(GROFF_MAN) kswitch.sub > $(DESTDIR)$(CLIENT_CATDIR)/kswitch.1
+ 	$(GROFF_MAN) ktutil.sub > $(DESTDIR)$(CLIENT_CATDIR)/ktutil.1

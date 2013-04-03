@@ -7,3 +7,4 @@ debian-local/0005-debian-install-ldap-library-in-subdirectory.patch
 0007-Add-substpdf-target.patch
 upstream/0008-Add-a-krb5-config-man-page.patch
 upstream/0009-Add-build-man-page-for-krb5-config.patch
+upstream/0010-Install-krb5-config-man-page.patch
