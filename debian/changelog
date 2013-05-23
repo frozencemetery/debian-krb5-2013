@@ -1,3 +1,11 @@
+krb5 (1.11.2+dfsg-1) experimental; urgency=low
+
+  * New upstream version, Closes: #697662
+      - By not depending on texinfo, we avoid FTBFSing from its changes,
+      Closes: #708711
+
+ -- Sam Hartman <hartmans@debian.org>  Thu, 23 May 2013 16:36:18 -0400
+
 krb5 (1.11.1+dfsg-1) UNRELEASED; urgency=low
 
   * New upstream release, Closes: #697662
