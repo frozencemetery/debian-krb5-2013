@@ -1,10 +1,10 @@
-From 105cf793b93e0d5eec5c8b96e82be2549a3450ca Mon Sep 17 00:00:00 2001
+From 5119e37e7e90d85cc0e28a579494394c4709be97 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:20:11 -0500
 Subject: debian: osconf.hin path changes
 
 ---
- src/include/osconf.hin |    4 ++--
+ src/include/osconf.hin | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/include/osconf.hin b/src/include/osconf.hin

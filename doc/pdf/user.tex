@@ -14,7 +14,7 @@
 
 \title{Kerberos User Guide}
 \date{ }
-\release{1.11.1}
+\release{1.11.2}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -1226,6 +1226,113 @@ identity of the user invoking the kpasswd command.
 \subsection{SEE ALSO}
 \label{user/user_commands/kpasswd:see-also}
 \emph{kadmin(1)}, \emph{kadmind(8)}
+
+
+\section{krb5-config}
+\label{user/user_commands/krb5-config:krb5-config-1}\label{user/user_commands/krb5-config:krb5-config}\label{user/user_commands/krb5-config::doc}
+
+\subsection{SYNOPSIS}
+\label{user/user_commands/krb5-config:synopsis}
+\textbf{krb5-config}
+{[}\textbf{-}\textbf{-help} \textbar{} \textbf{-}\textbf{-all} \textbar{} \textbf{-}\textbf{-version} \textbar{} \textbf{-}\textbf{-vendor} \textbar{} \textbf{-}\textbf{-prefix} \textbar{} \textbf{-}\textbf{-exec-prefix} \textbar{} \textbf{-}\textbf{-defccname} \textbar{} \textbf{-}\textbf{-defktname} \textbar{} \textbf{-}\textbf{-defcktname} \textbar{} \textbf{-}\textbf{-cflags} \textbar{} \textbf{-}\textbf{-libs} {[}\emph{libraries}{]}{]}
+
+
+\subsection{DESCRIPTION}
+\label{user/user_commands/krb5-config:description}
+krb5-config tells the application programmer what flags to use to compile
+and link programs against the installed Kerberos libraries.
+
+
+\subsection{OPTIONS}
+\label{user/user_commands/krb5-config:options}\begin{description}
+\item[{\textbf{-}\textbf{-help}}] \leavevmode
+prints a usage message.  This is the default behavior when no options
+are specified.
+
+\item[{\textbf{-}\textbf{-all}}] \leavevmode
+prints the version, vendor, prefix, and exec-prefix.
+
+\item[{\textbf{-}\textbf{-version}}] \leavevmode
+prints the version number of the Kerberos installation.
+
+\item[{\textbf{-}\textbf{-vendor}}] \leavevmode
+prints the name of the vendor of the Kerberos installation.
+
+\item[{\textbf{-}\textbf{-prefix}}] \leavevmode
+prints the prefix for which the Kerberos installation was built.
+
+\item[{\textbf{-}\textbf{-exec-prefix}}] \leavevmode
+prints the prefix for executables for which the Kerberos installation
+was built.
+
+\item[{\textbf{-}\textbf{-defccname}}] \leavevmode
+prints the built-in default credentials cache location.
+
+\item[{\textbf{-}\textbf{-defktname}}] \leavevmode
+prints the built-in default keytab location.
+
+\item[{\textbf{-}\textbf{-defcktname}}] \leavevmode
+prints the built-in default client (initiator) keytab location.
+
+\item[{\textbf{-}\textbf{-cflags}}] \leavevmode
+prints the compilation flags used to build the Kerberos installation.
+
+\item[{\textbf{-}\textbf{-libs} {[}\emph{library}{]}}] \leavevmode
+prints the compiler options needed to link against \emph{library}.
+Allowed values for \emph{library} are:
+
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+
+krb5
+ & 
+Kerberos 5 applications (default)
+\\\hline
+
+gssapi
+ & 
+GSSAPI applications with Kerberos 5 bindings
+\\\hline
+
+kadm-client
+ & 
+Kadmin client
+\\\hline
+
+kadm-server
+ & 
+Kadmin server
+\\\hline
+
+kdb
+ & 
+Applications that access the Kerberos database
+\\\hline
+\end{tabulary}
+
+
+\end{description}
+
+
+\subsection{EXAMPLES}
+\label{user/user_commands/krb5-config:examples}
+krb5-config is particularly useful for compiling against a Kerberos
+installation that was installed in a non-standard location.  For example,
+a Kerberos installation that is installed in \code{/opt/krb5/} but uses
+libraries in \code{/usr/local/lib/} for text localization would produce
+the following output:
+\begin{quote}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+shell\% krb5-config --libs krb5
+-L/opt/krb5/lib -Wl,-rpath -Wl,/opt/krb5/lib -L/usr/local/lib -lkrb5 -lk5crypto -lcom\_err
+\end{Verbatim}
+\end{quote}
+
+
+\subsection{SEE ALSO}
+\label{user/user_commands/krb5-config:see-also}
+kerberos(1), cc(1)
 
 
 \section{ksu}

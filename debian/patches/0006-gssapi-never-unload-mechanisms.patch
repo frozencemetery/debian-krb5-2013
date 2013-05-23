@@ -1,4 +1,4 @@
-From 9135a750fb0da8df9879e6b13e5b2388c53cfef8 Mon Sep 17 00:00:00 2001
+From 5579582d0676ff311f48347981edfc236c733353 Mon Sep 17 00:00:00 2001
 From: Benjamin Kaduk <kaduk@mit.edu>
 Date: Fri, 29 Mar 2013 17:18:40 -0400
 Subject: gssapi: never unload mechanisms
@@ -14,7 +14,7 @@ is never reclaimed.
 
 ticket: 7135
 ---
- src/lib/gssapi/mechglue/g_initialize.c |    2 --
+ src/lib/gssapi/mechglue/g_initialize.c | 2 --
  1 file changed, 2 deletions(-)
 
 diff --git a/src/lib/gssapi/mechglue/g_initialize.c b/src/lib/gssapi/mechglue/g_initialize.c

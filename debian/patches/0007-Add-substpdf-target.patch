@@ -1,4 +1,4 @@
-From b3a6205a70f3bbecde8ae639412d44947c268559 Mon Sep 17 00:00:00 2001
+From fbd1cb47220c9b6bfe7fb2e9acda22729f18af20 Mon Sep 17 00:00:00 2001
 From: Ben Kaduk <kaduk@mit.edu>
 Date: Fri, 29 Mar 2013 20:53:37 -0400
 Subject: Add substpdf target
@@ -7,7 +7,7 @@ Akin to substhtml, so that we can build PDF documents without
 overwriting the upstream-provided versions and causing debian/rules clean
 to not return to the original state.
 ---
- src/doc/Makefile.in |   15 +++++++++++++++
+ src/doc/Makefile.in | 15 +++++++++++++++
  1 file changed, 15 insertions(+)
 
 diff --git a/src/doc/Makefile.in b/src/doc/Makefile.in

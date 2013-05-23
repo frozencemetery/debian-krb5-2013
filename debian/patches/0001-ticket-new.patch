@@ -1,15 +1,15 @@
-From 033eccbbcf523e77a51332224db0e2886b45202f Mon Sep 17 00:00:00 2001
+From af0dcf83ffd3e82a7cd4ec99808b41fed6ce093d Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:05:13 -0500
-Subject: =?UTF-8?q?ticket:=20new=0Asubject:=20fix=20ksu=20environment=20vari?=
- =?UTF-8?q?able=20handling?=
+Subject: =?UTF-8?q?ticket:=20new=0Asubject:=20fix=20ksu=20environment=20va?=
+ =?UTF-8?q?riable=20handling?=
 
 Fix error messages from ksu
 
 patch-name: ksu-fix-env-errors
 ---
- src/clients/ksu/ksu.h  |    8 ++++++--
- src/clients/ksu/main.c |    2 +-
+ src/clients/ksu/ksu.h  | 8 ++++++--
+ src/clients/ksu/main.c | 2 +-
  2 files changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/src/clients/ksu/ksu.h b/src/clients/ksu/ksu.h

@@ -1,4 +1,4 @@
-From fc6505f67b3c46094aac27408db9f59f811dc9aa Mon Sep 17 00:00:00 2001
+From 88a382f19f631165f33db6bb9df6aefa84152e9e Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:19:53 -0500
 Subject: debian: suppress /usr/lib in krb5-config
@@ -7,7 +7,7 @@ Handel multi-arch suppressions
 
 Patch-Category: debian-local
 ---
- src/krb5-config.in |   14 +++++++++-----
+ src/krb5-config.in | 14 +++++++++-----
  1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/src/krb5-config.in b/src/krb5-config.in

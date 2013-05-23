@@ -1,16 +1,16 @@
-From 6d7d777f8146422aba5b9b24c53317a8210af458 Mon Sep 17 00:00:00 2001
+From e3ee02d07f1600da71340969c49f1cf0289ba588 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:11:42 -0500
 Subject: Debian: HURD compatibility
 
 HURd has no MAXPATHLEN or MAXHOSTLEN.
 ---
- src/include/k5-int.h                        |    9 ++++++++-
- src/kadmin/ktutil/ktutil_funcs.c            |    4 ++++
- src/lib/krb5/os/kuserok.c                   |    4 ++++
- src/lib/krb5/os/sn2princ.c                  |    4 ++++
- src/plugins/kdb/db2/libdb2/include/db-int.h |    4 ++++
- src/tests/resolve/resolve.c                 |    4 ++++
+ src/include/k5-int.h                        | 9 ++++++++-
+ src/kadmin/ktutil/ktutil_funcs.c            | 4 ++++
+ src/lib/krb5/os/kuserok.c                   | 4 ++++
+ src/lib/krb5/os/sn2princ.c                  | 4 ++++
+ src/plugins/kdb/db2/libdb2/include/db-int.h | 4 ++++
+ src/tests/resolve/resolve.c                 | 4 ++++
  6 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/src/include/k5-int.h b/src/include/k5-int.h
