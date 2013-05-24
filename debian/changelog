@@ -3,8 +3,16 @@ krb5 (1.11.2+dfsg-1) experimental; urgency=low
   * New upstream version, Closes: #697662
       - By not depending on texinfo, we avoid FTBFSing from its changes,
       Closes: #708711
+  * Fix "usage of keytabs gives "Generic preauthentication failure while
+    getting initial credentials"" via upstream change to prefer keys in
+    the keytab
+    (Closes: #698534)
+  * Fixed upstream "kerberos password policy attributes missing from
+    kerberos.schema"  (Closes:
+    #655381)
+  * Remove arch-dep and arch-indep dependency in rules  (Closes: #708973)
 
- -- Sam Hartman <hartmans@debian.org>  Thu, 23 May 2013 16:36:18 -0400
+ -- Sam Hartman <hartmans@debian.org>  Thu, 23 May 2013 21:56:23 -0400
 
 krb5 (1.11.1+dfsg-1) UNRELEASED; urgency=low
 
