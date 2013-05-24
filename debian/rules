@@ -99,7 +99,7 @@ clean:
 	dh_clean build-stamp configure-stamp build-indep-stamp
 
 install: DH_OPTIONS=
-install: build
+install: build-arch
 	dh_testdir
 	dh_testroot
 	dh_prep
@@ -172,9 +172,8 @@ binary-indep: build-indep  install
 # libkrb5-dbg package.  This method strips the libraries in those packages
 # twice, but that should be harmless and all other ways of doing this seem
 # uglier.
-binary-arch: build-arch install
 binary-arch: DH_OPTIONS=-a
-binary-arch: build install
+binary-arch: build-arch install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs  -Xdoc/CHANGES
