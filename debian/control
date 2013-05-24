@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 8.1.3), byacc | bison,
  libkeyutils-dev [linux-any], libldap2-dev,
  libncurses5-dev, libssl-dev,  ss-dev, 
  libverto-dev, pkg-config
-build-depends-indep: python-cheetah, python-sphinx
+build-depends-indep: python-cheetah, python-sphinx, doxygen-latex
 Standards-Version: 3.9.4
 Maintainer: Sam Hartman <hartmans@debian.org>
 Uploaders: Russ Allbery <rra@debian.org>
