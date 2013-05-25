@@ -1,3 +1,10 @@
+krb5 (1.11.2+dfsg-2) experimental; urgency=low
+
+  * Import upstream's patch to not warn or error on variadic macros,
+    Closes: #709824
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Sat, 25 May 2013 16:06:48 -0400
+
 krb5 (1.11.2+dfsg-1) experimental; urgency=low
 
   * New upstream version, Closes: #697662

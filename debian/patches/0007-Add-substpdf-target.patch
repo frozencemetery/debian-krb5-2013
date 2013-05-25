@@ -7,7 +7,7 @@ Akin to substhtml, so that we can build PDF documents without
 overwriting the upstream-provided versions and causing debian/rules clean
 to not return to the original state.
 ---
- src/doc/Makefile.in | 15 +++++++++++++++
+ src/doc/Makefile.in |   15 +++++++++++++++
  1 file changed, 15 insertions(+)
 
 diff --git a/src/doc/Makefile.in b/src/doc/Makefile.in

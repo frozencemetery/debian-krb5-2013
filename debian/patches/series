@@ -5,3 +5,4 @@ debian-local/0003-debian-suppress-usr-lib-in-krb5-config.patch
 debian-local/0005-debian-install-ldap-library-in-subdirectory.patch
 0006-gssapi-never-unload-mechanisms.patch
 0007-Add-substpdf-target.patch
+0008-Don-t-warn-or-error-on-variadic-macros.patch

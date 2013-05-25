@@ -4,7 +4,7 @@ Date: Mon, 26 Dec 2011 18:20:11 -0500
 Subject: debian: osconf.hin path changes
 
 ---
- src/include/osconf.hin | 4 ++--
+ src/include/osconf.hin |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/include/osconf.hin b/src/include/osconf.hin
