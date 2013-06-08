@@ -1,3 +1,11 @@
+krb5 (1.11.3+dfsg-1) experimental; urgency=low
+
+  *  New upstream version
+      - Turns out 1.11.2+dfsg didn't include the pingpong fix, but this
+    does , Closes: #
+
+ -- Sam Hartman <hartmans@debian.org>  Fri, 07 Jun 2013 21:31:03 -0400
+
 krb5 (1.11.2+dfsg-2) experimental; urgency=low
 
   * Import upstream's patch to not warn or error on variadic macros,
