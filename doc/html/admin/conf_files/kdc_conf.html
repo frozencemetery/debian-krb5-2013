@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.11.2',
+        VERSION:     '1.11.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -155,7 +155,9 @@
 <p>The kdc.conf file supplements <a class="reference internal" href="krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a> for programs which
 are typically only used on a KDC, such as the <a class="reference internal" href="../admin_commands/krb5kdc.html#krb5kdc-8"><em>krb5kdc</em></a> and
 <a class="reference internal" href="../admin_commands/kadmind.html#kadmind-8"><em>kadmind</em></a> daemons and the <a class="reference internal" href="../admin_commands/kdb5_util.html#kdb5-util-8"><em>kdb5_util</em></a> program.
-Relations documented here may also be specified in krb5.conf.</p>
+Relations documented here may also be specified in krb5.conf; for the
+KDC programs mentioned, krb5.conf and kdc.conf will be merged into a
+single configuration profile.</p>
 <p>Normally, the kdc.conf file is found in the KDC state directory,
 <a class="reference internal" href="../../mitK5defaults.html#paths"><em>LOCALSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt>.  You can override the default location by setting the
 environment variable <strong>KRB5_KDC_PROFILE</strong>.</p>
@@ -847,7 +849,7 @@ something called a salt.  The supported salt types are as follows:</p>
  
     <div class="footer-wrapper" >
         <div class="footer" >
-            <div class="right" ><i>Release: 1.11.2</i><br />
+            <div class="right" ><i>Release: 1.11.3</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left" >

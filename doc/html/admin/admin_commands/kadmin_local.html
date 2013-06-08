@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.11.2',
+        VERSION:     '1.11.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -361,11 +361,17 @@ key for another user.  <strong>+allow_dup_skey</strong> clears this flag.</dd>
 <dt>{-|+}<strong>requires_preauth</strong></dt>
 <dd><strong>+requires_preauth</strong> requires this principal to preauthenticate
 before being allowed to kinit.  <strong>-requires_preauth</strong> clears this
-flag.</dd>
+flag.  When <strong>+requires_preauth</strong> is set on a service principal,
+the KDC will only issue service tickets for that service principal
+if the client&#8217;s initial authentication was performed using
+preauthentication.</dd>
 <dt>{-|+}<strong>requires_hwauth</strong></dt>
 <dd><strong>+requires_hwauth</strong> requires this principal to preauthenticate
 using a hardware device before being allowed to kinit.
-<strong>-requires_hwauth</strong> clears this flag.</dd>
+<strong>-requires_hwauth</strong> clears this flag.  When <strong>+requires_hwauth</strong> is
+set on a service principal, the KDC will only issue service tickets
+for that service principal if the client&#8217;s initial authentication was
+performed using a hardware device to preauthenticate.</dd>
 <dt>{-|+}<strong>ok_as_delegate</strong></dt>
 <dd><strong>+ok_as_delegate</strong> sets the <strong>okay as delegate</strong> flag on tickets
 issued with this principal as the service.  Clients may use this
@@ -872,7 +878,7 @@ interface to the OpenVision Kerberos administration program.</p>
  
     <div class="footer-wrapper" >
         <div class="footer" >
-            <div class="right" ><i>Release: 1.11.2</i><br />
+            <div class="right" ><i>Release: 1.11.3</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left" >
