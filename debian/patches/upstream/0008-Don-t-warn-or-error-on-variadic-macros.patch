@@ -1,10 +1,12 @@
-From 80e1176c95ca6dbbc89e79b4869937b735e0f269 Mon Sep 17 00:00:00 2001
+From 43c53758caa326e2e6a733d9a5bc3cb204349b24 Mon Sep 17 00:00:00 2001
 From: Greg Hudson <ghudson@mit.edu>
 Date: Sat, 25 May 2013 14:35:41 -0400
 Subject: Don't warn or error on variadic macros
 
 Our portability assumptions now allow the use of variadic macros, so
 don't warn or error on them.
+
+Patch-Category: upstream
 ---
  src/aclocal.m4 |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

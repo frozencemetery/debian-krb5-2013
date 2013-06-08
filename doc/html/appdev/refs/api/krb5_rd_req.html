@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.11.2',
+        VERSION:     '1.11.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -143,8 +143,16 @@
 </tbody>
 </table>
 <p>This function parses, decrypts and verifies a AP-REQ message from <em>inbuf</em> and stores the authenticator in <em>auth_context</em> .</p>
-<p>If a keyblock is present in the <em>auth_context</em> , it is used to decrypt the ticket in AP-REQ message. (This is useful for user-to-user authentication.) Otherwise, the decryption key is obtained from the <em>keytab</em> . If <em>keytab</em> is iterable, all of its key entries it will be tried against the ticket; otherwise, the server principal in the ticket will be looked up in the keytab and that key will be tried.</p>
-<p>The client specified in the decrypted authenticator must match the client specified in the decrypted ticket. If <em>server</em> is non-null, the key in which the ticket is encrypted must correspond to a principal in <em>keytab</em> matching <em>server</em> according to the rules of <a class="reference internal" href="krb5_sname_match.html#krb5_sname_match" title="krb5_sname_match"><tt class="xref c c-func docutils literal"><span class="pre">krb5_sname_match()</span></tt></a> .</p>
+<p>If a keyblock was specified in <em>auth_context</em> using <a class="reference internal" href="krb5_auth_con_setuseruserkey.html#krb5_auth_con_setuseruserkey" title="krb5_auth_con_setuseruserkey"><tt class="xref c c-func docutils literal"><span class="pre">krb5_auth_con_setuseruserkey()</span></tt></a> , that key is used to decrypt the ticket in AP-REQ message and <em>keytab</em> is ignored. In this case, <em>server</em> should be specified as a complete principal name to allow for proper transited-path checking and replay cache selection.</p>
+<p>Otherwise, the decryption key is obtained from <em>keytab</em> , or from the default keytab if it is NULL. In this case, <em>server</em> may be a complete principal name, a matching principal (see <a class="reference internal" href="krb5_sname_match.html#krb5_sname_match" title="krb5_sname_match"><tt class="xref c c-func docutils literal"><span class="pre">krb5_sname_match()</span></tt></a> ), or NULL to match any principal name. The keys tried against the encrypted part of the ticket are determined as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If <em>server</em> is a complete principal name, then its entry in <em>keytab</em> is tried.</li>
+<li>Otherwise, if <em>keytab</em> is iterable, then all entries in <em>keytab</em> which match <em>server</em> are tried.</li>
+<li>Otherwise, the server principal in the ticket must match <em>server</em> , and its entry in <em>keytab</em> is tried.</li>
+</ul>
+</div></blockquote>
+<p>The client specified in the decrypted authenticator must match the client specified in the decrypted ticket.</p>
 <p>If the <em>remote_addr</em> field of <em>auth_context</em> is set, the request must come from that address.</p>
 <p>If a replay cache handle is provided in the <em>auth_context</em> , the authenticator and ticket are verified against it. If no conflict is found, the new authenticator is then stored in the replay cache of <em>auth_context</em> .</p>
 <p>Various other checks are performed on the decoded data, including cross-realm policy, clockskew, and ticket validation times.</p>
@@ -163,7 +171,7 @@
  
     <div class="footer-wrapper" >
         <div class="footer" >
-            <div class="right" ><i>Release: 1.11.2</i><br />
+            <div class="right" ><i>Release: 1.11.3</i><br />
                 &copy; <a href="../../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left" >

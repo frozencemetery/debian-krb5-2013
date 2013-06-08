@@ -44,11 +44,29 @@ This function parses, decrypts and verifies a AP-REQ message from *inbuf* and st
 
 
 
-If a keyblock is present in the *auth_context* , it is used to decrypt the ticket in AP-REQ message. (This is useful for user-to-user authentication.) Otherwise, the decryption key is obtained from the *keytab* . If *keytab* is iterable, all of its key entries it will be tried against the ticket; otherwise, the server principal in the ticket will be looked up in the keytab and that key will be tried.
+If a keyblock was specified in *auth_context* using :c:func:`krb5_auth_con_setuseruserkey()` , that key is used to decrypt the ticket in AP-REQ message and *keytab* is ignored. In this case, *server* should be specified as a complete principal name to allow for proper transited-path checking and replay cache selection.
 
 
 
-The client specified in the decrypted authenticator must match the client specified in the decrypted ticket. If *server* is non-null, the key in which the ticket is encrypted must correspond to a principal in *keytab* matching *server* according to the rules of :c:func:`krb5_sname_match()` .
+Otherwise, the decryption key is obtained from *keytab* , or from the default keytab if it is NULL. In this case, *server* may be a complete principal name, a matching principal (see :c:func:`krb5_sname_match()` ), or NULL to match any principal name. The keys tried against the encrypted part of the ticket are determined as follows:
+
+
+
+ 
+ 
+	 - If *server* is a complete principal name, then its entry in *keytab* is tried.
+ 
+ 
+	 - Otherwise, if *keytab* is iterable, then all entries in *keytab* which match *server* are tried.
+ 
+ 
+	 - Otherwise, the server principal in the ticket must match *server* , and its entry in *keytab* is tried.
+ 
+ 
+
+
+
+The client specified in the decrypted authenticator must match the client specified in the decrypted ticket.
 
 
 

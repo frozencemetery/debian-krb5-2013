@@ -14,7 +14,7 @@
 
 \title{Kerberos Application Developer Guide}
 \date{ }
-\release{1.11.2}
+\release{1.11.3}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -8248,9 +8248,22 @@ This function parses, decrypts and verifies a message from \emph{inbuf} and fill
 
 This function parses, decrypts and verifies a AP-REQ message from \emph{inbuf} and stores the authenticator in \emph{auth\_context} .
 
-If a keyblock is present in the \emph{auth\_context} , it is used to decrypt the ticket in AP-REQ message. (This is useful for user-to-user authentication.) Otherwise, the decryption key is obtained from the \emph{keytab} . If \emph{keytab} is iterable, all of its key entries it will be tried against the ticket; otherwise, the server principal in the ticket will be looked up in the keytab and that key will be tried.
+If a keyblock was specified in \emph{auth\_context} using {\hyperref[appdev/refs/api/krb5_auth_con_setuseruserkey:krb5_auth_con_setuseruserkey]{\code{krb5\_auth\_con\_setuseruserkey()}}} , that key is used to decrypt the ticket in AP-REQ message and \emph{keytab} is ignored. In this case, \emph{server} should be specified as a complete principal name to allow for proper transited-path checking and replay cache selection.
 
-The client specified in the decrypted authenticator must match the client specified in the decrypted ticket. If \emph{server} is non-null, the key in which the ticket is encrypted must correspond to a principal in \emph{keytab} matching \emph{server} according to the rules of {\hyperref[appdev/refs/api/krb5_sname_match:krb5_sname_match]{\code{krb5\_sname\_match()}}} .
+Otherwise, the decryption key is obtained from \emph{keytab} , or from the default keytab if it is NULL. In this case, \emph{server} may be a complete principal name, a matching principal (see {\hyperref[appdev/refs/api/krb5_sname_match:krb5_sname_match]{\code{krb5\_sname\_match()}}} ), or NULL to match any principal name. The keys tried against the encrypted part of the ticket are determined as follows:
+\begin{itemize}
+\item {} 
+If \emph{server} is a complete principal name, then its entry in \emph{keytab} is tried.
+
+\item {} 
+Otherwise, if \emph{keytab} is iterable, then all entries in \emph{keytab} which match \emph{server} are tried.
+
+\item {} 
+Otherwise, the server principal in the ticket must match \emph{server} , and its entry in \emph{keytab} is tried.
+
+\end{itemize}
+
+The client specified in the decrypted authenticator must match the client specified in the decrypted ticket.
 
 If the \emph{remote\_addr} field of \emph{auth\_context} is set, the request must come from that address.
 

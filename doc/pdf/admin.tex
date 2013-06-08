@@ -14,7 +14,7 @@
 
 \title{Kerberos Administration Guide}
 \date{ }
-\release{1.11.2}
+\release{1.11.3}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -864,8 +864,20 @@ Solaris: \href{http://download.oracle.com/docs/cd/E19253-01/816-4557/6maosrjv2/i
 
 \chapter{Configuration Files}
 \label{admin/conf_files/index:configuration-files}\label{admin/conf_files/index::doc}
+Kerberos uses configuration files to allow administrators to specify
+settings on a per-machine basis.  {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}} applies to all
+applications using the Kerboros library, on clients and servers.
+For KDC-specific applications, additional settings can be specified in
+{\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}; the two files are merged into a configuration profile
+used by applications accessing the KDC database directly.  {\hyperref[admin/conf_files/kadm5_acl:kadm5-acl-5]{\emph{kadm5.acl}}}
+is also only used on the KDC, it controls permissions for modifying the
+KDC database.
 
-\section{krb5.conf}
+
+\section{Contents}
+\label{admin/conf_files/index:contents}
+
+\subsection{krb5.conf}
 \label{admin/conf_files/krb5_conf::doc}\label{admin/conf_files/krb5_conf:krb5-conf}\label{admin/conf_files/krb5_conf:krb5-conf-5}
 The krb5.conf file contains Kerberos configuration information,
 including the locations of KDCs and admin servers for the Kerberos
@@ -876,7 +888,7 @@ Normally, you should install your krb5.conf file in the directory
 environment variable \textbf{KRB5\_CONFIG}.
 
 
-\subsection{Structure}
+\subsubsection{Structure}
 \label{admin/conf_files/krb5_conf:structure}
 The krb5.conf file is set up in the style of a Windows INI file.
 Sections are headed by the section name, in square brackets.  Each
@@ -947,7 +959,7 @@ to the module at initialization time.  If krb5.conf uses a module
 directive, {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}} should also use one if it exists.
 
 
-\subsection{Sections}
+\subsubsection{Sections}
 \label{admin/conf_files/krb5_conf:sections}
 The krb5.conf file may contain the following sections:
 
@@ -990,17 +1002,17 @@ Additionally, krb5.conf may include any of the relations described in
 {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}, but it is not a recommended practice.
 
 
-\subsubsection{{[}libdefaults{]}}
+\paragraph{{[}libdefaults{]}}
 \label{admin/conf_files/krb5_conf:libdefaults}\label{admin/conf_files/krb5_conf:id1}
 The libdefaults section may contain any of the following relations:
 \begin{description}
 \item[{\textbf{allow\_weak\_crypto}}] \leavevmode
-If this flag is set to false, then weak encryption types will be
-filtered out of the previous three lists (as noted in
-{\hyperref[admin/conf_files/kdc_conf:encryption-and-salt-types]{\emph{Encryption and salt types}}} in {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}).  The
-default value for this tag is false, which may cause
-authentication failures in existing Kerberos infrastructures that
-do not support strong crypto.  Users in affected environments
+If this flag is set to false, then weak encryption types (as noted in
+{\hyperref[admin/conf_files/kdc_conf:encryption-and-salt-types]{\emph{Encryption and salt types}}} in {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}) will be filtered
+out of the lists \textbf{default\_tgs\_enctypes}, \textbf{default\_tkt\_enctypes}, and
+\textbf{permitted\_enctypes}.  The default value for this tag is false, which
+may cause authentication failures in existing Kerberos infrastructures
+that do not support strong crypto.  Users in affected environments
 should set this tag to true until their infrastructure adopts
 stronger ciphers.
 
@@ -1280,7 +1292,7 @@ keytab.  The default value is false.
 \end{description}
 
 
-\subsubsection{{[}realms{]}}
+\paragraph{{[}realms{]}}
 \label{admin/conf_files/krb5_conf:id2}\label{admin/conf_files/krb5_conf:realms}
 Each tag in the {[}realms{]} section of the file is the name of a Kerberos
 realm.  The value of the tag is a subsection with relations that
@@ -1393,7 +1405,7 @@ is the Kerberos V4 realm name.
 \end{description}
 
 
-\subsubsection{{[}domain\_realm{]}}
+\paragraph{{[}domain\_realm{]}}
 \label{admin/conf_files/krb5_conf:id3}\label{admin/conf_files/krb5_conf:domain-realm}
 The {[}domain\_realm{]} section provides a translation from a domain name
 or hostname to a Kerberos realm name.  The tag name can be a host name
@@ -1427,7 +1439,7 @@ hostname's domain portion converted to uppercase, unless the
 parent domain to be used.
 
 
-\subsubsection{{[}capaths{]}}
+\paragraph{{[}capaths{]}}
 \label{admin/conf_files/krb5_conf:id4}\label{admin/conf_files/krb5_conf:capaths}
 In order to perform direct (non-hierarchical) cross-realm
 authentication, configuration is needed to determine the
@@ -1516,7 +1528,7 @@ the order of values to determine the path.  The order of values is not
 important to servers.
 
 
-\subsubsection{{[}appdefaults{]}}
+\paragraph{{[}appdefaults{]}}
 \label{admin/conf_files/krb5_conf:id5}\label{admin/conf_files/krb5_conf:appdefaults}
 Each tag in the {[}appdefaults{]} section names a Kerberos V5 application
 or an option that is used by some Kerberos V5 application{[}s{]}.  The
@@ -1556,7 +1568,7 @@ that application's man pages.  The application defaults specified here
 are overridden by those specified in the {\hyperref[admin/conf_files/krb5_conf:realms]{realms}} section.
 
 
-\subsubsection{{[}plugins{]}}
+\paragraph{{[}plugins{]}}
 \label{admin/conf_files/krb5_conf:id6}\label{admin/conf_files/krb5_conf:plugins}\begin{itemize}
 \item {} 
 {\hyperref[admin/conf_files/krb5_conf:pwqual]{pwqual}} interface
@@ -1601,7 +1613,7 @@ The following subsections are currently supported within the {[}plugins{]}
 section:
 
 
-\paragraph{ccselect interface}
+\subparagraph{ccselect interface}
 \label{admin/conf_files/krb5_conf:ccselect}\label{admin/conf_files/krb5_conf:ccselect-interface}
 The ccselect subsection controls modules for credential cache
 selection within a cache collection.  In addition to any registered
@@ -1619,7 +1631,7 @@ collection
 \end{description}
 
 
-\paragraph{pwqual interface}
+\subparagraph{pwqual interface}
 \label{admin/conf_files/krb5_conf:pwqual-interface}\label{admin/conf_files/krb5_conf:pwqual}
 The pwqual subsection controls modules for the password quality
 interface, which is used to reject weak passwords when passwords are
@@ -1641,7 +1653,7 @@ Checks against components of the principal name
 \end{description}
 
 
-\paragraph{kadm5\_hook interface}
+\subparagraph{kadm5\_hook interface}
 \label{admin/conf_files/krb5_conf:kadm5-hook-interface}\label{admin/conf_files/krb5_conf:kadm5-hook}
 The kadm5\_hook interface provides plugins with information on
 principal creation, modification, password changes and deletion.  This
@@ -1650,7 +1662,7 @@ with another database such as Active Directory.  No plugins are built
 in for this interface.
 \phantomsection\label{admin/conf_files/krb5_conf:clpreauth}
 
-\paragraph{clpreauth and kdcpreauth interfaces}
+\subparagraph{clpreauth and kdcpreauth interfaces}
 \label{admin/conf_files/krb5_conf:clpreauth-and-kdcpreauth-interfaces}\label{admin/conf_files/krb5_conf:clpreauth}\label{admin/conf_files/krb5_conf:kdcpreauth}
 The clpreauth and kdcpreauth interfaces allow plugin modules to
 provide client and KDC preauthentication mechanisms.  The following
@@ -1668,7 +1680,7 @@ This module implements the encrypted timestamp mechanism.
 \end{description}
 
 
-\subsection{PKINIT options}
+\subsubsection{PKINIT options}
 \label{admin/conf_files/krb5_conf:pkinit-options}
 \begin{notice}{note}{Note:}
 The following are PKINIT-specific options.  These values may
@@ -1716,7 +1728,7 @@ generic value in the {[}libdefaults{]} section.
 \end{enumerate}
 
 
-\subsubsection{Specifying PKINIT identity information}
+\paragraph{Specifying PKINIT identity information}
 \label{admin/conf_files/krb5_conf:specifying-pkinit-identity-information}\label{admin/conf_files/krb5_conf:pkinit-identity}
 The syntax for specifying Public Key identity, trust, and revocation
 information for PKINIT is as follows:
@@ -1781,7 +1793,7 @@ example, \code{ENV:X509\_PROXY}, where environment variable
 \end{description}
 
 
-\subsubsection{PKINIT krb5.conf options}
+\paragraph{PKINIT krb5.conf options}
 \label{admin/conf_files/krb5_conf:pkinit-krb5-conf-options}\begin{description}
 \item[{\textbf{pkinit\_anchors}}] \leavevmode
 Specifies the location of trusted anchor (root) certificates which
@@ -1961,7 +1973,7 @@ The default is false.
 \end{description}
 
 
-\subsection{Parameter expansion}
+\subsubsection{Parameter expansion}
 \label{admin/conf_files/krb5_conf:id7}\label{admin/conf_files/krb5_conf:parameter-expansion}
 Starting with release 1.11, several variables, such as
 \textbf{default\_keytab\_name}, allow parameters to be expanded.
@@ -2055,7 +2067,7 @@ Installation admin binary directory
 \end{quote}
 
 
-\subsection{Sample krb5.conf file}
+\subsubsection{Sample krb5.conf file}
 \label{admin/conf_files/krb5_conf:sample-krb5-conf-file}
 Here is an example of a generic krb5.conf file:
 \begin{quote}
@@ -2098,22 +2110,24 @@ Here is an example of a generic krb5.conf file:
 \end{quote}
 
 
-\subsection{FILES}
+\subsubsection{FILES}
 \label{admin/conf_files/krb5_conf:files}
 \code{/etc/krb5.conf}
 
 
-\subsection{SEE ALSO}
+\subsubsection{SEE ALSO}
 \label{admin/conf_files/krb5_conf:see-also}
 syslog(3)
 
 
-\section{kdc.conf}
+\subsection{kdc.conf}
 \label{admin/conf_files/kdc_conf:kdc-conf}\label{admin/conf_files/kdc_conf::doc}\label{admin/conf_files/kdc_conf:kdc-conf-5}
 The kdc.conf file supplements {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}} for programs which
 are typically only used on a KDC, such as the {\hyperref[admin/admin_commands/krb5kdc:krb5kdc-8]{\emph{krb5kdc}}} and
 {\hyperref[admin/admin_commands/kadmind:kadmind-8]{\emph{kadmind}}} daemons and the {\hyperref[admin/admin_commands/kdb5_util:kdb5-util-8]{\emph{kdb5\_util}}} program.
-Relations documented here may also be specified in krb5.conf.
+Relations documented here may also be specified in krb5.conf; for the
+KDC programs mentioned, krb5.conf and kdc.conf will be merged into a
+single configuration profile.
 
 Normally, the kdc.conf file is found in the KDC state directory,
 {\hyperref[mitK5defaults:paths]{\emph{LOCALSTATEDIR}}}\code{/krb5kdc}.  You can override the default location by setting the
@@ -2123,13 +2137,13 @@ Please note that you need to restart the KDC daemon for any configuration
 changes to take effect.
 
 
-\subsection{Structure}
+\subsubsection{Structure}
 \label{admin/conf_files/kdc_conf:structure}
 The kdc.conf file is set up in the same format as the
 {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}} file.
 
 
-\subsection{Sections}
+\subsubsection{Sections}
 \label{admin/conf_files/kdc_conf:sections}
 The kdc.conf file may contain the following sections:
 
@@ -2164,7 +2178,7 @@ Controls how Kerberos daemons perform logging
 
 
 
-\subsubsection{{[}kdcdefaults{]}}
+\paragraph{{[}kdcdefaults{]}}
 \label{admin/conf_files/kdc_conf:kdcdefaults}\label{admin/conf_files/kdc_conf:id1}
 With one exception, relations in the {[}kdcdefaults{]} section specify
 default values for realm variables, to be used if the {[}realms{]}
@@ -2195,7 +2209,7 @@ default value is 4096 bytes.
 \end{description}
 
 
-\subsubsection{{[}realms{]}}
+\paragraph{{[}realms{]}}
 \label{admin/conf_files/kdc_conf:realms}\label{admin/conf_files/kdc_conf:kdc-realms}
 Each tag in the {[}realms{]} section is the name of a Kerberos realm.
 The value of the tag is a subsection where the relations define KDC
@@ -2459,7 +2473,7 @@ possible values, see {\hyperref[admin/conf_files/kdc_conf:encryption-and-salt-ty
 \end{description}
 
 
-\subsubsection{{[}dbdefaults{]}}
+\paragraph{{[}dbdefaults{]}}
 \label{admin/conf_files/kdc_conf:id2}\label{admin/conf_files/kdc_conf:dbdefaults}
 The {[}dbdefaults{]} section specifies default values for some database
 parameters, to be used if the {[}dbmodules{]} subsection does not contain
@@ -2487,7 +2501,7 @@ definitions of these relations.
 \end{itemize}
 
 
-\subsubsection{{[}dbmodules{]}}
+\paragraph{{[}dbmodules{]}}
 \label{admin/conf_files/kdc_conf:dbmodules}\label{admin/conf_files/kdc_conf:id3}
 The {[}dbmodules{]} section contains parameters used by the KDC database
 library and database modules.
@@ -2566,7 +2580,7 @@ be kept secure.
 \end{description}
 
 
-\subsubsection{{[}logging{]}}
+\paragraph{{[}logging{]}}
 \label{admin/conf_files/kdc_conf:id4}\label{admin/conf_files/kdc_conf:logging}
 The {[}logging{]} section indicates how {\hyperref[admin/admin_commands/krb5kdc:krb5kdc-8]{\emph{krb5kdc}}} and
 {\hyperref[admin/admin_commands/kadmind:kadmind-8]{\emph{kadmind}}} perform logging.  The keys in this section are
@@ -2640,7 +2654,7 @@ administrative server will be appended to the file
 \end{quote}
 
 
-\subsection{PKINIT options}
+\subsubsection{PKINIT options}
 \label{admin/conf_files/kdc_conf:pkinit-options}
 \begin{notice}{note}{Note:}
 The following are pkinit-specific options.  These values may
@@ -2762,7 +2776,7 @@ policy is such that up-to-date CRLs must be present for every CA.
 \end{description}
 
 
-\subsection{Encryption and salt types}
+\subsubsection{Encryption and salt types}
 \label{admin/conf_files/kdc_conf:id5}\label{admin/conf_files/kdc_conf:encryption-and-salt-types}
 Any tag in the configuration files which requires a list of encryption
 types can be set to some combination of the following strings.
@@ -2921,7 +2935,7 @@ generate a random salt
 
 
 
-\subsection{Sample kdc.conf File}
+\subsubsection{Sample kdc.conf File}
 \label{admin/conf_files/kdc_conf:sample-kdc-conf-file}
 Here's an example of a kdc.conf file:
 \begin{quote}
@@ -2965,20 +2979,20 @@ Here's an example of a kdc.conf file:
 \end{quote}
 
 
-\subsection{FILES}
+\subsubsection{FILES}
 \label{admin/conf_files/kdc_conf:files}
 {\hyperref[mitK5defaults:paths]{\emph{LOCALSTATEDIR}}}\code{/krb5kdc}\code{/kdc.conf}
 
 
-\subsection{SEE ALSO}
+\subsubsection{SEE ALSO}
 \label{admin/conf_files/kdc_conf:see-also}
 {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}}, {\hyperref[admin/admin_commands/krb5kdc:krb5kdc-8]{\emph{krb5kdc}}}, {\hyperref[admin/conf_files/kadm5_acl:kadm5-acl-5]{\emph{kadm5.acl}}}
 
 
-\section{kadm5.acl}
+\subsection{kadm5.acl}
 \label{admin/conf_files/kadm5_acl:kadm5-acl}\label{admin/conf_files/kadm5_acl:kadm5-acl-5}\label{admin/conf_files/kadm5_acl::doc}
 
-\subsection{DESCRIPTION}
+\subsubsection{DESCRIPTION}
 \label{admin/conf_files/kadm5_acl:description}
 The Kerberos {\hyperref[admin/admin_commands/kadmind:kadmind-8]{\emph{kadmind}}} daemon uses an Access Control List
 (ACL) file to manage access rights to the Kerberos database.
@@ -2990,7 +3004,7 @@ The default location of the Kerberos ACL file is
 variable in {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}.
 
 
-\subsection{SYNTAX}
+\subsubsection{SYNTAX}
 \label{admin/conf_files/kadm5_acl:syntax}
 Empty lines and lines starting with the sharp sign (\code{\#}) are
 ignored.  Lines containing ACL entries have the format:
@@ -3118,7 +3132,7 @@ restarted for changes to take effect.
 \end{notice}
 
 
-\subsection{EXAMPLE}
+\subsubsection{EXAMPLE}
 \label{admin/conf_files/kadm5_acl:example}
 Here is an example of a kadm5.acl file.
 \begin{quote}
@@ -3159,7 +3173,7 @@ not be able to get postdateable tickets or tickets with a life of
 longer than 9 hours.
 
 
-\subsection{SEE ALSO}
+\subsubsection{SEE ALSO}
 \label{admin/conf_files/kadm5_acl:see-also}
 {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}, {\hyperref[admin/admin_commands/kadmind:kadmind-8]{\emph{kadmind}}}
 
@@ -3660,12 +3674,18 @@ key for another user.  \textbf{+allow\_dup\_skey} clears this flag.
 \item[{\{-\textbar{}+\}\textbf{requires\_preauth}}] \leavevmode
 \textbf{+requires\_preauth} requires this principal to preauthenticate
 before being allowed to kinit.  \textbf{-requires\_preauth} clears this
-flag.
+flag.  When \textbf{+requires\_preauth} is set on a service principal,
+the KDC will only issue service tickets for that service principal
+if the client's initial authentication was performed using
+preauthentication.
 
 \item[{\{-\textbar{}+\}\textbf{requires\_hwauth}}] \leavevmode
 \textbf{+requires\_hwauth} requires this principal to preauthenticate
 using a hardware device before being allowed to kinit.
-\textbf{-requires\_hwauth} clears this flag.
+\textbf{-requires\_hwauth} clears this flag.  When \textbf{+requires\_hwauth} is
+set on a service principal, the KDC will only issue service tickets
+for that service principal if the client's initial authentication was
+performed using a hardware device to preauthenticate.
 
 \item[{\{-\textbar{}+\}\textbf{ok\_as\_delegate}}] \leavevmode
 \textbf{+ok\_as\_delegate} sets the \textbf{okay as delegate} flag on tickets
@@ -6891,12 +6911,18 @@ key for another user.  \textbf{+allow\_dup\_skey} clears this flag.
 \item[{\{-\textbar{}+\}\textbf{requires\_preauth}}] \leavevmode
 \textbf{+requires\_preauth} requires this principal to preauthenticate
 before being allowed to kinit.  \textbf{-requires\_preauth} clears this
-flag.
+flag.  When \textbf{+requires\_preauth} is set on a service principal,
+the KDC will only issue service tickets for that service principal
+if the client's initial authentication was performed using
+preauthentication.
 
 \item[{\{-\textbar{}+\}\textbf{requires\_hwauth}}] \leavevmode
 \textbf{+requires\_hwauth} requires this principal to preauthenticate
 using a hardware device before being allowed to kinit.
-\textbf{-requires\_hwauth} clears this flag.
+\textbf{-requires\_hwauth} clears this flag.  When \textbf{+requires\_hwauth} is
+set on a service principal, the KDC will only issue service tickets
+for that service principal if the client's initial authentication was
+performed using a hardware device to preauthenticate.
 
 \item[{\{-\textbar{}+\}\textbf{ok\_as\_delegate}}] \leavevmode
 \textbf{+ok\_as\_delegate} sets the \textbf{okay as delegate} flag on tickets
@@ -10178,6 +10204,19 @@ as new DES keys are still being generated, and will be used if requested
 by a client.  To make more progress removing DES from the realm, the KDC
 should be configured to not generate such keys by default.
 
+\begin{notice}{note}{Note:}
+An attacker posing as a client can implement a brute force attack against
+a DES key for any principal, if that key is in the current (highest-kvno)
+key list.  This attack is only possible if \textbf{allow\_weak\_crypto = true}
+is enabled on the KDC.  Setting the \textbf{+requires\_preauth} flag on a
+principal forces this attack to be an online attack, much slower than
+the offline attack otherwise available to the attacker.  However, setting
+this flag on a service principal is not always advisable; see the entry in
+{\hyperref[admin/admin_commands/kadmin_local:add-principal]{\emph{add\_principal}}} for details.
+\end{notice}
+
+The following KDC configuration will not generate DES keys by default:
+
 \begin{Verbatim}[commandchars=\\\{\}]
 [realms]
         ZONE.MIT.EDU = \PYGZob{}
@@ -10237,8 +10276,11 @@ Entry for principal kaduk@ZONE.MIT.EDU with kvno 3, encryption type des3-cbc-sha
 \end{Verbatim}
 
 Once all principals have been re-keyed, DES support can be disabled on the
-KDC, and client machines can remove \textbf{allow\_weak\_crypto = true} from
-their {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}} configuration files, completing the migration.
+KDC (\textbf{allow\_weak\_crypto = false}), and client machines can remove
+\textbf{allow\_weak\_crypto = true} from their {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}} configuration
+files, completing the migration.  \textbf{allow\_weak\_crypto} takes precedence over
+all places where DES enctypes could be explicitly configured.  DES keys will
+not be used, even if they are present, when \textbf{allow\_weak\_crypto = false}.
 
 
 \subsubsection{Support for legacy services}

@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.11.2',
+        VERSION:     '1.11.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -263,12 +263,12 @@ directive, <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc
 <p>The libdefaults section may contain any of the following relations:</p>
 <dl class="docutils">
 <dt><strong>allow_weak_crypto</strong></dt>
-<dd>If this flag is set to false, then weak encryption types will be
-filtered out of the previous three lists (as noted in
-<a class="reference internal" href="kdc_conf.html#encryption-and-salt-types"><em>Encryption and salt types</em></a> in <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>).  The
-default value for this tag is false, which may cause
-authentication failures in existing Kerberos infrastructures that
-do not support strong crypto.  Users in affected environments
+<dd>If this flag is set to false, then weak encryption types (as noted in
+<a class="reference internal" href="kdc_conf.html#encryption-and-salt-types"><em>Encryption and salt types</em></a> in <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>) will be filtered
+out of the lists <strong>default_tgs_enctypes</strong>, <strong>default_tkt_enctypes</strong>, and
+<strong>permitted_enctypes</strong>.  The default value for this tag is false, which
+may cause authentication failures in existing Kerberos infrastructures
+that do not support strong crypto.  Users in affected environments
 should set this tag to true until their infrastructure adopts
 stronger ciphers.</dd>
 <dt><strong>ap_req_checksum_type</strong></dt>
@@ -1195,7 +1195,7 @@ Valid parameters are:</p>
  
     <div class="footer-wrapper" >
         <div class="footer" >
-            <div class="right" ><i>Release: 1.11.2</i><br />
+            <div class="right" ><i>Release: 1.11.3</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left" >

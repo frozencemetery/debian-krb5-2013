@@ -1,4 +1,4 @@
-From 8b3387ebf1bee835dbb22cb9c8d762e7fe0b8ce5 Mon Sep 17 00:00:00 2001
+From 0d327f6b0999d7f3e306ea41d194b1b9bb9d0ada Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:12:39 -0500
 Subject: =?UTF-8?q?debian:=20install=20ldap=20library=20in=20subdirectory=0A?=

@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.11.2',
+        VERSION:     '1.11.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -75,6 +75,9 @@
                     <h2>On this page </h2>
                     <ul>
 <li><a class="reference internal" href="#">Configuration Files</a><ul>
+<li><a class="reference internal" href="#contents">Contents</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -138,12 +141,23 @@
             
   <div class="section" id="configuration-files">
 <h1>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h1>
+<p>Kerberos uses configuration files to allow administrators to specify
+settings on a per-machine basis.  <a class="reference internal" href="krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a> applies to all
+applications using the Kerboros library, on clients and servers.
+For KDC-specific applications, additional settings can be specified in
+<a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>; the two files are merged into a configuration profile
+used by applications accessing the KDC database directly.  <a class="reference internal" href="kadm5_acl.html#kadm5-acl-5"><em>kadm5.acl</em></a>
+is also only used on the KDC, it controls permissions for modifying the
+KDC database.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="krb5_conf.html">krb5.conf</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kdc_conf.html">kdc.conf</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kadm5_acl.html">kadm5.acl</a></li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -158,7 +172,7 @@
  
     <div class="footer-wrapper" >
         <div class="footer" >
-            <div class="right" ><i>Release: 1.11.2</i><br />
+            <div class="right" ><i>Release: 1.11.3</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left" >

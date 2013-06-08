@@ -1,4 +1,4 @@
-From e3ee02d07f1600da71340969c49f1cf0289ba588 Mon Sep 17 00:00:00 2001
+From 2faea0a32f1508c108008e071fdce7b00d4b02a4 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:11:42 -0500
 Subject: Debian: HURD compatibility
@@ -41,7 +41,7 @@ index 75e6783..70515bc 100644
  #ifdef KRB5_DNS_LOOKUP
  krb5_error_code
 diff --git a/src/kadmin/ktutil/ktutil_funcs.c b/src/kadmin/ktutil/ktutil_funcs.c
-index 20a348c..b8b61ce 100644
+index 20a348c805824a47173017a599e9a172df2e1b0d..b8b61ce 100644
 --- a/src/kadmin/ktutil/ktutil_funcs.c
 +++ b/src/kadmin/ktutil/ktutil_funcs.c
 @@ -33,6 +33,10 @@
@@ -56,7 +56,7 @@ index 20a348c..b8b61ce 100644
   * Free a kt_list
   */
 diff --git a/src/lib/krb5/os/kuserok.c b/src/lib/krb5/os/kuserok.c
-index 51471ae..6941b1d 100644
+index 51471ae7ceb403e24c6e1cf0c3b6525fe54404ae..6941b1d 100644
 --- a/src/lib/krb5/os/kuserok.c
 +++ b/src/lib/krb5/os/kuserok.c
 @@ -37,6 +37,10 @@
@@ -86,7 +86,7 @@ index cc99934..9d76bd8 100644
  krb5_sname_to_principal(krb5_context context, const char *hostname, const char *sname, krb5_int32 type, krb5_principal *ret_princ)
  {
 diff --git a/src/plugins/kdb/db2/libdb2/include/db-int.h b/src/plugins/kdb/db2/libdb2/include/db-int.h
-index 8329ee3..6efa363 100644
+index 8329ee3d05d18f5cf7ca76d9e23cc8a7b221b7a5..6efa36395ee1c42bee948d4270495c44ce0d83f4 100644
 --- a/src/plugins/kdb/db2/libdb2/include/db-int.h
 +++ b/src/plugins/kdb/db2/libdb2/include/db-int.h
 @@ -280,4 +280,8 @@ void	 __dbpanic __P((DB *dbp));
@@ -99,7 +99,7 @@ index 8329ee3..6efa363 100644
 +#endif
  #endif /* _DB_INT_H_ */
 diff --git a/src/tests/resolve/resolve.c b/src/tests/resolve/resolve.c
-index 7339d21..38f7253 100644
+index 7339d21bd9ac6f6d37891f73e5394992573aaeae..38f7253 100644
 --- a/src/tests/resolve/resolve.c
 +++ b/src/tests/resolve/resolve.c
 @@ -73,6 +73,10 @@ char *strchr();

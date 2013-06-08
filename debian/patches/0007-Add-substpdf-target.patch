@@ -1,4 +1,4 @@
-From fbd1cb47220c9b6bfe7fb2e9acda22729f18af20 Mon Sep 17 00:00:00 2001
+From 9a7b9bbd0daf4029950c31c948ebc781980fa3e2 Mon Sep 17 00:00:00 2001
 From: Ben Kaduk <kaduk@mit.edu>
 Date: Fri, 29 Mar 2013 20:53:37 -0400
 Subject: Add substpdf target
@@ -11,7 +11,7 @@ to not return to the original state.
  1 file changed, 15 insertions(+)
 
 diff --git a/src/doc/Makefile.in b/src/doc/Makefile.in
-index 4b3ae16..86ede57 100644
+index a6bb7c5..e7a249a 100644
 --- a/src/doc/Makefile.in
 +++ b/src/doc/Makefile.in
 @@ -85,6 +85,21 @@ pdf: $(PDFDIR)
