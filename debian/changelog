@@ -1,3 +1,9 @@
+krb5 (1.11.3+dfsg-2) experimental; urgency=low
+
+  * Run autoreconf to update configure based on aclocal patch
+
+ -- Sam Hartman <hartmans@debian.org>  Sat, 08 Jun 2013 22:00:50 -0400
+
 krb5 (1.11.3+dfsg-1) experimental; urgency=low
 
   *  New upstream version
