@@ -20,7 +20,7 @@ libgssrpc.so.4 libgssrpc4 #MINVER#
  gssrpc_bindresvport@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_callrpc@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_clnt_broadcast@gssrpc_4_MIT 1.6.dfsg.2
- gssrpc_clnt_create@gssrpc_4_MIT 1.6.dfsg.2
+ gssrpc_clnt_create@gssrpc_4_MIT 1.9+dfsg-1
  gssrpc_clnt_pcreateerror@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_clnt_perrno@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_clnt_perror@gssrpc_4_MIT 1.6.dfsg.2
