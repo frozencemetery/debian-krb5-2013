@@ -6,8 +6,11 @@ krb5 (1.11.3+dfsg-3) experimental; urgency=low
   * Bump the version of the gssrpc_clnt_create symbol.  The routine itself
     was changed in a backwards-compatible way, but callers from the kadm5
     libraries were changed to rely on the new behavior, Closes: #718275
+  * Add symbols files for the kadm5 libraries.  The KADM5 API version number
+    was increased for the 1.11 release but the corresponding library sonames
+    were not, so we must indicate the behavior change ourself, Closes: #716772
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 23 Aug 2013 16:07:53 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 23 Aug 2013 16:29:37 -0400
 
 krb5 (1.11.3+dfsg-2) experimental; urgency=low
 
