@@ -1,3 +1,12 @@
+krb5 (1.12~alpha1+dfsg-1) experimental; urgency=low
+
+  * New upstream release, Closes: #694988, #697954
+  * Build-depend on python-lxml, Closes: #725596
+  * Remove Debian versions from symbols
+  * Add myself to uploaders
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 28 Oct 2013 16:12:52 -0400
+
 krb5 (1.11.3+dfsg-3) experimental; urgency=low
 
   * Update config.sub and config.guess, patch from upstream, Closes: #717840
