@@ -49,7 +49,7 @@ EXCLUDE = -Xtmac.doc -Xexamples/krb5 -Xgnats/mit -Xkrb5-send-pr \
 	-Xsclient -Xsim_client -Xuuclient
 
 LIB_PACKAGES = libkrb5-3 libgssapi-krb5-2 libkadm5clnt-mit9 libkadm5srv-mit9 libkdb5-7 libgssrpc4  \
-	libkrb5support0  libk5crypto3 
+	libkrb5support0  libk5crypto3 libkrad0
 
 # We touch each configure and Autoconf-related file so that we do not attempt
 # to use Autoconf.  The cache is used by the Embdebian project for cross
