@@ -1,4 +1,4 @@
-From 95f16a77404854eb0ca6835200195e3883934cda Mon Sep 17 00:00:00 2001
+From a7444b103845729e8136a35746f7137a82dae480 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:19:53 -0500
 Subject: debian: suppress /usr/lib in krb5-config
@@ -7,14 +7,14 @@ Handel multi-arch suppressions
 
 Patch-Category: debian-local
 ---
- src/krb5-config.in |   14 +++++++++-----
+ src/build-tools/krb5-config.in | 14 +++++++++-----
  1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/src/krb5-config.in b/src/krb5-config.in
-index c950b36..672876b 100755
---- a/src/krb5-config.in
-+++ b/src/krb5-config.in
-@@ -135,6 +135,7 @@ if test -n "$do_help"; then
+diff --git a/src/build-tools/krb5-config.in b/src/build-tools/krb5-config.in
+index f6184da..637bad7 100755
+--- a/src/build-tools/krb5-config.in
++++ b/src/build-tools/krb5-config.in
+@@ -138,6 +138,7 @@ if test -n "$do_help"; then
      echo "        [--defktname]     Show built-in default keytab name"
      echo "        [--defcktname]    Show built-in default client keytab name"
      echo "        [--cflags]        Compile time CFLAGS"
@@ -22,7 +22,7 @@ index c950b36..672876b 100755
      echo "        [--libs]          List libraries required to link [LIBRARIES]"
      echo "Libraries:"
      echo "        krb5              Kerberos 5 application"
-@@ -205,11 +206,14 @@ fi
+@@ -209,11 +210,14 @@ fi
  
  if test -n "$do_libs"; then
      # Assumes /usr/lib is the standard library directory everywhere...
