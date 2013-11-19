@@ -37,11 +37,9 @@ Architecture: any
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, libkrb5-3 (= ${binary:Version}),
  libkadm5srv-mit9,
- krb5-config, krb5-user, lsb-base (>= 3.0-6),
+ krb5-config, krb5-user, lsb-base (>= 3.0-6), libverto-libev1
 Suggests: openbsd-inetd | inet-superserver, krb5-admin-server,
  krb5-kdc-ldap (= ${binary:Version})
-Conflicts: krb5-doc (<= 1.6.dfsg.3-1)
-Replaces: krb5-doc (<= 1.6.dfsg.3-1)
 Description: MIT Kerberos key server (KDC)
  Kerberos is a system for authenticating users and services on a network.
  Kerberos is a trusted third-party service.  That means that there is a

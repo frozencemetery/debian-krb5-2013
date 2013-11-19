@@ -7,8 +7,10 @@ krb5 (1.12~alpha1+dfsg-1) experimental; urgency=low
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 28 Oct 2013 16:12:52 -0400
 
-krb5 (1.11.3+dfsg-3) experimental; urgency=low
+krb5 (1.11.3+dfsg-3) unstable; urgency=low
 
+
+  [ Benjamin Kaduk ]
   * Update config.sub and config.guess, patch from upstream, Closes: #717840
   * Update Brazillian Portugese Translation, thanks Fernando Ike,
     Closes: #719726
@@ -19,7 +21,12 @@ krb5 (1.11.3+dfsg-3) experimental; urgency=low
     was increased for the 1.11 release but the corresponding library sonames
     were not, so we must indicate the behavior change ourself, Closes: #716772
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 23 Aug 2013 16:29:37 -0400
+  [ Sam Hartman ]
+  * krb5-kdc depends on libverto-libev1, work around for #652699
+  * Remove krb5-kdc conflict since it's more than one release cycle old
+  * Add Benjamin Kaduk to uploaders
+
+ -- Sam Hartman <hartmans@debian.org>  Sun, 25 Aug 2013 16:48:53 -0400
 
 krb5 (1.11.3+dfsg-2) experimental; urgency=low
 
