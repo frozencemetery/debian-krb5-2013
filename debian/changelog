@@ -1,9 +1,13 @@
-krb5 (1.12~alpha1+dfsg-1) experimental; urgency=low
+krb5 (1.12~alpha1+dfsg-1) UNRELEASED; urgency=low
 
+  [ Benjamin Kaduk ]
   * New upstream release, Closes: #694988, #697954
   * Build-depend on python-lxml, Closes: #725596
   * Remove Debian versions from symbols
   * Add myself to uploaders
+
+  [ Sam Hartman ]
+  * Build-depend on libverto-dev 0.2.4 to get verto_set_flags
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 28 Oct 2013 16:12:52 -0400
 
