@@ -1,4 +1,4 @@
-krb5 (1.12~alpha1+dfsg-1) UNRELEASED; urgency=low
+krb5 (1.12~alpha1+dfsg-1) experimental; urgency=low
 
   [ Benjamin Kaduk ]
   * New upstream release, Closes: #694988, #697954
