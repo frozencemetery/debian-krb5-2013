@@ -15,8 +15,8 @@ krb5 (1.11.3+dfsg-3+nmu1) unstable; urgency=high
 
   * Non-maintainer upload by the Security Team.
   * Add python-lxml build dependency (closes: #725596).
-  * Fix cve-2013-1418: null pointer dereference in the Kerberos Key
-    Distribution Center (KDC) service (closes: #728845). 
+  * Fix cve-2013-1417: KDC daemon crash condition (closes: #730085).
+  * Fix cve-2013-1418: null pointer dereference issue (closes: #728845).
 
  -- Michael Gilbert <mgilbert@debian.org>  Sat, 16 Nov 2013 23:40:00 +0000
 
