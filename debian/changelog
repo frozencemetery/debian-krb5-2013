@@ -1,3 +1,9 @@
+krb5 (1.12~beta2+dfsg-1) UNRELEASED; urgency=low
+
+  * New upstream release (closes: #730085, #728845, #637662, #729291).
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 02 Dec 2013 12:25:43 -0500
+
 krb5 (1.12~alpha1+dfsg-1) experimental; urgency=low
 
   [ Benjamin Kaduk ]
