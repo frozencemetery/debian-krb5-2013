@@ -14,7 +14,7 @@
 
 \title{Kerberos Administration Guide}
 \date{ }
-\release{1.12-alpha1}
+\release{1.12-beta2}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -2293,11 +2293,19 @@ default value is 4096 bytes.
 
 \paragraph{{[}realms{]}}
 \label{admin/conf_files/kdc_conf:realms}\label{admin/conf_files/kdc_conf:kdc-realms}
-Each tag in the {[}realms{]} section is the name of a Kerberos realm.
-The value of the tag is a subsection where the relations define KDC
-parameters for that particular realm.
+Each tag in the {[}realms{]} section is the name of a Kerberos realm.  The
+value of the tag is a subsection where the relations define KDC
+parameters for that particular realm.  The following example shows how
+to define one parameter for the ATHENA.MIT.EDU realm:
 
-For each realm, the following tags may be specified:
+\begin{Verbatim}[commandchars=\\\{\}]
+[realms]
+    ATHENA.MIT.EDU = \PYGZob{}
+        max\_renewable\_life = 7d 0h 0m 0s
+    \PYGZcb{}
+\end{Verbatim}
+
+The following tags may be specified in a {[}realms{]} subsection:
 \begin{description}
 \item[{\textbf{acl\_file}}] \leavevmode
 (String.)  Location of the access control list file that
@@ -2307,17 +2315,17 @@ which permissions on the Kerberos database.  The default value is
 file see {\hyperref[admin/conf_files/kadm5_acl:kadm5-acl-5]{\emph{kadm5.acl}}}.
 
 \item[{\textbf{database\_module}}] \leavevmode
-This relation indicates the name of the configuration section
-under {\hyperref[admin/conf_files/kdc_conf:dbmodules]{\emph{{[}dbmodules{]}}}} for database specific parameters used by
-the loadable database library.
+(String.)  This relation indicates the name of the configuration
+section under {\hyperref[admin/conf_files/kdc_conf:dbmodules]{\emph{{[}dbmodules{]}}}} for database-specific parameters
+used by the loadable database library.  The default value is the
+realm name.  If this configuration section does not exist, default
+values will be used for all database parameters.
 
 \item[{\textbf{database\_name}}] \leavevmode
-(String.)  This string specifies the location of the Kerberos
-database for this realm, if the DB2 back-end is being used.  If a
-\textbf{database\_module} is specified for the realm and the
-corresponding module contains a \textbf{database\_name} parameter, that
-value will take precedence over this one.  The default value is
-{\hyperref[mitK5defaults:paths]{\emph{LOCALSTATEDIR}}}\code{/krb5kdc}\code{/principal}.
+(String, deprecated.)  This relation specifies the location of the
+Kerberos database for this realm, if the DB2 module is being used
+and the {\hyperref[admin/conf_files/kdc_conf:dbmodules]{\emph{{[}dbmodules{]}}}} configuration section does not specify a
+database name.  The default value is {\hyperref[mitK5defaults:paths]{\emph{LOCALSTATEDIR}}}\code{/krb5kdc}\code{/principal}.
 
 \item[{\textbf{default\_principal\_expiration}}] \leavevmode
 (\emph{abstime} string.)  Specifies the default expiration date of
@@ -2587,20 +2595,19 @@ definitions of these relations.
 \paragraph{{[}dbmodules{]}}
 \label{admin/conf_files/kdc_conf:dbmodules}\label{admin/conf_files/kdc_conf:id3}
 The {[}dbmodules{]} section contains parameters used by the KDC database
-library and database modules.
+library and database modules.  Each tag in the {[}dbmodules{]} section is
+the name of a Kerberos realm or a section name specified by a realm's
+\textbf{database\_module} parameter.  The following example shows how to
+define one database parameter for the ATHENA.MIT.EDU realm:
 
-The following tag may be specified in the {[}dbmodules{]} section:
-\begin{description}
-\item[{\textbf{db\_module\_dir}}] \leavevmode
-This tag controls where the plugin system looks for modules.  The
-value should be an absolute path.
+\begin{Verbatim}[commandchars=\\\{\}]
+[dbmodules]
+    ATHENA.MIT.EDU = \PYGZob{}
+        disable\_last\_success = true
+    \PYGZcb{}
+\end{Verbatim}
 
-\end{description}
-
-Other tags in the {[}dbmodules{]} section name a configuration subsection
-for parameters which can be referred to by a realm's
-\textbf{database\_module} parameter.  The following tags may be specified in
-the subsection:
+The following tags may be specified in a {[}dbmodules{]} subsection:
 \begin{description}
 \item[{\textbf{database\_name}}] \leavevmode
 This DB2-specific tag indicates the location of the database in
@@ -2659,6 +2666,15 @@ This LDAP-specific tag indicates the file containing the stashed
 passwords (created by \code{kdb5\_ldap\_util stashsrvpw}) for the
 \textbf{ldap\_kadmind\_dn} and \textbf{ldap\_kdc\_dn} objects.  This file must
 be kept secure.
+
+\end{description}
+
+The following tag may be specified directly in the {[}dbmodules{]}
+section to control where database modules are loaded from:
+\begin{description}
+\item[{\textbf{db\_module\_dir}}] \leavevmode
+This tag controls where the plugin system looks for database
+modules.  The value should be an absolute path.
 
 \end{description}
 
@@ -3250,7 +3266,8 @@ Each component of the name may be wildcarded using the \code{*}
 character.
 
 \emph{target\_principal} can also include back-references to \emph{principal},
-in which \code{*number} matches the component number in \emph{principal}.
+in which \code{*number} matches the corresponding wildcard in
+\emph{principal}.
 
 \item[{\emph{restrictions}}] \leavevmode
 (Optional) A string of flags. Allowed restrictions are:
@@ -3313,8 +3330,8 @@ instance \code{root} (matches line 3).
 
 (line 4) Any \code{root} principal in \code{ATHENA.MIT.EDU} can inquire, list,
 or change the password of their null instance, but not any other
-null instance.  (Here, ``*1'' denotes a back-reference to the first
-component of the actor principal.)
+null instance.  (Here, \code{*1} denotes a back-reference to the
+component matching the first wildcard in the actor principal.)
 
 (line 5) Any principal in the realm \code{ATHENA.MIT.EDU} (except for
 \code{joeadmin@ATHENA.MIT.EDU}, as mentioned above) has inquire
@@ -4546,7 +4563,7 @@ To dump a Kerberos database into a file, use the {\hyperref[admin/admin_commands
 
 Dumps the current Kerberos and KADM5 database into an ASCII file.  By
 default, the database is dumped in current format, ``kdb5\_util
-load\_dump version 6''.  If filename is not specified, or is the string
+load\_dump version 7''.  If filename is not specified, or is the string
 ``-'', the dump is sent to standard output.  Options:
 \begin{description}
 \item[{\textbf{-b7}}] \leavevmode
@@ -4810,6 +4827,68 @@ OK, deleting database '/usr/local/var/krb5kdc/principal'...
 ** Database '/usr/local/var/krb5kdc/principal' destroyed.
 shell\%
 \end{Verbatim}
+
+
+\subsection{Updating the master key}
+\label{admin/database:updating-the-master-key}
+Starting with release 1.7, {\hyperref[admin/admin_commands/kdb5_util:kdb5-util-8]{\emph{kdb5\_util}}} allows the master key
+to be changed using a rollover process, with minimal loss of
+availability.  To roll over the master key, follow these steps:
+\begin{enumerate}
+\item {} 
+On the master KDC, run \code{kdb5\_util list\_mkeys} to view the current
+master key version number (KVNO).  If you have never rolled over
+the master key before, this will likely be version 1:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\$ kdb5\_util list\_mkeys
+Master keys for Principal: K/M@KRBTEST.COM
+KVNO: 1, Enctype: des-cbc-crc, Active on: Wed Dec 31 19:00:00 EST 1969 *
+\end{Verbatim}
+
+\item {} 
+On the master KDC, run \code{kdb5\_util use\_mkey 1} to ensure that a
+master key activation list is present in the database.  This step
+is unnecessary in release 1.11.4 or later, or if the database was
+initially created with release 1.7 or later.
+
+\item {} 
+On the master KDC, run \code{kdb5\_util add\_mkey -s} to create a new
+master key and write it to the stash file.  Enter a secure password
+when prompted.  If this is the first time you are changing the
+master key, the new key will have version 2.  The new master key
+will not be used until you make it active.
+
+\item {} 
+Propagate the database to all slave KDCs, either manually or by
+waiting until the next scheduled propagation.  If you do not have
+any slave KDCs, you can skip this and the next step.
+
+\item {} 
+On each slave KDC, run \code{kdb5\_util list\_mkeys} to verify that the
+new master key is present, and then \code{kdb5\_util stash} to write
+the new master key to the slave KDC's stash file.
+
+\item {} 
+On the master KDC, run \code{kdb5\_util use\_mkey 2} to begin using the
+new master key.  Replace \code{2} with the version of the new master
+key, as appropriate.  You can optionally specify a date for the new
+master key to become active; by default, it will become active
+immediately.  Prior to release 1.12, {\hyperref[admin/admin_commands/kadmind:kadmind-8]{\emph{kadmind}}} must be
+restarted for this change to take full effect.
+
+\item {} 
+On the master KDC, run \code{kdb5\_util update\_princ\_encryption}.  This
+command will iterate over the database and re-encrypt all keys in
+the new master key.  If the database is large, the master KDC will
+become unavailable while this command runs, but clients should fail
+over to slave KDCs (if any are present) during this time period.
+
+\item {} 
+On the master KDC, run \code{kdb5\_util purge\_mkeys} to clean up the
+old master key.
+
+\end{enumerate}
 
 
 \section{Operations on the LDAP database}
@@ -5649,18 +5728,24 @@ This command will reset the number of failed attempts to 0.
 
 \section{KDC replication and account lockout}
 \label{admin/lockout:kdc-replication-and-account-lockout}
-The account lockout state of a principal is not replicated between
-KDCs.  Because of this, the number of attempts an attacker can make
-within a time period is multiplied by the number of KDCs.  For
-instance, if the \textbf{maxfailure} parameter on a policy is 10 and there
-are four KDCs in the environment (a master and three slaves), an
-attacker could make as many as 40 attempts before the principal is
-locked out on all four KDCs.
+The account lockout state of a principal is not replicated by either
+traditional {\hyperref[admin/admin_commands/kprop:kprop-8]{\emph{kprop}}} or incremental propagation.  Because of
+this, the number of attempts an attacker can make within a time period
+is multiplied by the number of KDCs.  For instance, if the
+\textbf{maxfailure} parameter on a policy is 10 and there are four KDCs in
+the environment (a master and three slaves), an attacker could make as
+many as 40 attempts before the principal is locked out on all four
+KDCs.
 
 An administrative unlock is propagated from the master to the slave
 KDCs during the next propagation.  Propagation of an administrative
 unlock will cause the counter of failed attempts on each slave to
 reset to 1 on the next failure.
+
+If a KDC environment uses a replication strategy other than kprop or
+incremental propagation, such as the LDAP KDB module with multi-master
+LDAP replication, then account lockout state may be replicated between
+KDCs and the concerns of this section may not apply.
 
 
 \section{KDC performance and account lockout}
@@ -6296,11 +6381,16 @@ PKINIT deployment with the commands:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 openssl genrsa -out cakey.pem 2048
-openssl req -key cakey.pem -new -x509 -out cacert.pem
+openssl req -key cakey.pem -new -x509 -out cacert.pem -days 3650
 \end{Verbatim}
 
 The second command will ask for the values of several certificate
-fields.  These fields can be set to any values.
+fields.  These fields can be set to any values.  You can adjust the
+expiration time of the CA certificate by changing the number after
+\code{-days}.  Since the CA certificate must be deployed to client
+machines each time it changes, it should normally have an expiration
+time far in the future; however, expiration times after 2037 may cause
+interoperability issues in rare circumstances.
 
 The result of these commands will be two files, cakey.pem and
 cacert.pem.  cakey.pem will contain a 2048-bit RSA private key, which
@@ -6346,14 +6436,16 @@ and sign a KDC certificate with the following commands:
 openssl genrsa -out kdckey.pem 2048
 openssl req -new -out kdc.req -key kdckey.pem
 env REALM=YOUR\_REALMNAME openssl x509 -req -in kdc.req \PYGZbs{}
-    -CAkey cakey.pem -CA cacert.pem -out kdc.pem \PYGZbs{}
+    -CAkey cakey.pem -CA cacert.pem -out kdc.pem -days 365 \PYGZbs{}
     -extfile extensions.kdc -extensions kdc\_cert -CAcreateserial
 rm kdc.req
 \end{Verbatim}
 
 The second command will ask for the values of certificate fields,
 which can be set to any values.  In the third command, substitute your
-KDC's realm name for YOUR\_REALMNAME.
+KDC's realm name for YOUR\_REALMNAME.  You can adjust the certificate's
+expiration date by changing the number after \code{-days}.  Remember to
+create a new KDC certificate before the old one expires.
 
 The result of this operation will be in two files, kdckey.pem and
 kdc.pem.  Both files must be placed in the KDC's filesystem.
@@ -6399,7 +6491,7 @@ openssl req -new -key clientkey.pem -out client.req
 env REALM=YOUR\_REALMNAME CLIENT=YOUR\_PRINCNAME openssl x509 \PYGZbs{}
     -CAkey cakey.pem -CA cacert.pem -req -in client.req \PYGZbs{}
     -extensions client\_cert -extfile extensions.client \PYGZbs{}
-    -out client.pem
+    -days 365 -out client.pem
 rm client.req
 \end{Verbatim}
 
@@ -6409,7 +6501,8 @@ host for the third command.  As in the previous steps, the second
 command will ask for the values of certificate fields, which can be
 set to any values.  In the third command, substitute your realm's name
 for YOUR\_REALMNAME and the client's principal name (without realm) for
-YOUR\_PRINCNAME.
+YOUR\_PRINCNAME.  You can adjust the certificate's expiration date by
+changing the number after \code{-days}.
 
 The result of this operation will be two files, clientkey.pem and
 client.pem.  Both files must be present on the client's host;
@@ -6446,6 +6539,22 @@ require preauthentication.  Ensure this with the command:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 kadmin -q 'modprinc +requires\_preauth YOUR\_PRINCNAME'
+\end{Verbatim}
+
+Starting with release 1.12, it is possible to remove the long-term
+keys of a principal entry, which can save some space in the database
+and help to clarify some PKINIT-related error conditions by not asking
+for a password:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+kadmin -q 'purgekeys -all YOUR\_PRINCNAME'
+\end{Verbatim}
+
+These principal options can also be specified at principal creation
+time as follows:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+kadmin -q 'add\_principal +requires\_preauth -nokey YOUR\_PRINCNAME'
 \end{Verbatim}
 
 
@@ -8120,7 +8229,7 @@ argument can be used to override the \emph{keyfile} specified in
 
 Dumps the current Kerberos and KADM5 database into an ASCII file.  By
 default, the database is dumped in current format, ``kdb5\_util
-load\_dump version 6''.  If filename is not specified, or is the string
+load\_dump version 7''.  If filename is not specified, or is the string
 ``-'', the dump is sent to standard output.  Options:
 \begin{description}
 \item[{\textbf{-b7}}] \leavevmode
@@ -8322,8 +8431,8 @@ gives more verbose output.
 
 Update all principal records (or only those matching the
 \emph{princ-pattern} glob pattern) to re-encrypt the key data using the
-active database master key, if they are encrypted using older
-versions, and give a count at the end of the number of principals
+active database master key, if they are encrypted using a different
+version, and give a count at the end of the number of principals
 updated.  If the \textbf{-f} option is not given, ask for confirmation
 before starting to make changes.  The \textbf{-v} option causes each
 principal processed to be listed, with an indication as to whether it
@@ -9077,9 +9186,14 @@ kprop  stream  tcp  nowait  root  /usr/local/sbin/kpropd  kpropd
 \end{Verbatim}
 \end{quote}
 
-kpropd can also run as a standalone daemon.  This is required for
-incremental propagation.  But this is also useful for debugging
-purposes.
+kpropd can also run as a standalone daemon, backgrounding itself and
+waiting for connections on port 754 (or the port specified with the
+\textbf{-P} option if given).  Standalone mode is required for incremental
+propagation.  Starting in release 1.11, kpropd automatically detects
+whether it was run from inetd and runs in standalone mode if it is
+not.  Prior to release 1.11, the \textbf{-S} option is required to run
+kpropd in standalone mode; this option is now accepted for backward
+compatibility but does nothing.
 
 Incremental propagation may be enabled with the \textbf{iprop\_enable}
 variable in {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}.  If incremental propagation is
@@ -9110,19 +9224,11 @@ to be stored; by default the dumped database file is {\hyperref[mitK5defaults:pa
 Allows the user to specify the pathname to the {\hyperref[admin/admin_commands/kdb5_util:kdb5-util-8]{\emph{kdb5\_util}}}
 program; by default the pathname used is {\hyperref[mitK5defaults:paths]{\emph{SBINDIR}}}\code{/kdb5\_util}.
 
-\item[{\textbf{-S}}] \leavevmode
-{[}DEPRECATED{]} Enable standalone mode.  Normally kpropd is invoked by
-inetd(8) so it expects a network connection to be passed to it
-from inetd(8).  If the \textbf{-S} option is specified, or if standard
-input is not a socket, kpropd will put itself into the background,
-and wait for connections on port 754 (or the port specified with the
-\textbf{-P} option if given).
-
 \item[{\textbf{-d}}] \leavevmode
-Turn on debug mode.  In this mode, if the \textbf{-S} option is
-selected, kpropd will not detach itself from the current job and
-run in the background.  Instead, it will run in the foreground and
-print out debugging messages during the database propagation.
+Turn on debug mode.  In this mode, kpropd will not detach
+itself from the current job and run in the background.  Instead,
+it will run in the foreground and print out debugging messages
+during the database propagation.
 
 \item[{\textbf{-P}}] \leavevmode
 Allow for an alternate port number for kpropd to listen on.  This
@@ -9951,6 +10057,26 @@ by adding \code{allow\_weak\_crypto = true} to the {\hyperref[admin/conf_files/k
 section of {\hyperref[admin/conf_files/krb5_conf:krb5-conf-5]{\emph{krb5.conf}}}.
 
 Seen in: clients
+
+\begin{notice}{error}{Error:}
+Cannot create cert chain: certificate has expired
+\end{notice}
+
+This error message indicates that PKINIT authentication failed because
+the client certificate, KDC certificate, or one of the certificates in
+the signing chain above them has expired.
+
+If the KDC certificate has expired, this message appears in the KDC
+log file, and the client will receive a ``Preauthentication failed''
+error.  (Prior to release 1.11, the KDC log file message erroneously
+appears as ``Out of memory''.  Prior to release 1.12, the client will
+receive a ``Generic error''.)
+
+If the client or a signing certificate has expired, this message may
+appear in {\hyperref[admin/troubleshoot:trace-logging]{trace\_logging}} output from \emph{kinit(1)} or, starting in
+release 1.12, as an error message from kinit or another program which
+gets initial tickets.  The error message is more likely to appear
+properly on the client if the principal entry has no long-term keys.
 
 
 \bigskip\hrule{}\bigskip

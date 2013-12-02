@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -98,9 +98,14 @@ the <tt class="docutils literal"><span class="pre">/etc/inetd.conf</span></tt> f
 <div><div class="highlight-python"><pre>kprop  stream  tcp  nowait  root  /usr/local/sbin/kpropd  kpropd</pre>
 </div>
 </div></blockquote>
-<p>kpropd can also run as a standalone daemon.  This is required for
-incremental propagation.  But this is also useful for debugging
-purposes.</p>
+<p>kpropd can also run as a standalone daemon, backgrounding itself and
+waiting for connections on port 754 (or the port specified with the
+<strong>-P</strong> option if given).  Standalone mode is required for incremental
+propagation.  Starting in release 1.11, kpropd automatically detects
+whether it was run from inetd and runs in standalone mode if it is
+not.  Prior to release 1.11, the <strong>-S</strong> option is required to run
+kpropd in standalone mode; this option is now accepted for backward
+compatibility but does nothing.</p>
 <p>Incremental propagation may be enabled with the <strong>iprop_enable</strong>
 variable in <a class="reference internal" href="../conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>.  If incremental propagation is
 enabled, the slave periodically polls the master KDC for updates, at
@@ -126,18 +131,11 @@ to be stored; by default the dumped database file is <a class="reference interna
 <dt><strong>-p</strong></dt>
 <dd>Allows the user to specify the pathname to the <a class="reference internal" href="kdb5_util.html#kdb5-util-8"><em>kdb5_util</em></a>
 program; by default the pathname used is <a class="reference internal" href="../../mitK5defaults.html#paths"><em>SBINDIR</em></a><tt class="docutils literal"><span class="pre">/kdb5_util</span></tt>.</dd>
-<dt><strong>-S</strong></dt>
-<dd>[DEPRECATED] Enable standalone mode.  Normally kpropd is invoked by
-inetd(8) so it expects a network connection to be passed to it
-from inetd(8).  If the <strong>-S</strong> option is specified, or if standard
-input is not a socket, kpropd will put itself into the background,
-and wait for connections on port 754 (or the port specified with the
-<strong>-P</strong> option if given).</dd>
 <dt><strong>-d</strong></dt>
-<dd>Turn on debug mode.  In this mode, if the <strong>-S</strong> option is
-selected, kpropd will not detach itself from the current job and
-run in the background.  Instead, it will run in the foreground and
-print out debugging messages during the database propagation.</dd>
+<dd>Turn on debug mode.  In this mode, kpropd will not detach
+itself from the current job and run in the background.  Instead,
+it will run in the foreground and print out debugging messages
+during the database propagation.</dd>
 <dt><strong>-P</strong></dt>
 <dd>Allow for an alternate port number for kpropd to listen on.  This
 is only useful in combination with the <strong>-S</strong> option.</dd>
@@ -254,7 +252,7 @@ will allow Kerberos database propagation via <a class="reference internal" href=
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

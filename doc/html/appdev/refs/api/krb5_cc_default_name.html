@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -31,7 +31,7 @@
     <link rel="top" title="MIT Kerberos Documentation" href="../../../index.html" />
     <link rel="up" title="krb5 API" href="index.html" />
     <link rel="next" title="krb5_cc_destroy - Destroy a credential cache." href="krb5_cc_destroy.html" />
-    <link rel="prev" title="krb5_cc_default - Resolve the default crendentials cache name." href="krb5_cc_default.html" /> 
+    <link rel="prev" title="krb5_cc_default - Resolve the default credential cache name." href="krb5_cc_default.html" /> 
   </head>
   <body>
     <div class="header-wrapper">
@@ -44,7 +44,7 @@
                 
         <a href="../../../index.html" title="Full Table of Contents"
             accesskey="C">Contents</a> |
-        <a href="krb5_cc_default.html" title="krb5_cc_default - Resolve the default crendentials cache name."
+        <a href="krb5_cc_default.html" title="krb5_cc_default - Resolve the default credential cache name."
             accesskey="P">previous</a> |
         <a href="krb5_cc_destroy.html" title="krb5_cc_destroy - Destroy a credential cache."
             accesskey="N">next</a> |
@@ -91,7 +91,8 @@ const char * <tt class="descname">krb5_cc_default_name</tt><big>(</big><a class=
 </tr>
 </tbody>
 </table>
-<p>Try the environment variable <em>KRB5CCNAME</em> first then, if it is not set, fall back on the default ccache name for the OS.</p>
+<p>Return a pointer to the default credential cache name for <em>context</em> , as determined by a prior call to <a class="reference internal" href="krb5_cc_set_default_name.html#krb5_cc_set_default_name" title="krb5_cc_set_default_name"><tt class="xref c c-func docutils literal"><span class="pre">krb5_cc_set_default_name()</span></tt></a> , by the KRB5CCNAME environment variable, by the default_ccache_name profile variable, or by the operating system or build-time default value. The returned value must not be modified or freed by the caller. The returned value becomes invalid when <em>context</em> is destroyed <a class="reference internal" href="krb5_free_context.html#krb5_free_context" title="krb5_free_context"><tt class="xref c c-func docutils literal"><span class="pre">krb5_free_context()</span></tt></a> or if a subsequent call to <a class="reference internal" href="krb5_cc_set_default_name.html#krb5_cc_set_default_name" title="krb5_cc_set_default_name"><tt class="xref c c-func docutils literal"><span class="pre">krb5_cc_set_default_name()</span></tt></a> is made on <em>context</em> .</p>
+<p>The default credential cache name is cached in <em>context</em> between calls to this function, so if the value of KRB5CCNAME changes in the process environment after the first call to this function on, that change will not be reflected in later calls with the same context. The caller can invoke <a class="reference internal" href="krb5_cc_set_default_name.html#krb5_cc_set_default_name" title="krb5_cc_set_default_name"><tt class="xref c c-func docutils literal"><span class="pre">krb5_cc_set_default_name()</span></tt></a> with a NULL value of <em>name</em> to clear the cached value and force the default name to be recomputed.</p>
 </div>
 
 
@@ -136,14 +137,14 @@ const char * <tt class="descname">krb5_cc_default_name</tt><big>(</big><a class=
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">
                 
         <a href="../../../index.html" title="Full Table of Contents"
             >Contents</a> |
-        <a href="krb5_cc_default.html" title="krb5_cc_default - Resolve the default crendentials cache name."
+        <a href="krb5_cc_default.html" title="krb5_cc_default - Resolve the default credential cache name."
             >previous</a> |
         <a href="krb5_cc_destroy.html" title="krb5_cc_destroy - Destroy a credential cache."
             >next</a> |

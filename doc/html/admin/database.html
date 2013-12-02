@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -831,7 +831,7 @@ list.</dd>
 [<strong>-recurse</strong>] [<em>filename</em> [<em>principals</em>...]]</div></blockquote>
 <p>Dumps the current Kerberos and KADM5 database into an ASCII file.  By
 default, the database is dumped in current format, &#8220;kdb5_util
-load_dump version 6&#8221;.  If filename is not specified, or is the string
+load_dump version 7&#8221;.  If filename is not specified, or is the string
 &#8220;-&#8221;, the dump is sent to standard output.  Options:</p>
 <dl class="docutils">
 <dt><strong>-b7</strong></dt>
@@ -1039,6 +1039,57 @@ OK, deleting database '/usr/local/var/krb5kdc/principal'...
 shell%</pre>
 </div>
 </div>
+</div>
+<div class="section" id="updating-the-master-key">
+<h3>Updating the master key<a class="headerlink" href="#updating-the-master-key" title="Permalink to this headline">¶</a></h3>
+<p>Starting with release 1.7, <a class="reference internal" href="admin_commands/kdb5_util.html#kdb5-util-8"><em>kdb5_util</em></a> allows the master key
+to be changed using a rollover process, with minimal loss of
+availability.  To roll over the master key, follow these steps:</p>
+<ol class="arabic">
+<li><p class="first">On the master KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">list_mkeys</span></tt> to view the current
+master key version number (KVNO).  If you have never rolled over
+the master key before, this will likely be version 1:</p>
+<div class="highlight-python"><pre>$ kdb5_util list_mkeys
+Master keys for Principal: K/M@KRBTEST.COM
+KVNO: 1, Enctype: des-cbc-crc, Active on: Wed Dec 31 19:00:00 EST 1969 *</pre>
+</div>
+</li>
+<li><p class="first">On the master KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">use_mkey</span> <span class="pre">1</span></tt> to ensure that a
+master key activation list is present in the database.  This step
+is unnecessary in release 1.11.4 or later, or if the database was
+initially created with release 1.7 or later.</p>
+</li>
+<li><p class="first">On the master KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">add_mkey</span> <span class="pre">-s</span></tt> to create a new
+master key and write it to the stash file.  Enter a secure password
+when prompted.  If this is the first time you are changing the
+master key, the new key will have version 2.  The new master key
+will not be used until you make it active.</p>
+</li>
+<li><p class="first">Propagate the database to all slave KDCs, either manually or by
+waiting until the next scheduled propagation.  If you do not have
+any slave KDCs, you can skip this and the next step.</p>
+</li>
+<li><p class="first">On each slave KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">list_mkeys</span></tt> to verify that the
+new master key is present, and then <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">stash</span></tt> to write
+the new master key to the slave KDC&#8217;s stash file.</p>
+</li>
+<li><p class="first">On the master KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">use_mkey</span> <span class="pre">2</span></tt> to begin using the
+new master key.  Replace <tt class="docutils literal"><span class="pre">2</span></tt> with the version of the new master
+key, as appropriate.  You can optionally specify a date for the new
+master key to become active; by default, it will become active
+immediately.  Prior to release 1.12, <a class="reference internal" href="admin_commands/kadmind.html#kadmind-8"><em>kadmind</em></a> must be
+restarted for this change to take full effect.</p>
+</li>
+<li><p class="first">On the master KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">update_princ_encryption</span></tt>.  This
+command will iterate over the database and re-encrypt all keys in
+the new master key.  If the database is large, the master KDC will
+become unavailable while this command runs, but clients should fail
+over to slave KDCs (if any are present) during this time period.</p>
+</li>
+<li><p class="first">On the master KDC, run <tt class="docutils literal"><span class="pre">kdb5_util</span> <span class="pre">purge_mkeys</span></tt> to clean up the
+old master key.</p>
+</li>
+</ol>
 </div>
 </div>
 <div class="section" id="operations-on-the-ldap-database">
@@ -1665,6 +1716,7 @@ config file, and the per-slave dump files are stored in
 <li><a class="reference internal" href="#id5">Examples</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#updating-the-master-key">Updating the master key</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#operations-on-the-ldap-database">Operations on the LDAP database</a><ul>
@@ -1749,7 +1801,7 @@ config file, and the per-slave dump files are stored in
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

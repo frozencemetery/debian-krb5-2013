@@ -664,16 +664,16 @@ kdb5_list_mkeys(int argc, char *argv[])
         if (cur_kb_node->kvno == act_kvno) {
             /* * indicates kvno is currently active */
             retval = asprintf(&output_str,
-                              _("KNVO: %d, Enctype: %s, Active on: %s *\n"),
+                              _("KVNO: %d, Enctype: %s, Active on: %s *\n"),
                               cur_kb_node->kvno, enctype, strdate(act_time));
         } else {
             if (act_time != -1) {
                 retval = asprintf(&output_str,
-                                  _("KNVO: %d, Enctype: %s, Active on: %s\n"),
+                                  _("KVNO: %d, Enctype: %s, Active on: %s\n"),
                                   cur_kb_node->kvno, enctype, strdate(act_time));
             } else {
                 retval = asprintf(&output_str,
-                                  _("KNVO: %d, Enctype: %s, No activate time "
+                                  _("KVNO: %d, Enctype: %s, No activate time "
                                     "set\n"), cur_kb_node->kvno, enctype);
             }
         }
@@ -933,7 +933,7 @@ kdb5_update_princ_encryption(int argc, char *argv[])
     char *msg;
 #endif
     char *regexp = NULL;
-    krb5_keyblock *tmp_keyblock = NULL;
+    krb5_keyblock *act_mkey;
     krb5_keylist_node *master_keylist = krb5_db_mkey_list_alias(util_context);
 
     while ((optchar = getopt(argc, argv, "fnv")) != -1) {
@@ -1018,19 +1018,14 @@ kdb5_update_princ_encryption(int argc, char *argv[])
         goto cleanup;
     }
 
-    /* Master key is always stored encrypted in the latest version of
-       itself.  */
-    new_mkvno = krb5_db_get_key_data_kvno(util_context,
-                                          master_entry->n_key_data,
-                                          master_entry->key_data);
-
-    retval = krb5_dbe_find_mkey(util_context, master_entry, &tmp_keyblock);
+    retval = krb5_dbe_find_act_mkey(util_context, actkvno_list, &new_mkvno,
+                                    &act_mkey);
     if (retval) {
-        com_err(progname, retval, _("retrieving the most recent master key"));
+        com_err(progname, retval, _("while looking up active master key"));
         exit_status++;
         goto cleanup;
     }
-    new_master_keyblock = *tmp_keyblock;
+    new_master_keyblock = *act_mkey;
 
     if (!force &&
         !data.dry_run &&
@@ -1247,10 +1242,10 @@ kdb5_purge_mkeys(int argc, char *argv[])
      * princ entries
      */
     if (dry_run) {
-        printf(_("Would purge the follwing master key(s) from %s:\n"),
+        printf(_("Would purge the following master key(s) from %s:\n"),
                mkey_fullname);
     } else {
-        printf(_("Purging the follwing master key(s) from %s:\n"),
+        printf(_("Purging the following master key(s) from %s:\n"),
                mkey_fullname);
     }
 

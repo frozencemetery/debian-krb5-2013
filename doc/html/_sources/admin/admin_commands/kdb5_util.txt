@@ -136,7 +136,7 @@ dump
 
 Dumps the current Kerberos and KADM5 database into an ASCII file.  By
 default, the database is dumped in current format, "kdb5_util
-load_dump version 6".  If filename is not specified, or is the string
+load_dump version 7".  If filename is not specified, or is the string
 "-", the dump is sent to standard output.  Options:
 
 **-b7**
@@ -324,8 +324,8 @@ update_princ_encryption
 
 Update all principal records (or only those matching the
 *princ-pattern* glob pattern) to re-encrypt the key data using the
-active database master key, if they are encrypted using older
-versions, and give a count at the end of the number of principals
+active database master key, if they are encrypted using a different
+version, and give a count at the end of the number of principals
 updated.  If the **-f** option is not given, ask for confirmation
 before starting to make changes.  The **-v** option causes each
 principal processed to be listed, with an indication as to whether it
