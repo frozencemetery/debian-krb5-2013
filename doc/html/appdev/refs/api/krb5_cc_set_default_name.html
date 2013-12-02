@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -77,7 +77,7 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">param:</th><td class="field-body"><p class="first"><strong>[in]</strong> <strong>context</strong> - Library context</p>
-<p class="last"><strong>[in]</strong> <strong>name</strong> - Default credential cache name</p>
+<p class="last"><strong>[in]</strong> <strong>name</strong> - Default credential cache name or NULL</p>
 </td>
 </tr>
 </tbody>
@@ -99,7 +99,8 @@
 </tr>
 </tbody>
 </table>
-<p>This function frees the old default credential cache name and then sets it to <em>name</em> .</p>
+<p>Set the default credential cache name to <em>name</em> for future operations using <em>context</em> . If <em>name</em> is NULL, clear any previous application-set default name and forget any cached value of the default name for <em>context</em> .</p>
+<p>Calls to this function invalidate the result of any previous calls to <a class="reference internal" href="krb5_cc_default_name.html#krb5_cc_default_name" title="krb5_cc_default_name"><tt class="xref c c-func docutils literal"><span class="pre">krb5_cc_default_name()</span></tt></a> using <em>context</em> .</p>
 </div>
 
 
@@ -144,7 +145,7 @@
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

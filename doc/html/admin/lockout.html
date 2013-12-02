@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -147,17 +147,22 @@ with the <strong>-unlock</strong> option to the <strong>modprinc</strong> kadmin
 </div>
 <div class="section" id="kdc-replication-and-account-lockout">
 <h2>KDC replication and account lockout<a class="headerlink" href="#kdc-replication-and-account-lockout" title="Permalink to this headline">¶</a></h2>
-<p>The account lockout state of a principal is not replicated between
-KDCs.  Because of this, the number of attempts an attacker can make
-within a time period is multiplied by the number of KDCs.  For
-instance, if the <strong>maxfailure</strong> parameter on a policy is 10 and there
-are four KDCs in the environment (a master and three slaves), an
-attacker could make as many as 40 attempts before the principal is
-locked out on all four KDCs.</p>
+<p>The account lockout state of a principal is not replicated by either
+traditional <a class="reference internal" href="admin_commands/kprop.html#kprop-8"><em>kprop</em></a> or incremental propagation.  Because of
+this, the number of attempts an attacker can make within a time period
+is multiplied by the number of KDCs.  For instance, if the
+<strong>maxfailure</strong> parameter on a policy is 10 and there are four KDCs in
+the environment (a master and three slaves), an attacker could make as
+many as 40 attempts before the principal is locked out on all four
+KDCs.</p>
 <p>An administrative unlock is propagated from the master to the slave
 KDCs during the next propagation.  Propagation of an administrative
 unlock will cause the counter of failed attempts on each slave to
 reset to 1 on the next failure.</p>
+<p>If a KDC environment uses a replication strategy other than kprop or
+incremental propagation, such as the LDAP KDB module with multi-master
+LDAP replication, then account lockout state may be replicated between
+KDCs and the concerns of this section may not apply.</p>
 </div>
 <div class="section" id="kdc-performance-and-account-lockout">
 <h2>KDC performance and account lockout<a class="headerlink" href="#kdc-performance-and-account-lockout" title="Permalink to this headline">¶</a></h2>
@@ -255,7 +260,7 @@ kadmin.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

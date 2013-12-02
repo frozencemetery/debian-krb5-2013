@@ -14,7 +14,7 @@
 
 \title{Kerberos Application Developer Guide}
 \date{ }
-\release{1.12-alpha1}
+\release{1.12-beta2}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -1267,8 +1267,8 @@ Kerberos error codes
 This function closes a credential cache handle \emph{cache} without affecting the contents of the cache.
 
 
-\subsubsection{krb5\_cc\_default -  Resolve the default crendentials cache name.}
-\label{appdev/refs/api/krb5_cc_default::doc}\label{appdev/refs/api/krb5_cc_default:krb5-cc-default-resolve-the-default-crendentials-cache-name}\index{krb5\_cc\_default (C function)}
+\subsubsection{krb5\_cc\_default -  Resolve the default credential cache name.}
+\label{appdev/refs/api/krb5_cc_default::doc}\label{appdev/refs/api/krb5_cc_default:krb5-cc-default-resolve-the-default-credential-cache-name}\index{krb5\_cc\_default (C function)}
 
 \begin{fulllineitems}
 \phantomsection\label{appdev/refs/api/krb5_cc_default:krb5_cc_default}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_cc\_default}}{{\hyperref[appdev/refs/types/krb5_context:krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_ccache:krb5_ccache]{krb5\_ccache}} *\emph{ ccache}}{}
@@ -1302,6 +1302,8 @@ Kerberos error codes
 
 \end{description}\end{quote}
 
+Create a handle to the default credential cache as given by {\hyperref[appdev/refs/api/krb5_cc_default_name:krb5_cc_default_name]{\code{krb5\_cc\_default\_name()}}} .
+
 
 \subsubsection{krb5\_cc\_default\_name -  Return the name of the default credential cache.}
 \label{appdev/refs/api/krb5_cc_default_name::doc}\label{appdev/refs/api/krb5_cc_default_name:krb5-cc-default-name-return-the-name-of-the-default-credential-cache}\index{krb5\_cc\_default\_name (C function)}
@@ -1324,7 +1326,9 @@ Name of default credential cache for the current user.
 
 \end{description}\end{quote}
 
-Try the environment variable \emph{KRB5CCNAME} first then, if it is not set, fall back on the default ccache name for the OS.
+Return a pointer to the default credential cache name for \emph{context} , as determined by a prior call to {\hyperref[appdev/refs/api/krb5_cc_set_default_name:krb5_cc_set_default_name]{\code{krb5\_cc\_set\_default\_name()}}} , by the KRB5CCNAME environment variable, by the default\_ccache\_name profile variable, or by the operating system or build-time default value. The returned value must not be modified or freed by the caller. The returned value becomes invalid when \emph{context} is destroyed {\hyperref[appdev/refs/api/krb5_free_context:krb5_free_context]{\code{krb5\_free\_context()}}} or if a subsequent call to {\hyperref[appdev/refs/api/krb5_cc_set_default_name:krb5_cc_set_default_name]{\code{krb5\_cc\_set\_default\_name()}}} is made on \emph{context} .
+
+The default credential cache name is cached in \emph{context} between calls to this function, so if the value of KRB5CCNAME changes in the process environment after the first call to this function on, that change will not be reflected in later calls with the same context. The caller can invoke {\hyperref[appdev/refs/api/krb5_cc_set_default_name:krb5_cc_set_default_name]{\code{krb5\_cc\_set\_default\_name()}}} with a NULL value of \emph{name} to clear the cached value and force the default name to be recomputed.
 
 
 \subsubsection{krb5\_cc\_destroy -  Destroy a credential cache.}
@@ -1942,7 +1946,7 @@ Use {\hyperref[appdev/refs/api/krb5_free_creds:krb5_free_creds]{\code{krb5\_free
 
 \end{description}\end{quote}
 
-Fill in \emph{realmsp} with a pointer to a null-terminated list of realm names obtained through heuristics or insecure resolution methods which have lowerpriority than KDC referrals.
+Fill in \emph{realmsp} with a pointer to a null-terminated list of realm names obtained through heuristics or insecure resolution methods which have lower priority than KDC referrals.
 
 If \emph{host} is NULL, the local host's realms are determined.
 
@@ -5815,7 +5819,7 @@ Existing configuration under the same key is over-written.
 \item[{param}] \leavevmode
 \textbf{{[}in{]}} \textbf{context} - Library context
 
-\textbf{{[}in{]}} \textbf{name} - Default credential cache name
+\textbf{{[}in{]}} \textbf{name} - Default credential cache name or NULL
 
 \end{description}\end{quote}
 \begin{quote}\begin{description}
@@ -5836,7 +5840,9 @@ Kerberos error codes
 
 \end{description}\end{quote}
 
-This function frees the old default credential cache name and then sets it to \emph{name} .
+Set the default credential cache name to \emph{name} for future operations using \emph{context} . If \emph{name} is NULL, clear any previous application-set default name and forget any cached value of the default name for \emph{context} .
+
+Calls to this function invalidate the result of any previous calls to {\hyperref[appdev/refs/api/krb5_cc_default_name:krb5_cc_default_name]{\code{krb5\_cc\_default\_name()}}} using \emph{context} .
 
 
 \subsubsection{krb5\_cc\_set\_flags -  Set options flags on a credential cache.}

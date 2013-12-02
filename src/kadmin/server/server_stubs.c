@@ -5,6 +5,7 @@
  */
 
 #include <k5-platform.h>
+#include <socket-utils.h>
 #include <gssapi/gssapi.h>
 #include <gssapi/gssapi_krb5.h> /* for gss_nt_krb5_name */
 #include <krb5.h>
@@ -13,7 +14,6 @@
 #include <kadm5/server_internal.h>
 #include <kadm5/server_acl.h>
 #include <syslog.h>
-#include <arpa/inet.h>  /* inet_ntoa */
 #include <adm_proto.h>  /* krb5_klog_syslog */
 #include "misc.h"
 
@@ -143,6 +143,24 @@ static void free_server_handle(kadm5_server_handle_t handle)
     free(handle);
 }
 
+/* Result is stored in a static buffer and is invalidated by the next call. */
+const char *
+client_addr(SVCXPRT *xprt)
+{
+    static char abuf[128];
+    struct sockaddr_storage ss;
+    socklen_t len = sizeof(ss);
+    const char *p = NULL;
+
+    if (getpeername(xprt->xp_sock, ss2sa(&ss), &len) != 0)
+        return "(unknown)";
+    if (ss2sa(&ss)->sa_family == AF_INET)
+        p = inet_ntop(AF_INET, &ss2sin(&ss)->sin_addr, abuf, sizeof(abuf));
+    else if (ss2sa(&ss)->sa_family == AF_INET6)
+        p = inet_ntop(AF_INET6, &ss2sin6(&ss)->sin6_addr, abuf, sizeof(abuf));
+    return (p == NULL) ? "(unknown)" : p;
+}
+
 /*
  * Function: setup_gss_names
  *
@@ -214,15 +232,19 @@ static int cmp_gss_krb5_name(kadm5_server_handle_t handle,
 static int gss_to_krb5_name(kadm5_server_handle_t handle,
                             gss_name_t gss_name, krb5_principal *princ)
 {
-    OM_uint32 status, minor_stat;
+    OM_uint32 minor_stat;
     gss_buffer_desc gss_str;
-    gss_OID gss_type;
     int success;
+    char *s;
 
-    status = gss_display_name(&minor_stat, gss_name, &gss_str, &gss_type);
-    if ((status != GSS_S_COMPLETE) || (gss_type != gss_nt_krb5_name))
+    if (gss_name_to_string(gss_name, &gss_str) != 0)
         return 0;
-    success = (krb5_parse_name(handle->context, gss_str.value, princ) == 0);
+    if (asprintf(&s, "%.*s", (int)gss_str.length, (char *)gss_str.value) < 0) {
+        gss_release_buffer(&minor_stat, &gss_str);
+        return 0;
+    }
+    success = (krb5_parse_name(handle->context, s, princ) == 0);
+    free(s);
     gss_release_buffer(&minor_stat, &gss_str);
     return success;
 }
@@ -232,10 +254,19 @@ gss_name_to_string(gss_name_t gss_name, gss_buffer_desc *str)
 {
     OM_uint32 status, minor_stat;
     gss_OID gss_type;
+    const char pref[] = KRB5_WELLKNOWN_NAMESTR "/" KRB5_ANONYMOUS_PRINCSTR "@";
+    const size_t preflen = sizeof(pref) - 1;
 
     status = gss_display_name(&minor_stat, gss_name, str, &gss_type);
-    if ((status != GSS_S_COMPLETE) || (gss_type != gss_nt_krb5_name))
+    if (status != GSS_S_COMPLETE)
         return 1;
+    if (gss_oid_equal(gss_type, GSS_C_NT_ANONYMOUS)) {
+        /* Guard against non-krb5 mechs with different anonymous displays. */
+        if (str->length < preflen || memcmp(str->value, pref, preflen) != 0)
+            return 1;
+    } else if (!gss_oid_equal(gss_type, GSS_KRB5_NT_PRINCIPAL_NAME)) {
+        return 1;
+    }
     return 0;
 }
 
@@ -264,7 +295,7 @@ log_unauth(
                             op, (int)tlen, target, tdots,
                             (int)clen, (char *)client->value, cdots,
                             (int)slen, (char *)server->value, sdots,
-                            inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
+                            client_addr(rqstp->rq_xprt));
 }
 
 static int
@@ -295,7 +326,7 @@ log_done(
                             op, (int)tlen, target, tdots, errmsg,
                             (int)clen, (char *)client->value, cdots,
                             (int)slen, (char *)server->value, sdots,
-                            inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
+                            client_addr(rqstp->rq_xprt));
 }
 
 generic_ret *
@@ -601,7 +632,7 @@ rename_principal_2_svc(rprinc_arg *arg, struct svc_req *rqstp)
                          (int)tlen2, prime_arg2, tdots2,
                          (int)clen, (char *)client_name.value, cdots,
                          (int)slen, (char *)service_name.value, sdots,
-                         inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
+                         client_addr(rqstp->rq_xprt));
     } else {
         ret.code = kadm5_rename_principal((void *)handle, arg->src,
                                           arg->dest);
@@ -618,7 +649,7 @@ rename_principal_2_svc(rprinc_arg *arg, struct svc_req *rqstp)
                          errmsg ? errmsg : _("success"),
                          (int)clen, (char *)client_name.value, cdots,
                          (int)slen, (char *)service_name.value, sdots,
-                         inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr));
+                         client_addr(rqstp->rq_xprt));
 
         if (errmsg != NULL)
             krb5_free_error_message(handle->context, errmsg);
@@ -1761,7 +1792,7 @@ generic_ret *init_2_svc(krb5_ui_4 *arg, struct svc_req *rqstp)
                      errmsg ? errmsg : _("success"),
                      (int)clen, (char *)client_name.value, cdots,
                      (int)slen, (char *)service_name.value, sdots,
-                     inet_ntoa(rqstp->rq_xprt->xp_raddr.sin_addr),
+                     client_addr(rqstp->rq_xprt),
                      ret.api_version & ~(KADM5_API_VERSION_MASK),
                      rqstp->rq_cred.oa_flavor);
     if (errmsg != NULL)

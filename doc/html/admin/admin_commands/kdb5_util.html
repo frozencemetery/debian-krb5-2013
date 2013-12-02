@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -161,7 +161,7 @@ argument can be used to override the <em>keyfile</em> specified in
 [<strong>-recurse</strong>] [<em>filename</em> [<em>principals</em>...]]</div></blockquote>
 <p>Dumps the current Kerberos and KADM5 database into an ASCII file.  By
 default, the database is dumped in current format, &#8220;kdb5_util
-load_dump version 6&#8221;.  If filename is not specified, or is the string
+load_dump version 7&#8221;.  If filename is not specified, or is the string
 &#8220;-&#8221;, the dump is sent to standard output.  Options:</p>
 <dl class="docutils">
 <dt><strong>-b7</strong></dt>
@@ -319,8 +319,8 @@ not actually purging any keys.</dd>
 [<em>princ-pattern</em>]</div></blockquote>
 <p>Update all principal records (or only those matching the
 <em>princ-pattern</em> glob pattern) to re-encrypt the key data using the
-active database master key, if they are encrypted using older
-versions, and give a count at the end of the number of principals
+active database master key, if they are encrypted using a different
+version, and give a count at the end of the number of principals
 updated.  If the <strong>-f</strong> option is not given, ask for confirmation
 before starting to make changes.  The <strong>-v</strong> option causes each
 principal processed to be listed, with an indication as to whether it
@@ -430,7 +430,7 @@ showing the actions which would have been taken.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

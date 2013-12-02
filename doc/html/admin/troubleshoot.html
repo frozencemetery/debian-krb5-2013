@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -110,6 +110,23 @@ size.  If you cannot migrate away from its use, you can re-enable DES
 by adding <tt class="docutils literal"><span class="pre">allow_weak_crypto</span> <span class="pre">=</span> <span class="pre">true</span></tt> to the <a class="reference internal" href="conf_files/krb5_conf.html#libdefaults"><em>[libdefaults]</em></a>
 section of <a class="reference internal" href="conf_files/krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a>.</p>
 <p>Seen in: clients</p>
+<div class="admonition error">
+<p class="first admonition-title">Error</p>
+<p class="last">Cannot create cert chain: certificate has expired</p>
+</div>
+<p>This error message indicates that PKINIT authentication failed because
+the client certificate, KDC certificate, or one of the certificates in
+the signing chain above them has expired.</p>
+<p>If the KDC certificate has expired, this message appears in the KDC
+log file, and the client will receive a &#8220;Preauthentication failed&#8221;
+error.  (Prior to release 1.11, the KDC log file message erroneously
+appears as &#8220;Out of memory&#8221;.  Prior to release 1.12, the client will
+receive a &#8220;Generic error&#8221;.)</p>
+<p>If the client or a signing certificate has expired, this message may
+appear in <a class="reference internal" href="#trace-logging">trace_logging</a> output from <a class="reference internal" href="../user/user_commands/kinit.html#kinit-1"><em>kinit</em></a> or, starting in
+release 1.12, as an error message from kinit or another program which
+gets initial tickets.  The error message is more likely to appear
+properly on the client if the principal entry has no long-term keys.</p>
 <hr class="docutils" />
 <div class="admonition error">
 <p class="first admonition-title">Error</p>
@@ -213,7 +230,7 @@ location on the slave.</li>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -130,10 +130,16 @@ default value is 4096 bytes.</dd>
 </div>
 <div class="section" id="realms">
 <span id="kdc-realms"></span><h3>[realms]<a class="headerlink" href="#realms" title="Permalink to this headline">¶</a></h3>
-<p>Each tag in the [realms] section is the name of a Kerberos realm.
-The value of the tag is a subsection where the relations define KDC
-parameters for that particular realm.</p>
-<p>For each realm, the following tags may be specified:</p>
+<p>Each tag in the [realms] section is the name of a Kerberos realm.  The
+value of the tag is a subsection where the relations define KDC
+parameters for that particular realm.  The following example shows how
+to define one parameter for the ATHENA.MIT.EDU realm:</p>
+<div class="highlight-python"><pre>[realms]
+    ATHENA.MIT.EDU = {
+        max_renewable_life = 7d 0h 0m 0s
+    }</pre>
+</div>
+<p>The following tags may be specified in a [realms] subsection:</p>
 <dl class="docutils">
 <dt><strong>acl_file</strong></dt>
 <dd>(String.)  Location of the access control list file that
@@ -142,16 +148,16 @@ which permissions on the Kerberos database.  The default value is
 <a class="reference internal" href="../../mitK5defaults.html#paths"><em>LOCALSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt><tt class="docutils literal"><span class="pre">/kadm5.acl</span></tt>.  For more information on Kerberos ACL
 file see <a class="reference internal" href="kadm5_acl.html#kadm5-acl-5"><em>kadm5.acl</em></a>.</dd>
 <dt><strong>database_module</strong></dt>
-<dd>This relation indicates the name of the configuration section
-under <a class="reference internal" href="#dbmodules"><em>[dbmodules]</em></a> for database specific parameters used by
-the loadable database library.</dd>
+<dd>(String.)  This relation indicates the name of the configuration
+section under <a class="reference internal" href="#dbmodules"><em>[dbmodules]</em></a> for database-specific parameters
+used by the loadable database library.  The default value is the
+realm name.  If this configuration section does not exist, default
+values will be used for all database parameters.</dd>
 <dt><strong>database_name</strong></dt>
-<dd>(String.)  This string specifies the location of the Kerberos
-database for this realm, if the DB2 back-end is being used.  If a
-<strong>database_module</strong> is specified for the realm and the
-corresponding module contains a <strong>database_name</strong> parameter, that
-value will take precedence over this one.  The default value is
-<a class="reference internal" href="../../mitK5defaults.html#paths"><em>LOCALSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt><tt class="docutils literal"><span class="pre">/principal</span></tt>.</dd>
+<dd>(String, deprecated.)  This relation specifies the location of the
+Kerberos database for this realm, if the DB2 module is being used
+and the <a class="reference internal" href="#dbmodules"><em>[dbmodules]</em></a> configuration section does not specify a
+database name.  The default value is <a class="reference internal" href="../../mitK5defaults.html#paths"><em>LOCALSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt><tt class="docutils literal"><span class="pre">/principal</span></tt>.</dd>
 <dt><strong>default_principal_expiration</strong></dt>
 <dd>(<a class="reference internal" href="../../basic/date_format.html#abstime"><em>Absolute time</em></a> string.)  Specifies the default expiration date of
 principals created in this realm.  The default value is 0, which
@@ -366,17 +372,16 @@ definitions of these relations.</p>
 <div class="section" id="dbmodules">
 <span id="id3"></span><h3>[dbmodules]<a class="headerlink" href="#dbmodules" title="Permalink to this headline">¶</a></h3>
 <p>The [dbmodules] section contains parameters used by the KDC database
-library and database modules.</p>
-<p>The following tag may be specified in the [dbmodules] section:</p>
-<dl class="docutils">
-<dt><strong>db_module_dir</strong></dt>
-<dd>This tag controls where the plugin system looks for modules.  The
-value should be an absolute path.</dd>
-</dl>
-<p>Other tags in the [dbmodules] section name a configuration subsection
-for parameters which can be referred to by a realm&#8217;s
-<strong>database_module</strong> parameter.  The following tags may be specified in
-the subsection:</p>
+library and database modules.  Each tag in the [dbmodules] section is
+the name of a Kerberos realm or a section name specified by a realm&#8217;s
+<strong>database_module</strong> parameter.  The following example shows how to
+define one database parameter for the ATHENA.MIT.EDU realm:</p>
+<div class="highlight-python"><pre>[dbmodules]
+    ATHENA.MIT.EDU = {
+        disable_last_success = true
+    }</pre>
+</div>
+<p>The following tags may be specified in a [dbmodules] subsection:</p>
 <dl class="docutils">
 <dt><strong>database_name</strong></dt>
 <dd>This DB2-specific tag indicates the location of the database in
@@ -426,6 +431,13 @@ to the LDAP server.</dd>
 passwords (created by <tt class="docutils literal"><span class="pre">kdb5_ldap_util</span> <span class="pre">stashsrvpw</span></tt>) for the
 <strong>ldap_kadmind_dn</strong> and <strong>ldap_kdc_dn</strong> objects.  This file must
 be kept secure.</dd>
+</dl>
+<p>The following tag may be specified directly in the [dbmodules]
+section to control where database modules are loaded from:</p>
+<dl class="docutils">
+<dt><strong>db_module_dir</strong></dt>
+<dd>This tag controls where the plugin system looks for database
+modules.  The value should be an absolute path.</dd>
 </dl>
 </div>
 <div class="section" id="logging">
@@ -896,7 +908,7 @@ something called a salt.  The supported salt types are as follows:</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

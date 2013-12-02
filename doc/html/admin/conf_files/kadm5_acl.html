@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12-alpha1',
+        VERSION:     '1.12-beta2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -149,7 +149,8 @@ Specifies the principal on which <em>permissions</em> may be applied.
 Each component of the name may be wildcarded using the <tt class="docutils literal"><span class="pre">*</span></tt>
 character.</p>
 <p class="last"><em>target_principal</em> can also include back-references to <em>principal</em>,
-in which <tt class="docutils literal"><span class="pre">*number</span></tt> matches the component number in <em>principal</em>.</p>
+in which <tt class="docutils literal"><span class="pre">*number</span></tt> matches the corresponding wildcard in
+<em>principal</em>.</p>
 </dd>
 <dt><em>restrictions</em></dt>
 <dd><p class="first">(Optional) A string of flags. Allowed restrictions are:</p>
@@ -201,8 +202,8 @@ inquire and list permissions with any principal that has the
 instance <tt class="docutils literal"><span class="pre">root</span></tt> (matches line 3).</p>
 <p>(line 4) Any <tt class="docutils literal"><span class="pre">root</span></tt> principal in <tt class="docutils literal"><span class="pre">ATHENA.MIT.EDU</span></tt> can inquire, list,
 or change the password of their null instance, but not any other
-null instance.  (Here, &#8220;*1&#8221; denotes a back-reference to the first
-component of the actor principal.)</p>
+null instance.  (Here, <tt class="docutils literal"><span class="pre">*1</span></tt> denotes a back-reference to the
+component matching the first wildcard in the actor principal.)</p>
 <p>(line 5) Any principal in the realm <tt class="docutils literal"><span class="pre">ATHENA.MIT.EDU</span></tt> (except for
 <tt class="docutils literal"><span class="pre">joeadmin&#64;ATHENA.MIT.EDU</span></tt>, as mentioned above) has inquire
 privileges.</p>
@@ -291,7 +292,7 @@ longer than 9 hours.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-alpha1</i><br />
+            <div class="right" ><i>Release: 1.12-beta2</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

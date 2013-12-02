@@ -14,7 +14,7 @@
 
 \title{Building MIT Kerberos}
 \date{ }
-\release{1.12-alpha1}
+\release{1.12-beta2}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -888,22 +888,6 @@ backend use one must explicitly specify \code{-{-}with-prng-alg=nss}.
 \item[{\textbf{-}\textbf{-with-pkinit-crypto-impl=}\emph{IMPL}}] \leavevmode
 Use the specified pkinit crypto implementation \emph{IMPL}.
 Defaults to using OpenSSL.
-
-\item[{\textbf{-}\textbf{-with-kdc-kdb-update}}] \leavevmode
-Update the KDC database with the information about
-\begin{itemize}
-\item {} 
-the last successful authentication;
-
-\item {} 
-the last failed authentication attempt;
-
-\item {} 
-the number of the failed authentication attempts.
-
-\end{itemize}
-
-By default the kdb is not updated with this information.
 
 \item[{\textbf{-}\textbf{-without-libedit}}] \leavevmode
 Do not compile and link against libedit.  Some utilities will no

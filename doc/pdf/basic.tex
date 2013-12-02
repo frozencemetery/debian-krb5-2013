@@ -14,7 +14,7 @@
 
 \title{Kerberos Concepts}
 \date{ }
-\release{1.12-alpha1}
+\release{1.12-beta2}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -115,8 +115,180 @@
 
 
 
+\chapter{Credential cache}
+\label{basic/ccache_def:basic-concepts}\label{basic/ccache_def::doc}\label{basic/ccache_def:credential-cache}\label{basic/ccache_def:ccache-definition}\label{basic/ccache_def:kerberos-v5-concepts}
+A credential cache (or ``ccache'') holds Kerberos credentials while they
+remain valid and, generally, while the user's session lasts, so that
+authenticating to a service multiple times (e.g., connecting to a web
+or mail server more than once) doesn't require contacting the KDC
+every time.
+
+A credential cache usually contains one initial ticket which is
+obtained using a password or another form of identity verification.
+If this ticket is a ticket-granting ticket, it can be used to obtain
+additional credentials without the password.  Because the credential
+cache does not store the password, less long-term damage can be done
+to the user's account if the machine is compromised.
+
+A credentials cache stores a default client principal name, set when
+the cache is created.  This is the name shown at the top of the
+\emph{klist(1)} \emph{-A} output.
+
+Each normal cache entry includes a service principal name, a client
+principal name (which, in some ccache types, need not be the same as
+the default), lifetime information, and flags, along with the
+credential itself.  There are also other entries, indicated by special
+names, that store additional information.
+
+
+\section{ccache types}
+\label{basic/ccache_def:ccache-types}
+The credential cache interface, like the {\hyperref[basic/keytab_def:keytab-definition]{\emph{keytab}}} and
+{\hyperref[basic/rcache_def:rcache-definition]{\emph{replay cache}}} interfaces, uses \emph{TYPE:value} strings to
+indicate the type of credential cache and any associated cache naming
+data to use.
+
+There are several kinds of credentials cache supported in the MIT
+Kerberos library.  Not all are supported on every platform.  In most
+cases, it should be correct to use the default type built into the
+library.
+\begin{enumerate}
+\item {} 
+\textbf{API} is only implemented on Windows.  It communicates with a
+server process that holds the credentials in memory for the user,
+rather than writing them to disk.
+
+\item {} 
+\textbf{DIR} points to the storage location of the collection of the
+credential caches in \emph{FILE:} format. It is most useful when dealing
+with multiple Kerberos realms and KDCs.  For release 1.10 the
+directory must already exist.  In post-1.10 releases the
+requirement is for parent directory to exist and the current
+process must have permissions to create the directory if it does
+not exist. See {\hyperref[basic/ccache_def:col-ccache]{\emph{Collections of caches}}} for details.  New in release 1.10.
+
+\item {} 
+\textbf{FILE} caches are the simplest and most portable. A simple flat
+file format is used to store one credential after another.  This is
+the default ccache type.
+
+\item {} 
+\textbf{KEYRING} is Linux-specific, and uses the kernel keyring support
+to store credential data in unswappable kernel memory where only
+the current user should be able to access it.  The following
+residual forms are supported:
+\begin{itemize}
+\item {} 
+KEYRING:name
+
+\item {} 
+KEYRING:process:name - process keyring
+
+\item {} 
+KEYRING:thread:name -  thread keyring
+
+\end{itemize}
+
+Starting with release 1.12 the \emph{KEYRING} type supports collections.
+The following new residual forms were added:
+\begin{itemize}
+\item {} 
+KEYRING:session:name - session keyring
+
+\item {} 
+KEYRING:user:name - user keyring
+
+\item {} 
+KEYRING:persistent:uidnumber - persistent per-UID collection.
+Unlike the user keyring, this collection survives after the user
+logs out, until the cache credentials expire.  This type of
+ccache requires support from the kernel; otherwise, it will fall
+back to the user keyring.
+
+\end{itemize}
+
+See {\hyperref[basic/ccache_def:col-ccache]{\emph{Collections of caches}}} for details.
+
+\item {} 
+\textbf{MEMORY} caches are for storage of credentials that don't need to
+be made available outside of the current process.  For example, a
+memory ccache is used by \emph{kadmin(1)} to store the
+administrative ticket used to contact the admin server.  Memory
+ccaches are faster than file ccaches and are automatically
+destroyed when the process exits.
+
+\item {} 
+\textbf{MSLSA} is a Windows-specific cache type that accesses the
+Windows credential store.
+
+\end{enumerate}
+
+
+\section{Collections of caches}
+\label{basic/ccache_def:collections-of-caches}\label{basic/ccache_def:col-ccache}
+Some credential cache types can support collections of multiple
+caches.  One of the caches in the collection is designated as the
+\emph{primary} and will be used when the collection is resolved as a cache.
+When a collection-enabled cache type is the default cache for a
+process, applications can search the specified collection for a
+specific client principal, and GSSAPI applications will automatically
+select between the caches in the collection based on criteria such as
+the target service realm.
+
+Credential cache collections are new in release 1.10, with support
+from the \textbf{DIR} and \textbf{API} ccache types.  In release 1.12, the
+\textbf{KEYRING} ccache type also supports collections.
+
+
+\subsection{Tool alterations to use cache collection}
+\label{basic/ccache_def:tool-alterations-to-use-cache-collection}\begin{itemize}
+\item {} 
+\emph{kdestroy(1)} \emph{-A} will destroy all caches in the collection.
+
+\item {} 
+If the default cache type supports switching, \emph{kinit(1)}
+\emph{princname} will search the collection for a matching cache and
+store credentials there, or will store credentials in a new unique
+cache of the default type if no existing cache for the principal
+exists.  Either way, kinit will switch to the selected cache.
+
+\item {} 
+\emph{klist(1)} \emph{-l} will list the caches in the collection.
+
+\item {} 
+\emph{klist(1)} \emph{-A} will show the content of all caches in the
+collection.
+
+\item {} 
+\emph{kswitch(1)} \emph{-p princname} will search the collection for a
+matching cache and switch to it.
+
+\item {} 
+\emph{kswitch(1)} \emph{-c cachename} will switch to a specified cache.
+
+\end{itemize}
+
+
+\section{Default ccache name}
+\label{basic/ccache_def:default-ccache-name}
+The default credential cache name is determined by the following, in
+descending order of priority:
+\begin{enumerate}
+\item {} 
+The \textbf{KRB5CCNAME} environment variable.  For example,
+\code{KRB5CCNAME=DIR:/mydir/}.
+
+\item {} 
+The \textbf{default\_ccache\_name} profile variable in \emph{libdefaults}.
+
+\item {} 
+The hardcoded default, \emph{DEFCCNAME}.
+
+\end{enumerate}
+
+
 \chapter{keytab}
-\label{basic/keytab_def:keytab}\label{basic/keytab_def:basic-concepts}\label{basic/keytab_def::doc}\label{basic/keytab_def:keytab-definition}\label{basic/keytab_def:kerberos-v5-concepts}
+\label{basic/keytab_def:keytab}\label{basic/keytab_def::doc}\label{basic/keytab_def:keytab-definition}
 A keytab (short for ``key table'') stores long-term keys for one or more
 principals.  Keytabs are normally represented by files in a standard
 format, although in rare cases they can be represented in other ways.
