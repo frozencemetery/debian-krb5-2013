@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12-beta2',
+        VERSION:     '1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -264,9 +264,9 @@ salt types to be used for the new keys.</p>
 <p>Adds a new master key to the master key principal, but does not mark
 it as active.  Existing master keys will remain.  The <strong>-e</strong> option
 specifies the encryption type of the new master key; see
-<a class="reference internal" href="../conf_files/kdc_conf.html#encryption-and-salt-types"><em>Encryption and salt types</em></a> in <a class="reference internal" href="../conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> for a list of
-possible values.  The <strong>-s</strong> option stashes the new master key in the
-stash file, which will be created if it doesn&#8217;t already exist.</p>
+<a class="reference internal" href="../conf_files/kdc_conf.html#encryption-types"><em>Encryption types</em></a> in <a class="reference internal" href="../conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> for a list of possible
+values.  The <strong>-s</strong> option stashes the new master key in the stash
+file, which will be created if it doesn&#8217;t already exist.</p>
 <p>After a new master key is added, it should be propagated to slave
 servers via a manual or periodic invocation of <a class="reference internal" href="kprop.html#kprop-8"><em>kprop</em></a>.  Then,
 the stash files on the slave servers should be updated with the
@@ -430,7 +430,7 @@ showing the actions which would have been taken.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-beta2</i><br />
+            <div class="right" ><i>Release: 1.12</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">
