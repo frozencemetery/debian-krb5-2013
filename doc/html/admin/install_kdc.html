@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12-beta2',
+        VERSION:     '1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -456,12 +456,11 @@ the krb5kdc daemon automatically at boot time.</p>
 <p class="last">kprop: No route to host while connecting to server</p>
 </div>
 <p>Make sure that the hostname of the slave (as given to kprop) is
-correct, and that any firewalls beween the master and the slave allow
+correct, and that any firewalls between the master and the slave allow
 a connection on port 754.</p>
 <div class="admonition error">
 <p class="first admonition-title">Error</p>
-<p class="last">kprop: Connection refused in call to connect while opening
-connection</p>
+<p class="last">kprop: Connection refused while connecting to server</p>
 </div>
 <p>If the slave is intended to run kpropd out of inetd, make sure that
 inetd is configured to accept krb5_prop connections.  inetd may need
@@ -470,12 +469,12 @@ If the slave is intended to run kpropd in standalone mode, make sure
 that it is running.</p>
 <div class="admonition error">
 <p class="first admonition-title">Error</p>
-<p class="last">kprop: Server rejected authentication while authenticating
-to server</p>
+<p class="last">kprop: Server rejected authentication (during sendauth
+exchange) while authenticating to server</p>
 </div>
 <p>Make sure that:</p>
 <ol class="arabic simple">
-<li>The time is syncronized between the master and slave KDCs.</li>
+<li>The time is synchronized between the master and slave KDCs.</li>
 <li>The master stash file was copied from the master to the expected
 location on the slave.</li>
 <li>The slave has a keytab file in the default location containing a
@@ -622,7 +621,7 @@ for details.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-beta2</i><br />
+            <div class="right" ><i>Release: 1.12</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">

@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12-beta2',
+        VERSION:     '1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -167,14 +167,14 @@ directive, <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc
 <p>The libdefaults section may contain any of the following relations:</p>
 <dl class="docutils">
 <dt><strong>allow_weak_crypto</strong></dt>
-<dd>If this flag is set to false, then weak encryption types (as noted in
-<a class="reference internal" href="kdc_conf.html#encryption-and-salt-types"><em>Encryption and salt types</em></a> in <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>) will be filtered
-out of the lists <strong>default_tgs_enctypes</strong>, <strong>default_tkt_enctypes</strong>, and
-<strong>permitted_enctypes</strong>.  The default value for this tag is false, which
-may cause authentication failures in existing Kerberos infrastructures
-that do not support strong crypto.  Users in affected environments
-should set this tag to true until their infrastructure adopts
-stronger ciphers.</dd>
+<dd>If this flag is set to false, then weak encryption types (as noted
+in <a class="reference internal" href="kdc_conf.html#encryption-types"><em>Encryption types</em></a> in <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>) will be filtered
+out of the lists <strong>default_tgs_enctypes</strong>,
+<strong>default_tkt_enctypes</strong>, and <strong>permitted_enctypes</strong>.  The default
+value for this tag is false, which may cause authentication
+failures in existing Kerberos infrastructures that do not support
+strong crypto.  Users in affected environments should set this tag
+to true until their infrastructure adopts stronger ciphers.</dd>
 <dt><strong>ap_req_checksum_type</strong></dt>
 <dd>An integer which specifies the type of AP-REQ checksum to use in
 authenticators.  This variable should be unset so the appropriate
@@ -219,7 +219,7 @@ invoking programs such as <a class="reference internal" href="../../user/user_co
 <dd><p class="first">Identifies the supported list of session key encryption types that
 the client should request when making a TGS-REQ, in order of
 preference from highest to lowest.  The list may be delimited with
-commas or whitespace.  See <a class="reference internal" href="kdc_conf.html#encryption-and-salt-types"><em>Encryption and salt types</em></a> in
+commas or whitespace.  See <a class="reference internal" href="kdc_conf.html#encryption-types"><em>Encryption types</em></a> in
 <a class="reference internal" href="kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> for a list of the accepted values for this tag.
 The default value is <tt class="docutils literal"><span class="pre">aes256-cts-hmac-sha1-96</span> <span class="pre">aes128-cts-hmac-sha1-96</span> <span class="pre">des3-cbc-sha1</span> <span class="pre">arcfour-hmac-md5</span> <span class="pre">camellia256-cts-cmac</span> <span class="pre">camellia128-cts-cmac</span> <span class="pre">des-cbc-crc</span> <span class="pre">des-cbc-md5</span> <span class="pre">des-cbc-md4</span></tt>, but single-DES encryption types
 will be implicitly removed from this list if the value of
@@ -1253,7 +1253,7 @@ Valid parameters are:</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-beta2</i><br />
+            <div class="right" ><i>Release: 1.12</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">
