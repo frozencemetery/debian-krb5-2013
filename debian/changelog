@@ -1,4 +1,4 @@
-krb5 (1.12~beta2+dfsg-1) UNRELEASED; urgency=low
+krb5 (1.12+dfsg-1) UNRELEASED; urgency=low
 
   * New upstream release (closes: #730085, #728845, #637662, #729291).
   * Update HURD compatibility patch (closes: #729191).
