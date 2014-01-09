@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12-beta2',
+        VERSION:     '1.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -110,8 +110,9 @@ With the <strong>-glob</strong> form, it also requires the <strong>list</strong>
 <dd>Use <em>keytab</em> as the keytab file.  Otherwise, the default keytab is
 used.</dd>
 <dt><strong>-e</strong> <em>enc</em>:<em>salt</em>,...</dt>
-<dd>Use the specified list of enctype-salttype pairs for setting the
-new keys of the principal.</dd>
+<dd>Uses the specified keysalt list for setting the new keys of the
+principal.  See <a class="reference internal" href="conf_files/kdc_conf.html#keysalt-lists"><em>Keysalt lists</em></a> in <a class="reference internal" href="conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> for a
+list of possible values.</dd>
 <dt><strong>-q</strong></dt>
 <dd>Display less verbose information.</dd>
 <dt><strong>-norandkey</strong></dt>
@@ -328,7 +329,7 @@ point for learning to configure firewalls.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12-beta2</i><br />
+            <div class="right" ><i>Release: 1.12</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">
