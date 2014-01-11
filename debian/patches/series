@@ -6,3 +6,4 @@ debian-local/0005-debian-install-ldap-library-in-subdirectory.patch
 debian-local/0006-gssapi-never-unload-mechanisms.patch
 debian-local/0007-Add-substpdf-target.patch
 0008-autoreconf.patch
+debian-local/0009-.gbp.conf.patch
