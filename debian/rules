@@ -127,6 +127,7 @@ install: build-arch
 		ln -s -f ../`readlink $$linkname` \
 		$$linkname; \
 	done
+		rm debian/krb5-multidev/usr/include/mit-krb5/krad.h debian/krb5-multidev/usr/lib/*/mit-krb5/libkrad.so
 		for dir in include lib/$(DEB_HOST_MULTIARCH) lib/$(DEB_HOST_MULTIARCH)/pkgconfig; do \
 		(cd debian/krb5-multidev/usr/$$dir/mit-krb5 && \
 		find . -type d -print ) | (cd debian/libkrb5-dev/usr/$$dir && \
