@@ -323,7 +323,10 @@ _iEncExpandKey128:
 
         movdqu [edx], xmm1
 
-        movdqa xmm5, [shuffle_mask]
+        call .next
+.next:
+        pop ecx
+        movdqa xmm5, [ecx-.next+shuffle_mask]
 
         add edx,16
 
@@ -421,7 +424,10 @@ _iEncExpandKey256:
 
     add edx,32
 
-    movdqa xmm5, [shuffle_mask]  ; this mask is used by key_expansion
+    call .next
+.next:
+    pop ecx
+    movdqa xmm5, [ecx-.next+shuffle_mask]  ; this mask is used by key_expansion
 
     aeskeygenassist xmm2, xmm3, 0x1     ;
     call key_expansion256
@@ -871,3 +877,14 @@ lp256encsingle_CBC:
 	movdqu	[ecx],xmm1 ; store last iv for chaining
 
 	ret
+
+; Mark this file as not needing an executable stack.
+%ifidn __OUTPUT_FORMAT__,elf
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif
+%ifidn __OUTPUT_FORMAT__,elf32
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

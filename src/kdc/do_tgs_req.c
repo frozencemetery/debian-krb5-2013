@@ -147,6 +147,10 @@ process_tgs_req(struct server_handle *handle, krb5_data *pkt,
     retval = decode_krb5_tgs_req(pkt, &request);
     if (retval)
         return retval;
+    /* Save pointer to client-requested service principal, in case of
+     * errors before a successful call to search_sprinc(). */
+    sprinc = request->server;
+
     if (request->msg_type != KRB5_TGS_REQ) {
         krb5_free_kdc_req(handle->kdc_err_context, request);
         return KRB5_BADMSGTYPE;
@@ -202,6 +206,8 @@ process_tgs_req(struct server_handle *handle, krb5_data *pkt,
     scratch.data = (char *) pa_tgs_req->contents;
     errcode = kdc_find_fast(&request, &scratch, subkey,
                             header_ticket->enc_part2->session, state, NULL);
+    /* Reset sprinc because kdc_find_fast() can replace request. */
+    sprinc = request->server;
     if (errcode !=0) {
         status = "kdc_find_fast";
         goto cleanup;

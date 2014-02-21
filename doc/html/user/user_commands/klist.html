@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12',
+        VERSION:     '1.12.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -120,10 +120,9 @@ a    anonymous</pre>
 </div></blockquote>
 </dd>
 <dt><strong>-s</strong></dt>
-<dd>Causes klist to run silently (produce no output), but to still set
-the exit status according to whether it finds the credentials
-cache.  The exit status is &#8216;0&#8217; if klist finds a credentials cache,
-and &#8216;1&#8217; if it does not or if the tickets are expired.</dd>
+<dd>Causes klist to run silently (produce no output).  klist will exit
+with status 1 if the credentials cache cannot be read or is
+expired, and with status 0 otherwise.</dd>
 <dt><strong>-a</strong></dt>
 <dd>Display list of addresses in credentials.</dd>
 <dt><strong>-n</strong></dt>
@@ -247,7 +246,7 @@ to be present in the collection.</dd>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12</i><br />
+            <div class="right" ><i>Release: 1.12.1</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
             </div>
             <div class="left">
