@@ -1,7 +1,13 @@
 krb5 (1.12.1+dfsg-1) UNRELEASED; urgency=low
 
+  [ Sam Hartman ]
   * New upstream version
-    * Move gbp.conf to debian
+  * Move gbp.conf to debian
+
+  [ Benjamin Kaduk ]
+  * Pull in upstream patch to put OTP sockets in /run by default
+  * Pull in upstream patch to avoid duplicate "/etc/krb5.conf" in profile
+    path, so we can safely set sysconfdir to /etc
 
  -- Sam Hartman <hartmans@debian.org>  Thu, 20 Feb 2014 20:54:53 -0500
 
