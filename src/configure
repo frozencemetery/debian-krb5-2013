@@ -813,6 +813,8 @@ LDFLAGS
 CFLAGS
 CC
 EXTRA_FILES
+SYSCONFCONF
+runstatedir
 target_alias
 host_alias
 build_alias
@@ -2532,6 +2534,21 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 build_dynobj=no
+
+# If $runstatedir isn't set by autoconf (<2.70), set it manually.
+if test x"$runstatedir" == x; then
+  runstatedir=$localstatedir/run
+fi
+
+
+# Don't make duplicate profile path entries for /etc/krb5.conf if
+# $sysconfdir is /etc
+if test "$sysconfdir" == /etc; then
+  SYSCONFCONF=""
+else
+  SYSCONFCONF=":${sysconfdir}/krb5.conf"
+fi
+
 
 ac_reltopdir="."
 if test ! -r "$srcdir/./aclocal.m4"; then
