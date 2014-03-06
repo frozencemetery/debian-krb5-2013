@@ -1,4 +1,4 @@
-From 71596b8ff1e249e4d22fc47d7341400783ee6c97 Mon Sep 17 00:00:00 2001
+From b328677d13e033c2e4774657c89952a67231a52f Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:12:39 -0500
 Subject: debian: install ldap library in subdirectory

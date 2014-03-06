@@ -1,4 +1,4 @@
-From 6100afdbc5e688a6c859a8995c7120aa69f52195 Mon Sep 17 00:00:00 2001
+From 8cc93ae31ee3fbf96f7911a8b41d05d96c9ea228 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:11:42 -0500
 Subject: Debian: HURD compatibility
@@ -45,7 +45,7 @@ index 20a348c..b8b61ce 100644
   * Free a kt_list
   */
 diff --git a/src/lib/gssapi/spnego/spnego_mech.c b/src/lib/gssapi/spnego/spnego_mech.c
-index 24c3440..af0978d 100644
+index 167e4c1..b084e51 100644
 --- a/src/lib/gssapi/spnego/spnego_mech.c
 +++ b/src/lib/gssapi/spnego/spnego_mech.c
 @@ -69,6 +69,9 @@
