@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-1) UNRELEASED; urgency=low
+krb5 (1.12.1+dfsg-1) unstable; urgency=low
 
   [ Sam Hartman ]
   * New upstream version
