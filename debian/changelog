@@ -2,8 +2,9 @@ krb5 (1.12.1+dfsg-1.1) UNRELEASED; urgency=medium
 
   * Non-maintainer upload.
   * Provide -L and -I flags from krb5-config. Closes: #730837
+  * Ship krb5-config.mit binary in krb5-multidev., Closes: #745322
 
- -- Jelmer Vernooij <jelmer@debian.org>  Sun, 20 Apr 2014 16:01:25 +0200
+ -- Jelmer Vernooij <jelmer@debian.org>  Sun, 20 Apr 2014 15:34:33 +0200
 
 krb5 (1.12.1+dfsg-1) unstable; urgency=low
 
