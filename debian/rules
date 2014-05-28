@@ -69,6 +69,7 @@ configure-stamp:
 		--enable-shared --with-ldap --without-tcl \
 	--with-system-verto \
 		--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
+		--sysconfdir=/etc \
 		$(SYSTEM) $(CACHE)
 	touch configure-stamp
 
