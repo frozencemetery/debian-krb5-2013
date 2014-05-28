@@ -1,6 +1,6 @@
+From aa836f4b4c92a6fc74f919007a6364ab9d59828d Mon Sep 17 00:00:00 2001
 From: Jelmer Vernooij <jelmer@debian.org>
-Date: Sun 20 Apr 15:59:08 CEST 2014
-Debian-Bug: http://bugs.debian.org/730837
+Date: Sun, 20 Apr 2014 15:59:08 +0200
 Subject: Fix krb5-config paths
 
 Include library and include flags in krb5-config, so they
@@ -8,6 +8,9 @@ work when the symlinks provided by libkrb5-dev are not
 installed.
 
 Patch-Category: debian-local
+---
+ src/build-tools/krb5-config.in | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
 diff --git a/src/build-tools/krb5-config.in b/src/build-tools/krb5-config.in
 index 637bad7..a73654f 100755
