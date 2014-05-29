@@ -37,7 +37,7 @@ Architecture: any
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, libkrb5-3 (= ${binary:Version}),
  libkadm5srv-mit9,
- krb5-config, krb5-user, lsb-base (>= 3.0-6), libverto-libev1
+ krb5-config, krb5-user, lsb-base (>= 3.0-6), libverto-libev1 | libverto-libevent1
 Suggests: openbsd-inetd | inet-superserver, krb5-admin-server,
  krb5-kdc-ldap (= ${binary:Version})
 Description: MIT Kerberos key server (KDC)

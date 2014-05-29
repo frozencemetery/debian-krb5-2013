@@ -9,6 +9,10 @@ krb5 (1.12.1+dfsg-2) UNRELEASED; urgency=medium
   * Include upstream patch to load gss mechanisms from /etc/gss/mech.d,
     Closes: #673680
   * Sysconfdir explicitly set to /etc
+  * Include ubuntu change to permit libverto-libevent1 (not currently
+    built in Debian) as an alternative for the KDC.  For now just
+    reduces diff with Ubuntu.  Next libverto upload will probably start
+    building that for Debian too.
 
  -- Sam Hartman <hartmans@debian.org>  Wed, 28 May 2014 19:00:28 -0400
 
