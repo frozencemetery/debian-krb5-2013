@@ -9,6 +9,7 @@ upstream/0008-Move-OTP-sockets-to-KDC_RUN_DIR.patch
 upstream/0009-Avoid-duplicate-etc-krb5.conf-in-profile-path.patch
 0010-autoreconf.patch
 debian-local/0011-Fix-krb5-config-paths.patch
+debian-local/0012-Fix-pkg-config-paths.patch
 upstream/0012-Load-mechglue-config-files-from-etc-gss-mech.d.patch
 0013-Read-etc-gss-mech-when-no-files-in-mech.d.patch
 0014-Do-not-loop-on-add_cred_from-and-other-new-methods.patch

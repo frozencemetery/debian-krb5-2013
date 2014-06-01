@@ -4,6 +4,7 @@ krb5 (1.12.1+dfsg-2) unstable; urgency=low
   * Non-maintainer upload.
   * Provide -L and -I flags from krb5-config. Closes: #730837
   * Ship krb5-config.mit binary in krb5-multidev., Closes: #745322
+  * Provide -L and -I flags from pkg-config files. Closes: #750041
 
   [ Sam Hartman ]
   * Include upstream patch to load gss mechanisms from /etc/gss/mech.d,
