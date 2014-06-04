@@ -1,12 +1,20 @@
-Date: Sun  1 Jun 20:33:00 BST 2014
+From cc587fd82d033c8afdcb681a085f36ae505f9326 Mon Sep 17 00:00:00 2001
 From: Jelmer Vernooij <jelmer@debian.org>
+Date: Sun, 1 Jun 2014 20:33:00 +0100
 Subject: Fix pkg-config library/include paths
-Bug-Debian: http://bugs.debian.org/750041
 
 Include library and include flags in pkg-config files, so they work when the
 symlinks provided by libkrb5-dev are not installed.
 
 Patch-Category: debian-local
+---
+ src/build-tools/gssrpc.pc.in          | 4 ++--
+ src/build-tools/kadm-client.pc.in     | 4 ++--
+ src/build-tools/kadm-server.pc.in     | 4 ++--
+ src/build-tools/kdb.pc.in             | 4 ++--
+ src/build-tools/mit-krb5-gssapi.pc.in | 4 ++--
+ src/build-tools/mit-krb5.pc.in        | 4 ++--
+ 6 files changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/src/build-tools/gssrpc.pc.in b/src/build-tools/gssrpc.pc.in
 index ca90921..e08c2e8 100644
