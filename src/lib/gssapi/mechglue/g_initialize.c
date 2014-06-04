@@ -444,8 +444,18 @@ loadConfigFiles()
 	g_confLastCall = now;
 
 	globbuf.gl_offs = 1;
-	if (glob(MECH_CONF_PATTERN, GLOB_DOOFFS, NULL, &globbuf) != 0)
+	if (glob(MECH_CONF_PATTERN, GLOB_DOOFFS, NULL, &globbuf) != 0) {
+		mtime = check_link_mtime(MECH_CONF, &mtime);
+		if (mtime == (time_t)-1)
+			return;
+		if (mtime > highest_mtime)
+			highest_mtime = mtime;
+		if (mtime > g_confFileModTime) {
+			loadConfigFile(MECH_CONF);
+			g_confFileModTime = highest_mtime;
+		}
 		return;
+	}
 	globbuf.gl_pathv[0] = MECH_CONF;
 
 	for (pathptr = globbuf.gl_pathv; *pathptr != NULL; pathptr++) {
