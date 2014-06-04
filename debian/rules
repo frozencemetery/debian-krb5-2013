@@ -115,6 +115,7 @@ install: build-arch
 	cd build && $(MAKE) install DESTDIR=`pwd`/../debian/tmp
 	install -d $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/krb5 $(CURDIR)/debian/tmp/etc/insserv/overrides
 	install -m644 debian/krb5-kdc-ldap.insserv-override debian/tmp/etc/insserv/overrides/krb5-kdc
+	install -m644 $(CURDIR)/debian/README.mech.d $(CURDIR)/debian/libgssapi-krb5-2/etc/gss/mech.d/README
 	mv $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libkdb_ldap* \
 	    $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/krb5/
 	rm -f $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/krb5/libkdb_ldap*.so
