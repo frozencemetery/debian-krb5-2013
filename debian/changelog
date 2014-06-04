@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-2) UNRELEASED; urgency=low
+krb5 (1.12.1+dfsg-2) unstable; urgency=low
 
   [ Jelmer Vernooij ]
   * Non-maintainer upload.
@@ -13,9 +13,13 @@ krb5 (1.12.1+dfsg-2) UNRELEASED; urgency=low
     built in Debian) as an alternative for the KDC.  For now just
     reduces diff with Ubuntu.  Next libverto upload will probably start
     building that for Debian too.
-  * Please don't upload this in its current state.  I need to add a way for mechanism packages to figure out if we support /etc/gss/mech.d easily.
+  * Do not cause endless loop when a mechanism fails to include
+    gss_add_cred_from or other new methods (upstream #7926)
+  * Include /etc/gss/mech.d/README
+  * Low urgency to give extra time in unstable
+  * Update symbols for gss_indicate_mechs
 
- -- Sam Hartman <hartmans@debian.org>  Wed, 28 May 2014 19:00:28 -0400
+ -- Sam Hartman <hartmans@debian.org>  Wed, 04 Jun 2014 12:09:56 -0400
 
 krb5 (1.12.1+dfsg-1) unstable; urgency=low
 
