@@ -119,10 +119,6 @@ install: build-arch
 	mv $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libkdb_ldap* \
 	    $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/krb5/
 	rm -f $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/krb5/libkdb_ldap*.so
-	mv $(CURDIR)/debian/tmp/usr/bin/krb5-config \
-	    $(CURDIR)/debian/tmp/usr/bin/krb5-config.mit
-	mv $(CURDIR)/debian/tmp/usr/share/man/man1/krb5-config.1 \
-	    $(CURDIR)/debian/tmp/usr/share/man/man1/krb5-config.mit.1
 
 	install -m644 src/util/ac_check_krb5.m4 \
 		debian/libkrb5-dev/usr/share/aclocal
