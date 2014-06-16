@@ -1,4 +1,4 @@
-From 53fe781d2b9835a59f61a5101415402a53ff036a Mon Sep 17 00:00:00 2001
+From d60787cd0a5d2fb43ce107b4aa0bc5d6ad9f6e3d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?G=C3=BCnther=20Deschner?= <gdeschner@redhat.com>
 Date: Wed, 5 Mar 2014 15:25:43 +0100
 Subject: Load mechglue config files from /etc/gss/mech.d

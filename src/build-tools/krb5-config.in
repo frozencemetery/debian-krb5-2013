@@ -29,8 +29,8 @@ version_string="Kerberos 5 release @KRB5_VERSION@"
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-includedir=@includedir@/mit-krb5
-libdir=@libdir@/mit-krb5
+includedir=@includedir@
+libdir=@libdir@
 CC_LINK='@CC_LINK@'
 KDB5_DB_LIB=@KDB5_DB_LIB@
 LDFLAGS='@LDFLAGS@'
@@ -209,7 +209,15 @@ fi
 
 
 if test -n "$do_libs"; then
-	libdirarg="-L$libdir"
+    # Assumes /usr/lib is the standard library directory everywhere...
+    case $libdir in
+	/usr/lib*)
+	    libdirarg=
+	    ;;
+	*)
+	    libdirarg="-L$libdir"
+	    ;;
+    esac
     # Ugly gross hack for our build tree
     lib_flags=`echo $CC_LINK | sed -e 's/\$(CC)//' \
 	    -e 's/\$(PURE)//' \
