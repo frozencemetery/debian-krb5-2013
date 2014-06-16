@@ -1,7 +1,18 @@
+krb5 (1.12.1+dfsg-3) unstable; urgency=high
+
+  * High urgency to revert some changes in the previous version that got
+    into testing.  Unfortunately moving krb5-config into krb5-multidev
+    breaks some -Werror builds, so we'll revert until we can work out what
+    to do, Closes: #751760
+  * Revert krb5-config to krb5-multidev, reintroduces: #745322
+  * Remove -I and -L from krb5-config, Reintroduces: #730837
+  * Remove pkgconfig paths that  include mit-kerberos, Reintroduces: #750041
+
+ -- Sam Hartman <hartmans@debian.org>  Mon, 16 Jun 2014 08:28:33 -0400
+
 krb5 (1.12.1+dfsg-2) unstable; urgency=low
 
   [ Jelmer Vernooij ]
-  * Non-maintainer upload.
   * Provide -L and -I flags from krb5-config. Closes: #730837
   * Ship krb5-config.mit binary in krb5-multidev., Closes: #745322
   * Provide -L and -I flags from pkg-config files. Closes: #750041
