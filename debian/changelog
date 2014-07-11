@@ -1,3 +1,10 @@
+krb5 (1.12.1+dfsg-4) UNRELEASED; urgency=high
+
+  * Apply upstream patch for CVE-2014-4341, CVE-2014-4342, Closes: #753624,
+    Closes: #753625
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 11 Jul 2014 13:43:19 -0400
+
 krb5 (1.12.1+dfsg-3) unstable; urgency=high
 
   * High urgency to revert some changes in the previous version that got
