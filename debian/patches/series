@@ -12,3 +12,5 @@ upstream/0011-Load-mechglue-config-files-from-etc-gss-mech.d.patch
 0012-Read-etc-gss-mech-when-no-files-in-mech.d.patch
 0013-Do-not-loop-on-add_cred_from-and-other-new-methods.patch
 0014-Handle-invalid-RFC-1964-tokens-CVE-2014-4341.patch
+upstream/0015-Fix-double-free-in-SPNEGO-CVE-2014-4343.patch
+upstream/0016-Fix-null-deref-in-SPNEGO-acceptor-CVE-2014-4344.patch
