@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-5) UNRELEASED; urgency=high
+krb5 (1.12.1+dfsg-5) unstable; urgency=high
 
   * Apply upstream patches for CVE-2014-4343, CVE-2014-4344, Closes: #755520,
     Closes: #755521
