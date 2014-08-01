@@ -1487,7 +1487,7 @@ load_db(int argc, char **argv)
     kdb_log_context *log_ctx;
     krb5_boolean db_locked = FALSE, temp_db_created = FALSE;
     krb5_boolean verbose = FALSE, update = FALSE, iprop_load = FALSE;
-    uint32_t caller = FKCOMMAND, last_sno, last_seconds, last_useconds;
+    uint32_t caller = FKCOMMAND, last_sno = 0, last_seconds = 0, last_useconds = 0;
 
     /* Parse the arguments. */
     dbname = global_params.dbname;
