@@ -1476,6 +1476,8 @@ load_db(int argc, char **argv)
     krb5_boolean db_locked = FALSE, temp_db_created = FALSE;
     krb5_boolean verbose = FALSE, update = FALSE, iprop_load = FALSE;
 
+    memset(&last, 0, sizeof(last));
+
     /* Parse the arguments. */
     dbname = global_params.dbname;
     exit_status = 0;
