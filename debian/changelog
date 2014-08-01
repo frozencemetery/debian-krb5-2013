@@ -1,8 +1,13 @@
 krb5 (1.12.1+dfsg-6) UNRELEASED; urgency=medium
 
+  [ Benjamin Kaduk ]
   * Apply upstream's patch to switch to TAILQ macros instead of CIRCLEQ macros,
     to work around an issue with certain gcc versions.  This is expected to
-    resolve Ubuntu bug #1347147.
+    resolve Ubuntu bug (LP: #1347147).
+
+  [ Sam Hartman ]
+  * Include a quick and dirty patch so we build cleanly with -O3 fixing
+    incorrect may be uninitialized warnings.
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Tue, 29 Jul 2014 17:05:37 -0400
 
