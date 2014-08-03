@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-6) UNRELEASED; urgency=medium
+krb5 (1.12.1+dfsg-6) unstable; urgency=medium
 
   [ Benjamin Kaduk ]
   * Apply upstream's patch to switch to TAILQ macros instead of CIRCLEQ macros,
