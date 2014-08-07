@@ -16,3 +16,4 @@ upstream/0015-Fix-double-free-in-SPNEGO-CVE-2014-4343.patch
 upstream/0016-Fix-null-deref-in-SPNEGO-acceptor-CVE-2014-4344.patch
 upstream/0017-Use-TAILQ-macros-instead-of-CIRCLEQ-in-libdb2.patch
 debian-local/0018-Quick-and-dirty-fix-to-building-O3.patch
+upstream/0019-Fix-LDAP-key-data-segmentation-CVE-2014-4345.patch
