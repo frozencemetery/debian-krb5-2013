@@ -18,7 +18,7 @@ krb5_init_creds_step -  Get the next KDC request for acquiring initial credentia
 
 	          **[out]** **out** - Next KDC request
 
-	          **[out]** **realm** - Realm fornext KDC request
+	          **[out]** **realm** - Realm for next KDC request
 
 	          **[out]** **flags** - Output flags
 

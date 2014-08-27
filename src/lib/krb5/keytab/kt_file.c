@@ -394,9 +394,8 @@ krb5_ktfile_get_entry(krb5_context context, krb5_keytab id,
         else {
             kerror = KRB5_KT_NOTFOUND;
             if (krb5_unparse_name(context, principal, &princname) == 0) {
-                krb5_set_error_message(context, kerror,
-                                       _("No key table entry found for %s"),
-                                       princname);
+                k5_setmsg(context, kerror,
+                          _("No key table entry found for %s"), princname);
                 free(princname);
             }
         }
@@ -472,8 +471,7 @@ krb5_ktfile_start_seq_get(krb5_context context, krb5_keytab id, krb5_kt_cursor *
         /* Wrapped?!  */
         KTITERS(id)--;
         KTUNLOCK(id);
-        krb5_set_error_message(context, KRB5_KT_IOERR,
-                               "Too many keytab iterators active");
+        k5_setmsg(context, KRB5_KT_IOERR, "Too many keytab iterators active");
         return KRB5_KT_IOERR;   /* XXX */
     }
     KTUNLOCK(id);
@@ -622,7 +620,7 @@ krb5_ktf_keytab_externalize(krb5_context kcontext, krb5_pointer arg, krb5_octet 
     size_t              remain;
     krb5_ktfile_data    *ktdata;
     krb5_int32          file_is_open;
-    krb5_int64          file_pos;
+    int64_t             file_pos;
     char                *ktname;
     const char          *fnamep;
 
@@ -719,7 +717,7 @@ krb5_ktf_keytab_internalize(krb5_context kcontext, krb5_pointer *argp, krb5_octe
     char                *ktname = NULL;
     krb5_ktfile_data    *ktdata;
     krb5_int32          file_is_open;
-    krb5_int64          foff;
+    int64_t             foff;
 
     *argp = NULL;
     bp = *buffer;
@@ -813,9 +811,8 @@ krb5_ktfile_add(krb5_context context, krb5_keytab id, krb5_keytab_entry *entry)
     if (KTFILEP(id)) {
         /* Iterator(s) active -- no changes.  */
         KTUNLOCK(id);
-        krb5_set_error_message(context, KRB5_KT_IOERR,
-                               _("Cannot change keytab with keytab iterators "
-                                 "active"));
+        k5_setmsg(context, KRB5_KT_IOERR,
+                  _("Cannot change keytab with keytab iterators active"));
         return KRB5_KT_IOERR;   /* XXX */
     }
     if ((retval = krb5_ktfileint_openw(context, id))) {
@@ -847,9 +844,8 @@ krb5_ktfile_remove(krb5_context context, krb5_keytab id, krb5_keytab_entry *entr
     if (KTFILEP(id)) {
         /* Iterator(s) active -- no changes.  */
         KTUNLOCK(id);
-        krb5_set_error_message(context, KRB5_KT_IOERR,
-                               _("Cannot change keytab with keytab iterators "
-                                 "active"));
+        k5_setmsg(context, KRB5_KT_IOERR,
+                  _("Cannot change keytab with keytab iterators active"));
         return KRB5_KT_IOERR;   /* XXX */
     }
 
@@ -1047,9 +1043,8 @@ krb5_ktfileint_open(krb5_context context, krb5_keytab id, int mode)
                 /* XXX */
                 return EMFILE;
             case ENOENT:
-                krb5_set_error_message(context, ENOENT,
-                                       _("Key table file '%s' not found"),
-                                       KTFILENAME(id));
+                k5_setmsg(context, ENOENT,
+                          _("Key table file '%s' not found"), KTFILENAME(id));
                 return ENOENT;
             default:
                 return errno;

@@ -40,7 +40,7 @@
 #endif
 
 #define DEFAULT_TYPE_NAME "DEFAULT"
-#define DEFAULT_SOCKET_FMT KDC_DIR "/%s.socket"
+#define DEFAULT_SOCKET_FMT KDC_RUN_DIR "/%s.socket"
 #define DEFAULT_TIMEOUT 5
 #define DEFAULT_RETRIES 3
 #define MAX_SECRET_LEN 1024
@@ -401,6 +401,8 @@ decode_config_json(const char *config, k5_json_array *out)
 
     /* Decode the config string and make sure it's an array. */
     retval = k5_json_decode((config != NULL) ? config : "[{}]", &val);
+    if (retval != 0)
+        goto error;
     if (k5_json_get_tid(val) != K5_JSON_TID_ARRAY) {
         retval = EINVAL;
         goto error;

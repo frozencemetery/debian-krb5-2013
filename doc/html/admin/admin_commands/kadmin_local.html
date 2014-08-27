@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -175,33 +173,68 @@ values.</dd>
 <dt><strong>-N</strong></dt>
 <dd>Prevent fallback to AUTH_GSSAPI authentication flavor.</dd>
 <dt><strong>-x</strong> <em>db_args</em></dt>
-<dd><p class="first">Specifies the database specific arguments.  Options supported for
-the LDAP database module are:</p>
-<dl class="last docutils">
-<dt><strong>-x host=</strong><em>hostname</em></dt>
+<dd>Specifies the database specific arguments.  See the next section
+for supported options.</dd>
+</dl>
+</div>
+<div class="section" id="database-options">
+<span id="dboptions"></span><span id="kadmin-options-end"></span><h2>DATABASE OPTIONS<a class="headerlink" href="#database-options" title="Permalink to this headline">¶</a></h2>
+<p>Database options can be used to override database-specific defaults.
+Supported options for the DB2 module are:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><strong>-x dbname=</strong>*filename*</dt>
+<dd>Specifies the base filename of the DB2 database.</dd>
+<dt><strong>-x lockiter</strong></dt>
+<dd>Make iteration operations hold the lock for the duration of
+the entire operation, rather than temporarily releasing the
+lock while handling each principal.  This is the default
+behavior, but this option exists to allow command line
+override of a [dbmodules] setting.  First introduced in
+release 1.13.</dd>
+<dt><strong>-x unlockiter</strong></dt>
+<dd>Make iteration operations unlock the database for each
+principal, instead of holding the lock for the duration of the
+entire operation.  First introduced in release 1.13.</dd>
+</dl>
+</div></blockquote>
+<p>Supported options for the LDAP module are:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><strong>-x host=</strong><em>ldapuri</em></dt>
 <dd>Specifies the LDAP server to connect to by a LDAP URI.</dd>
 <dt><strong>-x binddn=</strong><em>bind_dn</em></dt>
-<dd>Specifies the DN of the object used by the administration
-server to bind to the LDAP server.  This object should have
-the read and write privileges on the realm container, the
-principal container, and the subtree that is referenced by the
-realm.</dd>
-<dt><strong>-x bindpwd=</strong><em>bind_password</em></dt>
-<dd>Specifies the password for the above mentioned binddn.  Using
-this option may expose the password to other users on the
-system via the process list; to avoid this, instead stash the
-password using the <strong>stashsrvpw</strong> command of
+<dd>Specifies the DN used to bind to the LDAP server.</dd>
+<dt><strong>-x bindpwd=</strong><em>password</em></dt>
+<dd>Specifies the password or SASL secret used to bind to the LDAP
+server.  Using this option may expose the password to other
+users on the system via the process list; to avoid this,
+instead stash the password using the <strong>stashsrvpw</strong> command of
 <a class="reference internal" href="kdb5_ldap_util.html#kdb5-ldap-util-8"><em>kdb5_ldap_util</em></a>.</dd>
+<dt><strong>-x sasl_mech=</strong><em>mechanism</em></dt>
+<dd>Specifies the SASL mechanism used to bind to the LDAP server.
+The bind DN is ignored if a SASL mechanism is used.  New in
+release 1.13.</dd>
+<dt><strong>-x sasl_authcid=</strong><em>name</em></dt>
+<dd>Specifies the authentication name used when binding to the
+LDAP server with a SASL mechanism, if the mechanism requires
+one.  New in release 1.13.</dd>
+<dt><strong>-x sasl_authzid=</strong><em>name</em></dt>
+<dd>Specifies the authorization name used when binding to the LDAP
+server with a SASL mechanism.  New in release 1.13.</dd>
+<dt><strong>-x sasl_realm=</strong><em>realm</em></dt>
+<dd>Specifies the realm used when binding to the LDAP server with
+a SASL mechanism, if the mechanism uses one.  New in release
+1.13.</dd>
 <dt><strong>-x debug=</strong><em>level</em></dt>
 <dd>sets the OpenLDAP client library debug level.  <em>level</em> is an
 integer to be interpreted by the library.  Debugging messages
 are printed to standard error.  New in release 1.12.</dd>
 </dl>
-</dd>
-</dl>
+</div></blockquote>
 </div>
 <div class="section" id="commands">
-<span id="kadmin-options-end"></span><h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<h2>COMMANDS<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
 <p>When using the remote client, available commands may be restricted
 according to the privileges specified in the <a class="reference internal" href="../conf_files/kadm5_acl.html#kadm5-acl-5"><em>kadm5.acl</em></a> file
 on the admin server.</p>
@@ -343,16 +376,15 @@ principal container configured in the realm.</li>
 </dd>
 </dl>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: addprinc jennifer
-WARNING: no policy specified for "jennifer@ATHENA.MIT.EDU";
+<div class="highlight-python"><div class="highlight"><pre>kadmin: addprinc jennifer
+WARNING: no policy specified for &quot;jennifer@ATHENA.MIT.EDU&quot;;
 defaulting to no policy.
 Enter password for principal jennifer@ATHENA.MIT.EDU:
 Re-enter password for principal jennifer@ATHENA.MIT.EDU:
-Principal "jennifer@ATHENA.MIT.EDU" created.
-kadmin:</pre>
+Principal &quot;jennifer@ATHENA.MIT.EDU&quot; created.
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="modify-principal">
 <span id="add-principal-end"></span><span id="id2"></span><h3>modify_principal<a class="headerlink" href="#modify-principal" title="Permalink to this headline">¶</a></h3>
@@ -418,14 +450,13 @@ list of possible values.</dd>
 necessary except perhaps for <tt class="docutils literal"><span class="pre">krbtgt</span></tt> principals.</dd>
 </dl>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: cpw systest
+<div class="highlight-python"><div class="highlight"><pre>kadmin: cpw systest
 Enter password for principal systest@BLEEP.COM:
 Re-enter password for principal systest@BLEEP.COM:
 Password for systest@BLEEP.COM changed.
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="purgekeys">
 <span id="change-password-end"></span><span id="id6"></span><h3>purgekeys<a class="headerlink" href="#purgekeys" title="Permalink to this headline">¶</a></h3>
@@ -448,8 +479,7 @@ fields as quoted tab-separated strings.</p>
 running the the program to be the same as the one being listed.</p>
 <p>Alias: <strong>getprinc</strong></p>
 <p>Examples:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: getprinc tlyu/admin
+<div class="highlight-python"><div class="highlight"><pre>kadmin: getprinc tlyu/admin
 Principal: tlyu/admin@BLEEP.COM
 Expiration date: [never]
 Last password change: Mon Aug 12 14:16:47 EDT 1996
@@ -461,8 +491,8 @@ Last successful authentication: [never]
 Last failed authentication: [never]
 Failed password attempts: 0
 Number of keys: 2
-Key: vno 1, DES cbc mode with CRC-32, no salt
-Key: vno 1, DES cbc mode with CRC-32, Version 4
+Key: vno 1, des-cbc-crc
+Key: vno 1, des-cbc-crc:v4
 Attributes:
 Policy: [none]
 
@@ -470,9 +500,9 @@ kadmin: getprinc -terse systest
 systest@BLEEP.COM   3    86400     604800    1
 785926535 753241234 785900000
 tlyu/admin@BLEEP.COM     786100034 0    0
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="list-principals">
 <span id="get-principal-end"></span><span id="id8"></span><h3>list_principals<a class="headerlink" href="#list-principals" title="Permalink to this headline">¶</a></h3>
@@ -488,15 +518,14 @@ expression.</p>
 <p>This command requires the <strong>list</strong> privilege.</p>
 <p>Alias: <strong>listprincs</strong>, <strong>get_principals</strong>, <strong>get_princs</strong></p>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin:  listprincs test*
+<div class="highlight-python"><div class="highlight"><pre>kadmin:  listprincs test*
 test3@SECURE-TEST.OV.COM
 test2@SECURE-TEST.OV.COM
 test1@SECURE-TEST.OV.COM
 testuser@SECURE-TEST.OV.COM
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="get-strings">
 <span id="list-principals-end"></span><span id="id9"></span><h3>get_strings<a class="headerlink" href="#get-strings" title="Permalink to this headline">¶</a></h3>
@@ -509,19 +538,29 @@ kadmin:</pre>
 <div class="section" id="set-string">
 <span id="get-strings-end"></span><span id="id10"></span><h3>set_string<a class="headerlink" href="#set-string" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>set_string</strong> <em>principal</em> <em>key</em> <em>value</em></div></blockquote>
+<div><strong>set_string</strong> <em>principal</em> <em>name</em> <em>value</em></div></blockquote>
 <p>Sets a string attribute on <em>principal</em>.  String attributes are used to
 supply per-principal configuration to the KDC and some KDC plugin
-modules.  The following string attributes are recognized by the KDC:</p>
+modules.  The following string attribute names are recognized by the
+KDC:</p>
 <dl class="docutils">
 <dt><strong>session_enctypes</strong></dt>
 <dd>Specifies the encryption types supported for session keys when the
 principal is authenticated to as a server.  See
 <a class="reference internal" href="../conf_files/kdc_conf.html#encryption-types"><em>Encryption types</em></a> in <a class="reference internal" href="../conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> for a list of the
 accepted values.</dd>
+<dt><strong>otp</strong></dt>
+<dd>Enables One Time Passwords (OTP) preauthentication for a client
+<em>principal</em>.  The <em>value</em> is a JSON string representing an array
+of objects, each having optional <tt class="docutils literal"><span class="pre">type</span></tt> and <tt class="docutils literal"><span class="pre">username</span></tt> fields.</dd>
 </dl>
 <p>This command requires the <strong>modify</strong> privilege.</p>
 <p>Alias: <strong>setstr</strong></p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>set_string host/foo.mit.edu session_enctypes aes128-cts
+set_string user@FOO.COM otp [{&quot;type&quot;:&quot;hotp&quot;,&quot;username&quot;:&quot;custom&quot;}]
+</pre></div>
+</div>
 </div>
 <div class="section" id="del-string">
 <span id="set-string-end"></span><span id="id11"></span><h3>del_string<a class="headerlink" href="#del-string" title="Permalink to this headline">¶</a></h3>
@@ -587,11 +626,10 @@ with commas (&#8216;,&#8217;) only.  To clear the allowed key/salt policy use
 a value of &#8216;-&#8216;.</dd>
 </dl>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: add_policy -maxlife "2 days" -minlength 5 guests
-kadmin:</pre>
+<div class="highlight-python"><div class="highlight"><pre>kadmin: add_policy -maxlife &quot;2 days&quot; -minlength 5 guests
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="modify-policy">
 <span id="add-policy-end"></span><span id="id13"></span><h3>modify_policy<a class="headerlink" href="#modify-policy" title="Permalink to this headline">¶</a></h3>
@@ -612,13 +650,12 @@ principals.</p>
 <p>This command requires the <strong>delete</strong> privilege.</p>
 <p>Alias: <strong>delpol</strong></p>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: del_policy guests
-Are you sure you want to delete the policy "guests"?
+<div class="highlight-python"><div class="highlight"><pre>kadmin: del_policy guests
+Are you sure you want to delete the policy &quot;guests&quot;?
 (yes/no): yes
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="get-policy">
 <span id="delete-policy-end"></span><span id="id15"></span><h3>get_policy<a class="headerlink" href="#get-policy" title="Permalink to this headline">¶</a></h3>
@@ -630,8 +667,7 @@ tabs.</p>
 <p>This command requires the <strong>inquire</strong> privilege.</p>
 <p>Alias: getpol</p>
 <p>Examples:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: get_policy admin
+<div class="highlight-python"><div class="highlight"><pre>kadmin: get_policy admin
 Policy: admin
 Maximum password life: 180 days 00:00:00
 Minimum password life: 00:00:00
@@ -642,9 +678,9 @@ Reference count: 17
 
 kadmin: get_policy -terse admin
 admin     15552000  0    6    2    5    17
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 <p>The &#8220;Reference count&#8221; is the number of principals using that policy.
 With the LDAP KDC database module, the reference count field is not
 meaningful.</p>
@@ -661,8 +697,7 @@ printed.</p>
 <p>This command requires the <strong>list</strong> privilege.</p>
 <p>Aliases: <strong>listpols</strong>, <strong>get_policies</strong>, <strong>getpols</strong>.</p>
 <p>Examples:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin:  listpols
+<div class="highlight-python"><div class="highlight"><pre>kadmin:  listpols
 test-pol
 dict-only
 once-a-min
@@ -671,9 +706,9 @@ test-pol-nopw
 kadmin:  listpols t*
 test-pol
 test-pol-nopw
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="ktadd">
 <span id="list-policies-end"></span><span id="id17"></span><h3>ktadd<a class="headerlink" href="#ktadd" title="Permalink to this headline">¶</a></h3>
@@ -709,14 +744,13 @@ cannot be specified in combination with the <strong>-e</strong> option.</dd>
 ignoring multiple keys with the same encryption type but different
 salt types.</p>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: ktadd -k /tmp/foo-new-keytab host/foo.mit.edu
+<div class="highlight-python"><div class="highlight"><pre>kadmin: ktadd -k /tmp/foo-new-keytab host/foo.mit.edu
 Entry for principal host/foo.mit.edu@ATHENA.MIT.EDU with kvno 3,
      encryption type aes256-cts-hmac-sha1-96 added to keytab
      FILE:/tmp/foo-new-keytab
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="ktremove">
 <span id="ktadd-end"></span><span id="id18"></span><h3>ktremove<a class="headerlink" href="#ktremove" title="Permalink to this headline">¶</a></h3>
@@ -738,13 +772,12 @@ used.</dd>
 <dd>Display less verbose information.</dd>
 </dl>
 <p>Example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin: ktremove kadmin/admin all
+<div class="highlight-python"><div class="highlight"><pre>kadmin: ktremove kadmin/admin all
 Entry for principal kadmin/admin with kvno 3 removed from keytab
      FILE:/etc/krb5.keytab
-kadmin:</pre>
+kadmin:
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="lock">
 <span id="ktremove-end"></span><h3>lock<a class="headerlink" href="#lock" title="Permalink to this headline">¶</a></h3>
@@ -789,6 +822,7 @@ interface to the OpenVision Kerberos administration program.</p>
 <li><a class="reference internal" href="#synopsis">SYNOPSIS</a></li>
 <li><a class="reference internal" href="#description">DESCRIPTION</a></li>
 <li><a class="reference internal" href="#options">OPTIONS</a></li>
+<li><a class="reference internal" href="#database-options">DATABASE OPTIONS</a></li>
 <li><a class="reference internal" href="#commands">COMMANDS</a><ul>
 <li><a class="reference internal" href="#add-principal">add_principal</a></li>
 <li><a class="reference internal" href="#modify-principal">modify_principal</a></li>
@@ -838,6 +872,7 @@ interface to the OpenVision Kerberos administration program.</p>
 <li class="toctree-l2"><a class="reference internal" href="../otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Administration  programs</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="">kadmin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kadmind.html">kadmind</a></li>
@@ -885,8 +920,8 @@ interface to the OpenVision Kerberos administration program.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

@@ -337,7 +337,7 @@ kadmin_startup(int argc, char *argv[])
             params.mask |= KADM5_CONFIG_MKEY_FROM_KBD;
             break;
         case 'e':
-            retval = krb5_string_to_keysalts(optarg, ", \t", ":.-", 0,
+            retval = krb5_string_to_keysalts(optarg, NULL, NULL, 0,
                                              &params.keysalts,
                                              &params.num_keysalts);
             if (retval) {
@@ -788,7 +788,7 @@ kadmin_cpw(int argc, char *argv[])
                 cpw_usage(_("change_password: missing keysaltlist arg"));
                 goto cleanup;
             }
-            retval = krb5_string_to_keysalts(*++argv, ", \t", ":.-", 0,
+            retval = krb5_string_to_keysalts(*++argv, NULL, NULL, 0,
                                              &ks_tuple, &n_ks_tuple);
             if (retval) {
                 com_err("change_password", retval,
@@ -1068,7 +1068,7 @@ kadmin_parse_princ_args(int argc, char *argv[], kadm5_principal_ent_t oprinc,
         if (!strcmp("-e", argv[i])) {
             if (++i > argc - 2)
                 return -1;
-            retval = krb5_string_to_keysalts(argv[i], ", \t", ":.-", 0,
+            retval = krb5_string_to_keysalts(argv[i], NULL, NULL, 0,
                                              ks_tuple, n_ks_tuple);
             if (retval) {
                 com_err(caller, retval, _("while parsing keysalts %s"),
@@ -1445,15 +1445,16 @@ kadmin_getprinc(int argc, char *argv[])
                                      enctype, sizeof(enctype)))
                 snprintf(enctype, sizeof(enctype), _("<Encryption type 0x%x>"),
                          key_data->key_data_type[0]);
-            printf("Key: vno %d, %s, ", key_data->key_data_kvno, enctype);
-            if (key_data->key_data_ver > 1) {
+            printf("Key: vno %d, %s", key_data->key_data_kvno, enctype);
+            if (key_data->key_data_ver > 1 &&
+                key_data->key_data_type[1] != KRB5_KDB_SALTTYPE_NORMAL) {
                 if (krb5_salttype_to_string(key_data->key_data_type[1],
                                             salttype, sizeof(salttype)))
                     snprintf(salttype, sizeof(salttype), _("<Salt type 0x%x>"),
                              key_data->key_data_type[1]);
-                printf("%s\n", salttype);
-            } else
-                printf(_("no salt\n"));
+                printf(":%s", salttype);
+            }
+            printf("\n");
         }
         printf(_("MKey: vno %d\n"), dprinc.mkvno);
 
@@ -1616,7 +1617,7 @@ kadmin_parse_policy_args(int argc, char *argv[], kadm5_policy_ent_t policy,
             if (++i > argc - 2)
                 return -1;
             if (strcmp(argv[i], "-")) {
-                retval = krb5_string_to_keysalts(argv[i], ",", ":.-", 0,
+                retval = krb5_string_to_keysalts(argv[i], ",", NULL, 0,
                                                  &ks_tuple, &n_ks_tuple);
                 if (retval) {
                     com_err(caller, retval, _("while parsing keysalts %s"),

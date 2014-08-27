@@ -32,11 +32,6 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
 #include "k5-int.h"
 #include <kadm5/admin.h>
 #include <adm_proto.h>
@@ -158,7 +153,7 @@ kadmin_keytab_add(int argc, char **argv)
                 add_usage();
                 return;
             }
-            retval = krb5_string_to_keysalts(*++argv, ", \t", ":.-", 0,
+            retval = krb5_string_to_keysalts(*++argv, NULL, NULL, 0,
                                              &ks_tuple, &n_ks_tuple);
             if (retval) {
                 com_err("ktadd", retval, _("while parsing keysalts %s"),

@@ -1,6 +1,5 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 #undef NDEBUG
-#include <assert.h>
 #include "k5-platform.h"
 
 int main ()
@@ -9,7 +8,7 @@ int main ()
        on.  */
 
     union {
-        UINT64_TYPE n64;
+        uint64_t n64;
         uint32_t n32;
         uint16_t n16;
         unsigned char b[9];

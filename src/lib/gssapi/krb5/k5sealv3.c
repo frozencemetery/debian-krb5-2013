@@ -26,11 +26,8 @@
 
 /* draft-ietf-krb-wg-gssapi-cfx-05 */
 
-#include <assert.h>
-#include "k5-platform.h"        /* for 64-bit support */
-#include "k5-int.h"             /* for zap() */
+#include "k5-int.h"
 #include "gssapiP_krb5.h"
-#include <stdarg.h>
 
 int
 gss_krb5int_rotate_left (void *ptr, size_t bufsiz, size_t rc)
@@ -305,7 +302,7 @@ gss_krb5int_unseal_token_v3(krb5_context *contextptr,
 {
     krb5_context context = *contextptr;
     krb5_data plain;
-    gssint_uint64 seqnum;
+    uint64_t seqnum;
     size_t ec, rrc;
     int key_usage;
     unsigned char acceptor_flag;
@@ -464,7 +461,7 @@ gss_krb5int_unseal_token_v3(krb5_context *contextptr,
                 goto no_mem;
             memcpy(message_buffer->value, plain.data, message_buffer->length);
         }
-        err = g_order_check(&ctx->seqstate, seqnum);
+        err = g_seqstate_check(ctx->seqstate, seqnum);
         *minor_status = 0;
         return err;
     } else if (toktype == KG_TOK_MIC_MSG) {
@@ -501,7 +498,7 @@ gss_krb5int_unseal_token_v3(krb5_context *contextptr,
             *minor_status = 0;
             return GSS_S_BAD_SIG;
         }
-        err = g_order_check(&ctx->seqstate, seqnum);
+        err = g_seqstate_check(ctx->seqstate, seqnum);
         *minor_status = 0;
         return err;
     } else if (toktype == KG_TOK_DEL_CTX) {

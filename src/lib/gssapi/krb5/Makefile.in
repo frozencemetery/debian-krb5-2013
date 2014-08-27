@@ -21,8 +21,6 @@ DEFINES=-D_GSS_STATIC_LINK=1
 
 ##DOS##DLL_EXP_TYPE=GSS
 
-include_stdint=@include_stdint@
-##DOS##include_stdint=
 ETSRCS= gssapi_err_krb5.c
 ETOBJS= $(OUTPRE)gssapi_err_krb5.$(OBJEXT)
 ETHDRS= gssapi_err_krb5.h
@@ -213,11 +211,11 @@ all-windows:: $(EHDRDIR) $(GSSAPI_KRB5_HDR) $(SRCS) $(HDRS)
 MK_EHDRDIR=if test -d $(EHDRDIR); then :; else (set -x; mkdir $(EHDRDIR)); fi
 ##DOS##MK_EHDRDIR=rem
 
-$(GSSAPI_KRB5_HDR): gssapi_krb5.h
+$(GSSAPI_KRB5_HDR): $(srcdir)$(S)gssapi_krb5.h
 	@$(MK_EHDRDIR)
-	$(CP) gssapi_krb5.h "$@"
+	$(CP) $(srcdir)$(S)gssapi_krb5.h "$@"
 
-all-unix:: $(SRCS) $(HDRS) $(GSSAPI_KRB5_HDR) includes
+all-unix:: $(SRCS) $(HDRS) $(GSSAPI_KRB5_HDR)
 all-unix:: all-libobjs
 
 error_map.h: $(top_srcdir)/util/gen-map.pl \
@@ -234,7 +232,7 @@ error_map.h: $(top_srcdir)/util/gen-map.pl \
 
 clean-unix::
 	$(RM) $(BUILDTOP)/include/gssapi/gssapi_krb5.h
-	-$(RM) gssapi_krb5.h error_map.h
+	-$(RM) error_map.h
 
 clean-unix:: clean-libobjs
 	$(RM) $(ETHDRS) $(ETSRCS)
@@ -245,32 +243,15 @@ clean-windows::
 	-if exist $(EHDRDIR)\nul rmdir $(EHDRDIR)
 
 
-generate-files-mac: gssapi_krb5.h error_map.h
-
-##DOS##!if 0
-gssapi_krb5.h: gssapi_krb5.hin
-	@echo "Creating gssapi.h" ; \
-	h=gss$$$$; $(RM) $$h; \
-	(echo "/* This is the gssapi_krb5.h prologue. */"; \
-	$(include_stdint) ; \
-	echo "/* End of gssapi_krb5.h prologue. */"; \
-	cat $(srcdir)/gssapi_krb5.hin )> $$h && \
-	(set -x; $(MV) $$h $@) ; e=$$?; $(RM) $$h; exit $$e
-##DOS##!endif
-##DOS### No prologue needed for Windows, the support is
-##DOS### in gssapi_krb5.hin already.
-##DOS##gssapi_krb5.h: gssapi_krb5.hin
-##DOS##	$(CP) gssapi_krb5.hin gssapi_krb5.h
+generate-files-mac: error_map.h
 
 install-headers-unix install::
 	@set -x; for f in $(EXPORTED_HEADERS) ; \
-	do $(INSTALL_DATA) $$f	\
+	do $(INSTALL_DATA) $(srcdir)/$$f	\
 		$(DESTDIR)$(KRB5_INCDIR)/gssapi/$$f ; \
 	done
 
 depend:: $(ETSRCS) $(ETHDRS) $(GSSAPI_KRB5_HDR) error_map.h
-
-includes::  gssapi_krb5.h
 
 install::
 

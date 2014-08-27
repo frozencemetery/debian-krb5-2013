@@ -1,8 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil -*- */
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
+#include "k5-platform.h"
 #include "port-sockets.h"
+#include <sys/types.h>
 #include <com_err.h>
 
 #define TEST
@@ -29,18 +28,20 @@ kfatal (krb5_error_code err)
 }
 
 static const char *
-stypename (int stype)
+ttypename (k5_transport ttype)
 {
     static char buf[20];
-    switch (stype) {
-    case SOCK_STREAM:
-        return "stream";
-    case SOCK_DGRAM:
-        return "dgram";
-    case SOCK_RAW:
-        return "raw";
+    switch (ttype) {
+    case TCP_OR_UDP:
+        return "tcp or udp";
+    case TCP:
+        return "tcp";
+    case UDP:
+        return "udp";
+    case HTTPS:
+        return "https";
     default:
-        snprintf(buf, sizeof(buf), "?%d", stype);
+        snprintf(buf, sizeof(buf), "?%d", ttype);
         return buf;
     }
 }
@@ -58,7 +59,7 @@ print_addrs (void)
 
         if (entry->hostname != NULL) {
             printf("%2d: host %s\t%s\tport %d\n", (int)i, entry->hostname,
-                   stypename(entry->socktype), ntohs(entry->port));
+                   ttypename(entry->transport), ntohs(entry->port));
             continue;
         }
         err = getnameinfo((struct sockaddr *)&entry->addr, entry->addrlen,
@@ -69,7 +70,7 @@ print_addrs (void)
                    gai_strerror(err));
         } else {
             printf("%2d: address %s\t%s\tport %s\n", (int)i, hostbuf,
-                   stypename(entry->socktype), srvbuf);
+                   ttypename(entry->transport), srvbuf);
         }
     }
 }
@@ -129,7 +130,7 @@ main (int argc, char *argv[])
         break;
 
     case LOOKUP_WHATEVER:
-        err = k5_locate_kdc(ctx, &realm, &sl, master, 0);
+        err = k5_locate_kdc(ctx, &realm, &sl, master, FALSE);
         break;
     }
     if (err) kfatal (err);

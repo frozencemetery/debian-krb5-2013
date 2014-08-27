@@ -24,11 +24,11 @@
  * or implied warranty.
  */
 
+#include "k5-platform.h"
 #include "k5-plugin.h"
 #if USE_DLOPEN
 #include <dlfcn.h>
 #endif
-#include <stdio.h>
 #include <sys/types.h>
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -36,14 +36,23 @@
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-#include "k5-platform.h"
+#if USE_DLOPEN
+#ifdef RTLD_GROUP
+#define GROUP RTLD_GROUP
+#else
+#define GROUP 0
+#endif
+#ifdef RTLD_NODELETE
+#define NODELETE RTLD_NODELETE
+#else
+#define NODELETE 0
+#endif
+#define PLUGIN_DLOPEN_FLAGS (RTLD_NOW | RTLD_LOCAL | GROUP | NODELETE)
+#endif
 
 #if USE_DLOPEN && USE_CFBUNDLE
 #include <CoreFoundation/CoreFoundation.h>
@@ -257,11 +266,6 @@ krb5int_open_plugin (const char *filepath, struct plugin_file_handle **h, struct
         }
 #endif /* USE_CFBUNDLE */
 
-#ifdef RTLD_GROUP
-#define PLUGIN_DLOPEN_FLAGS (RTLD_NOW | RTLD_LOCAL | RTLD_GROUP)
-#else
-#define PLUGIN_DLOPEN_FLAGS (RTLD_NOW | RTLD_LOCAL)
-#endif
         if (!err) {
             handle = dlopen(filepath, PLUGIN_DLOPEN_FLAGS);
             if (handle == NULL) {
@@ -435,15 +439,6 @@ krb5int_close_plugin (struct plugin_file_handle *h)
 #elif HAVE_NDIR_H
 # include <ndir.h>
 #endif
-#endif
-
-
-#ifdef HAVE_STRERROR_R
-#define ERRSTR(ERR, BUF)                                                \
-    (strerror_r (ERR, BUF, sizeof(BUF)) == 0 ? BUF : strerror (ERR))
-#else
-#define ERRSTR(ERR, BUF)                        \
-    (strerror (ERR))
 #endif
 
 static long

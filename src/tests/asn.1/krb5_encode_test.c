@@ -24,7 +24,6 @@
  * or implied warranty.
  */
 
-#include <stdio.h>
 #include "k5-int.h"
 #include "com_err.h"
 #include "utility.h"
@@ -733,6 +732,14 @@ main(argc, argv)
         ktest_make_sample_data(&d);
         encode_run(d, "pa_otp_enc_req", "", encode_krb5_pa_otp_enc_req);
         ktest_empty_data(&d);
+    }
+    /****************************************************************/
+    /* encode_krb5_kkdcp_message */
+    {
+        krb5_kkdcp_message info;
+        ktest_make_sample_kkdcp_message(&info);
+        encode_run(info, "kkdcp_message", "", encode_krb5_kkdcp_message);
+        ktest_empty_kkdcp_message(&info);
     }
 #ifndef DISABLE_PKINIT
     /****************************************************************/

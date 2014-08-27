@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -102,11 +100,12 @@ source (See <a class="reference internal" href="../build/doing_build.html#do-bui
 <p class="first admonition-title">Note</p>
 <p>For the purpose of this document we will use the following
 names:</p>
-<div class="highlight-python"><pre>kerberos.mit.edu    - master KDC
+<div class="highlight-python"><div class="highlight"><pre>kerberos.mit.edu    - master KDC
 kerberos-1.mit.edu  - slave KDC
 ATHENA.MIT.EDU      - realm name
 .k5.ATHENA.MIT.EDU  - stash file
-admin/admin         - admin principal</pre>
+admin/admin         - admin principal
+</pre></div>
 </div>
 <p class="last">See <a class="reference internal" href="../mitK5defaults.html#mitk5defaults"><em>MIT Kerberos defaults</em></a> for the default names and locations
 of the relevant to this topic files.  Adjust the names and
@@ -128,8 +127,9 @@ section will explain those.</p>
 default ones, set <strong>KRB5_CONFIG</strong> and <strong>KRB5_KDC_PROFILE</strong> environment
 variables to point to the krb5.conf and kdc.conf respectively.  For
 example:</p>
-<div class="highlight-python"><pre>export KRB5_CONFIG=/yourdir/krb5.conf
-export KRB5_KDC_PROFILE=/yourdir/kdc.conf</pre>
+<div class="highlight-python"><div class="highlight"><pre>export KRB5_CONFIG=/yourdir/krb5.conf
+export KRB5_KDC_PROFILE=/yourdir/kdc.conf
+</pre></div>
 </div>
 <div class="section" id="krb5-conf">
 <h3>krb5.conf<a class="headerlink" href="#krb5-conf" title="Permalink to this headline">¶</a></h3>
@@ -141,7 +141,7 @@ section.  If you are not using DNS SRV records (see
 server in each realm, the <strong>admin_server</strong> tag must be set in the
 <a class="reference internal" href="conf_files/krb5_conf.html#realms"><em>[realms]</em></a> section.</p>
 <p>An example krb5.conf file:</p>
-<div class="highlight-python"><pre>[libdefaults]
+<div class="highlight-python"><div class="highlight"><pre>[libdefaults]
     default_realm = ATHENA.MIT.EDU
 
 [realms]
@@ -149,7 +149,8 @@ server in each realm, the <strong>admin_server</strong> tag must be set in the
         kdc = kerberos.mit.edu
         kdc = kerberos-1.mit.edu
         admin_server = kerberos.mit.edu
-    }</pre>
+    }
+</pre></div>
 </div>
 </div>
 <div class="section" id="kdc-conf">
@@ -158,7 +159,7 @@ server in each realm, the <strong>admin_server</strong> tag must be set in the
 KDC and kadmind, as well as realm-specific defaults, the database type
 and location, and logging.</p>
 <p>An example kdc.conf file:</p>
-<div class="highlight-python"><pre>[kdcdefaults]
+<div class="highlight-python"><div class="highlight"><pre>[kdcdefaults]
     kdc_ports = 88,750
 
 [realms]
@@ -180,7 +181,8 @@ and location, and logging.</p>
     # syslog.  You can instead send log output to files like this:
     kdc = FILE:/var/log/krb5kdc.log
     admin_server = FILE:/var/log/kadmin.log
-    default = FILE:/var/log/krb5lib.log</pre>
+    default = FILE:/var/log/krb5lib.log
+</pre></div>
 </div>
 <p>Replace <tt class="docutils literal"><span class="pre">ATHENA.MIT.EDU</span></tt> and <tt class="docutils literal"><span class="pre">kerberos.mit.edu</span></tt> with the name of
 your Kerberos realm and server respectively.</p>
@@ -218,15 +220,16 @@ punctuation mark at the end.)</p>
 <p>The following is an example of how to create a Kerberos database and
 stash file on the master KDC, using the <a class="reference internal" href="admin_commands/kdb5_util.html#kdb5-util-8"><em>kdb5_util</em></a> command.
 Replace <tt class="docutils literal"><span class="pre">ATHENA.MIT.EDU</span></tt> with the name of your Kerberos realm:</p>
-<div class="highlight-python"><pre>shell% kdb5_util create -r ATHENA.MIT.EDU -s
+<div class="highlight-python"><div class="highlight"><pre>shell% kdb5_util create -r ATHENA.MIT.EDU -s
 
-Initializing database '/usr/local/var/krb5kdc/principal' for realm 'ATHENA.MIT.EDU',
-master key name 'K/M@ATHENA.MIT.EDU'
+Initializing database &#39;/usr/local/var/krb5kdc/principal&#39; for realm &#39;ATHENA.MIT.EDU&#39;,
+master key name &#39;K/M@ATHENA.MIT.EDU&#39;
 You will be prompted for the database Master Password.
 It is important that you NOT FORGET this password.
 Enter KDC database master key:  &lt;= Type the master password.
 Re-enter KDC database master key to verify:  &lt;= Type it again.
-shell%</pre>
+shell%
+</pre></div>
 </div>
 <p>This will create five files in <a class="reference internal" href="../mitK5defaults.html#paths"><em>LOCALSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt> (or at the locations specified
 in <a class="reference internal" href="conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>):</p>
@@ -266,16 +269,17 @@ Kerberos database on the local filesystem.</p>
 to the ACL file (see <a class="reference internal" href="#admin-acl"><em>Add administrators to the ACL file</em></a>).</p>
 <p>In the following example, the administrative principal <tt class="docutils literal"><span class="pre">admin/admin</span></tt>
 is created:</p>
-<div class="highlight-python"><pre>shell% kadmin.local
+<div class="highlight-python"><div class="highlight"><pre>shell% kadmin.local
 
 kadmin.local: addprinc admin/admin@ATHENA.MIT.EDU
 
-WARNING: no policy specified for "admin/admin@ATHENA.MIT.EDU";
-assigning "default".
+WARNING: no policy specified for &quot;admin/admin@ATHENA.MIT.EDU&quot;;
+assigning &quot;default&quot;.
 Enter password for principal admin/admin@ATHENA.MIT.EDU:  &lt;= Enter a password.
 Re-enter password for principal admin/admin@ATHENA.MIT.EDU:  &lt;= Type it again.
-Principal "admin/admin@ATHENA.MIT.EDU" created.
-kadmin.local:</pre>
+Principal &quot;admin/admin@ATHENA.MIT.EDU&quot; created.
+kadmin.local:
+</pre></div>
 </div>
 </div>
 <div class="section" id="start-the-kerberos-daemons-on-the-master-kdc">
@@ -298,17 +302,19 @@ boot time, you can add them to the KDC&#8217;s <tt class="docutils literal"><spa
 <p>You can verify that they started properly by checking for their
 startup messages in the logging locations you defined in
 <a class="reference internal" href="conf_files/krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a> (see <a class="reference internal" href="conf_files/kdc_conf.html#logging"><em>[logging]</em></a>).  For example:</p>
-<div class="highlight-python"><pre>shell% tail /var/log/krb5kdc.log
+<div class="highlight-python"><div class="highlight"><pre>shell% tail /var/log/krb5kdc.log
 Dec 02 12:35:47 beeblebrox krb5kdc[3187](info): commencing operation
 shell% tail /var/log/kadmin.log
-Dec 02 12:35:52 beeblebrox kadmind[3189](info): starting</pre>
+Dec 02 12:35:52 beeblebrox kadmind[3189](info): starting
+</pre></div>
 </div>
 <p>Any errors the daemons encounter while starting will also be listed in
 the logging output.</p>
 <p>As an additional verification, check if <a class="reference internal" href="../user/user_commands/kinit.html#kinit-1"><em>kinit</em></a> succeeds
 against the principals that you have created on the previous step
 (<a class="reference internal" href="#addadmin-kdb"><em>Add administrators to the Kerberos database</em></a>).  Run:</p>
-<div class="highlight-python"><pre>shell% kinit admin/admin@ATHENA.MIT.EDU</pre>
+<div class="highlight-python"><div class="highlight"><pre>shell% kinit admin/admin@ATHENA.MIT.EDU
+</pre></div>
 </div>
 </div>
 <div class="section" id="install-the-slave-kdcs">
@@ -330,14 +336,15 @@ file from the master KDC to the secondary KDC servers.</p>
 host principal for each of the KDCs&#8217; <tt class="docutils literal"><span class="pre">host</span></tt> services.  For example,
 if the master KDC were called <tt class="docutils literal"><span class="pre">kerberos.mit.edu</span></tt>, and you had a
 slave KDC named <tt class="docutils literal"><span class="pre">kerberos-1.mit.edu</span></tt>, you would type the following:</p>
-<div class="highlight-python"><pre>shell% kadmin
+<div class="highlight-python"><div class="highlight"><pre>shell% kadmin
 kadmin: addprinc -randkey host/kerberos.mit.edu
-NOTICE: no policy specified for "host/kerberos.mit.edu@ATHENA.MIT.EDU"; assigning "default"
-Principal "host/kerberos.mit.edu@ATHENA.MIT.EDU" created.
+NOTICE: no policy specified for &quot;host/kerberos.mit.edu@ATHENA.MIT.EDU&quot;; assigning &quot;default&quot;
+Principal &quot;host/kerberos.mit.edu@ATHENA.MIT.EDU&quot; created.
 
 kadmin: addprinc -randkey host/kerberos-1.mit.edu
-NOTICE: no policy specified for "host/kerberos-1.mit.edu@ATHENA.MIT.EDU"; assigning "default"
-Principal "host/kerberos-1.mit.edu@ATHENA.MIT.EDU" created.</pre>
+NOTICE: no policy specified for &quot;host/kerberos-1.mit.edu@ATHENA.MIT.EDU&quot;; assigning &quot;default&quot;
+Principal &quot;host/kerberos-1.mit.edu@ATHENA.MIT.EDU&quot; created.
+</pre></div>
 </div>
 <p>It is not strictly necessary to have the master KDC server in the
 Kerberos database, but it can be handy if you want to be able to swap
@@ -348,7 +355,7 @@ extract each keytab locally on its own KDC.  If this is not feasible,
 you should use an encrypted session to send them across the network.
 To extract a keytab on a slave KDC called <tt class="docutils literal"><span class="pre">kerberos-1.mit.edu</span></tt>, you
 would execute the following command:</p>
-<div class="highlight-python"><pre>kadmin: ktadd host/kerberos-1.mit.edu
+<div class="highlight-python"><div class="highlight"><pre>kadmin: ktadd host/kerberos-1.mit.edu
 Entry for principal host/kerberos-1.mit.edu with kvno 2, encryption
     type aes256-cts-hmac-sha1-96 added to keytab FILE:/etc/krb5.keytab.
 Entry for principal host/kerberos-1.mit.edu with kvno 2, encryption
@@ -356,7 +363,8 @@ Entry for principal host/kerberos-1.mit.edu with kvno 2, encryption
 Entry for principal host/kerberos-1.mit.edu with kvno 2, encryption
     type des3-cbc-sha1 added to keytab FILE:/etc/krb5.keytab.
 Entry for principal host/kerberos-1.mit.edu with kvno 2, encryption
-    type arcfour-hmac added to keytab FILE:/etc/krb5.keytab.</pre>
+    type arcfour-hmac added to keytab FILE:/etc/krb5.keytab.
+</pre></div>
 </div>
 </div>
 <div class="section" id="configure-slave-kdcs">
@@ -380,8 +388,9 @@ principals which are allowed to provide Kerberos dump updates on the
 slave machine with a new database.  Create a file named kpropd.acl in
 the KDC state directory containing the <tt class="docutils literal"><span class="pre">host</span></tt> principals for each of
 the KDCs:</p>
-<div class="highlight-python"><pre>host/kerberos.mit.edu@ATHENA.MIT.EDU
-host/kerberos-1.mit.edu@ATHENA.MIT.EDU</pre>
+<div class="highlight-python"><div class="highlight"><pre>host/kerberos.mit.edu@ATHENA.MIT.EDU
+host/kerberos-1.mit.edu@ATHENA.MIT.EDU
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -394,12 +403,14 @@ slave KDCs.</p>
 </div>
 <p>Then, add the following line to <tt class="docutils literal"><span class="pre">/etc/inetd.conf</span></tt> on each KDC
 (adjust the path to kpropd):</p>
-<div class="highlight-python"><pre>krb5_prop stream tcp nowait root /usr/local/sbin/kpropd kpropd</pre>
+<div class="highlight-python"><div class="highlight"><pre>krb5_prop stream tcp nowait root /usr/local/sbin/kpropd kpropd
+</pre></div>
 </div>
 <p>You also need to add the following line to <tt class="docutils literal"><span class="pre">/etc/services</span></tt> on each
 KDC, if it is not already present (assuming that the default port is
 used):</p>
-<div class="highlight-python"><pre>krb5_prop       754/tcp               # Kerberos slave propagation</pre>
+<div class="highlight-python"><div class="highlight"><pre>krb5_prop       754/tcp               # Kerberos slave propagation
+</pre></div>
 </div>
 <p>Restart inetd daemon.</p>
 <p>Alternatively, start <a class="reference internal" href="admin_commands/kpropd.html#kpropd-8"><em>kpropd</em></a> as a stand-alone daemon.  This is
@@ -413,13 +424,15 @@ the master&#8217;s database.</p>
 <span id="kprop-to-slaves"></span><h3>Propagate the database to each slave KDC<a class="headerlink" href="#propagate-the-database-to-each-slave-kdc" title="Permalink to this headline">¶</a></h3>
 <p>First, create a dump file of the database on the master KDC, as
 follows:</p>
-<div class="highlight-python"><pre>shell% kdb5_util dump /usr/local/var/krb5kdc/slave_datatrans</pre>
+<div class="highlight-python"><div class="highlight"><pre>shell% kdb5_util dump /usr/local/var/krb5kdc/slave_datatrans
+</pre></div>
 </div>
 <p>Then, manually propagate the database to each slave KDC, as in the
 following example:</p>
-<div class="highlight-python"><pre>shell% kprop -f /usr/local/var/krb5kdc/slave_datatrans kerberos-1.mit.edu
+<div class="highlight-python"><div class="highlight"><pre>shell% kprop -f /usr/local/var/krb5kdc/slave_datatrans kerberos-1.mit.edu
 
-Database propagation to kerberos-1.mit.edu: SUCCEEDED</pre>
+Database propagation to kerberos-1.mit.edu: SUCCEEDED
+</pre></div>
 </div>
 <p>You will need a script to dump and propagate the database. The
 following is an example of a Bourne shell script that will do this.</p>
@@ -428,16 +441,17 @@ following is an example of a Bourne shell script that will do this.</p>
 <p class="last">Remember that you need to replace <tt class="docutils literal"><span class="pre">/usr/local/var/krb5kdc</span></tt>
 with the name of the KDC state directory.</p>
 </div>
-<div class="highlight-python"><pre>#!/bin/sh
+<div class="highlight-python"><div class="highlight"><pre>#!/bin/sh
 
-kdclist = "kerberos-1.mit.edu kerberos-2.mit.edu"
+kdclist = &quot;kerberos-1.mit.edu kerberos-2.mit.edu&quot;
 
 kdb5_util dump /usr/local/var/krb5kdc/slave_datatrans
 
 for kdc in $kdclist
 do
     kprop -f /usr/local/var/krb5kdc/slave_datatrans $kdc
-done</pre>
+done
+</pre></div>
 </div>
 <p>You will need to set up a cron job to run this script at the intervals
 you decided on earlier (see <a class="reference internal" href="realm_config.html#db-prop"><em>Database propagation</em></a>).</p>
@@ -451,40 +465,19 @@ the KDCs&#8217; <tt class="docutils literal"><span class="pre">/etc/rc</span></t
 the krb5kdc daemon automatically at boot time.</p>
 <div class="section" id="propagation-failed">
 <h4>Propagation failed?<a class="headerlink" href="#propagation-failed" title="Permalink to this headline">¶</a></h4>
-<div class="admonition error" id="prop-failed-start">
-<p class="first admonition-title">Error</p>
-<p class="last">kprop: No route to host while connecting to server</p>
-</div>
-<p>Make sure that the hostname of the slave (as given to kprop) is
-correct, and that any firewalls between the master and the slave allow
-a connection on port 754.</p>
-<div class="admonition error">
-<p class="first admonition-title">Error</p>
-<p class="last">kprop: Connection refused while connecting to server</p>
-</div>
-<p>If the slave is intended to run kpropd out of inetd, make sure that
-inetd is configured to accept krb5_prop connections.  inetd may need
-to be restarted or sent a SIGHUP to recognize the new configuration.
-If the slave is intended to run kpropd in standalone mode, make sure
-that it is running.</p>
-<div class="admonition error">
-<p class="first admonition-title">Error</p>
-<p class="last">kprop: Server rejected authentication (during sendauth
-exchange) while authenticating to server</p>
-</div>
-<p>Make sure that:</p>
+<p>You may encounter the following error messages. For a more detailed
+discussion on possible causes and solutions click on the error link
+to be redirected to <a class="reference internal" href="troubleshoot.html#troubleshoot"><em>Troubleshooting</em></a> section.</p>
 <ol class="arabic simple">
-<li>The time is synchronized between the master and slave KDCs.</li>
-<li>The master stash file was copied from the master to the expected
-location on the slave.</li>
-<li>The slave has a keytab file in the default location containing a
-<tt class="docutils literal"><span class="pre">host</span></tt> principal for the slave&#8217;s hostname.</li>
+<li><a class="reference internal" href="troubleshoot.html#kprop-no-route"><em>kprop: No route to host while connecting to server</em></a></li>
+<li><a class="reference internal" href="troubleshoot.html#kprop-con-refused"><em>kprop: Connection refused while connecting to server</em></a></li>
+<li><a class="reference internal" href="troubleshoot.html#kprop-sendauth-exchange"><em>kprop: Server rejected authentication (during sendauth exchange) while authenticating to server</em></a></li>
 </ol>
 </div>
 </div>
 </div>
 <div class="section" id="add-kerberos-principals-to-the-database">
-<span id="prop-failed-end"></span><h2>Add Kerberos principals to the database<a class="headerlink" href="#add-kerberos-principals-to-the-database" title="Permalink to this headline">¶</a></h2>
+<h2>Add Kerberos principals to the database<a class="headerlink" href="#add-kerberos-principals-to-the-database" title="Permalink to this headline">¶</a></h2>
 <p>Once your KDCs are set up and running, you are ready to use
 <a class="reference internal" href="admin_commands/kadmin_local.html#kadmin-1"><em>kadmin</em></a> to load principals for your users, hosts, and other
 services into the Kerberos database.  This procedure is described
@@ -587,6 +580,7 @@ for details.</p>
 <li class="toctree-l2"><a class="reference internal" href="otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="env_variables.html">Environment variables</a></li>
@@ -621,8 +615,8 @@ for details.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

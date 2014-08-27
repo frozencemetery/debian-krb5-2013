@@ -53,7 +53,6 @@
  * Use is subject to license terms.
  */
 
-#include <stdio.h>
 #include <k5-int.h>
 #include <kadm5/admin.h>
 #include <locale.h>
@@ -505,8 +504,7 @@ static int open_db_and_mkey()
 
     if (global_params.iprop_enabled) {
         if (ulog_map(util_context, global_params.iprop_logfile,
-                     global_params.iprop_ulogsize, FKCOMMAND,
-                     db5util_db_args)) {
+                     global_params.iprop_ulogsize)) {
             fprintf(stderr, _("%s: Could not map log\n"), progname);
             exit_status++;
             return(1);
@@ -586,7 +584,7 @@ add_random_key(argc, argv)
         return;
     }
     ret = krb5_string_to_keysalts(ks_str,
-                                  ", \t", ":.-", 0,
+                                  NULL, NULL, 0,
                                   &keysalts,
                                   &num_keysalts);
     if (ret) {

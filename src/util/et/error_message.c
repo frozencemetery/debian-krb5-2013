@@ -20,20 +20,9 @@
  * provided "as is" without express or implied warranty.
  */
 
-#include "autoconf.h"
-#include <stdio.h>
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#include <string.h>
+#include "k5-platform.h"
 #include "com_err.h"
 #include "error_table.h"
-#include "k5-platform.h"
-
-#if !defined(HAVE_STRERROR) && !defined(SYS_ERRLIST_DECLARED)
-extern char const * const sys_errlist[];
-extern const int sys_nerr;
-#endif
 
 static struct et_list *et_list;
 static k5_mutex_t et_list_lock = K5_MUTEX_PARTIAL_INITIALIZER;
@@ -121,6 +110,9 @@ error_message(long code)
     char *cp, *cp1;
     const struct error_table *table;
 
+    if (CALL_INIT_FUNCTION(com_err_initialize))
+        return 0;
+
     l_offset = (unsigned long)code & ((1<<ERRCODE_RANGE)-1);
     offset = l_offset;
     table_num = ((unsigned long)code - l_offset) & ERRCODE_MAX;
@@ -139,24 +131,12 @@ error_message(long code)
         /* This could trip if int is 16 bits.  */
         if ((unsigned long)(int)code != (unsigned long)code)
             abort ();
-#ifdef HAVE_STRERROR_R
         cp = get_thread_buffer();
-        if (cp && strerror_r((int) code, cp, ET_EBUFSIZ) == 0)
+        if (cp && strerror_r(code, cp, ET_EBUFSIZ) == 0)
             return cp;
-#endif
-#ifdef HAVE_STRERROR
-        cp = strerror((int) code);
-        if (cp)
-            return cp;
-#elif defined HAVE_SYS_ERRLIST
-        if (offset < sys_nerr)
-            return(sys_errlist[offset]);
-#endif
-        goto oops;
+        return strerror(code);
     }
 
-    if (CALL_INIT_FUNCTION(com_err_initialize))
-        return 0;
     k5_mutex_lock(&et_list_lock);
     dprintf(("scanning list for %x\n", table_num));
     for (e = et_list; e != NULL; e = e->next) {

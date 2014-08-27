@@ -301,6 +301,8 @@ void krb5int_trace(krb5_context context, const char *fmt, ...);
 #define TRACE_RD_REQ_DECRYPT_SPECIFIC(c, princ, keyblock)               \
     TRACE(c, "Decrypted AP-REQ with specified server principal {princ}: " \
           "{keyblock}", princ, keyblock)
+#define TRACE_RD_REQ_DECRYPT_FAIL(c, err)                       \
+    TRACE(c, "Failed to decrypt AP-REQ ticket: {kerr}", err)
 #define TRACE_RD_REQ_NEGOTIATED_ETYPE(c, etype)                     \
     TRACE(c, "Negotiated enctype based on authenticator: {etype}",  \
           etype)
@@ -310,6 +312,9 @@ void krb5int_trace(krb5_context context, const char *fmt, ...);
     TRACE(c, "AP-REQ ticket: {princ} -> {princ}, session key {keyblock}", \
           client, server, keyblock)
 
+#define TRACE_SENDTO_KDC_ERROR_SET_MESSAGE(c, raddr, err)               \
+    TRACE(c, "Error preparing message to send to {raddr}: {errno}",     \
+          raddr, err)
 #define TRACE_SENDTO_KDC(c, len, rlm, master, tcp)                     \
     TRACE(c, "Sending request ({int} bytes) to {data}{str}{str}", len,  \
           rlm, (master) ? " (master)" : "", (tcp) ? " (tcp only)" : "")
@@ -319,6 +324,16 @@ void krb5int_trace(krb5_context context, const char *fmt, ...);
     TRACE(c, "Resolving hostname {str}", hostname)
 #define TRACE_SENDTO_KDC_RESPONSE(c, len, raddr)                        \
     TRACE(c, "Received answer ({int} bytes) from {raddr}", len, raddr)
+#define TRACE_SENDTO_KDC_HTTPS_ERROR_CONNECT(c, raddr)          \
+    TRACE(c, "HTTPS error connecting to {raddr}", raddr)
+#define TRACE_SENDTO_KDC_HTTPS_ERROR_RECV(c, raddr)             \
+    TRACE(c, "HTTPS error receiving from {raddr}", raddr)
+#define TRACE_SENDTO_KDC_HTTPS_ERROR_SEND(c, raddr)     \
+    TRACE(c, "HTTPS error sending to {raddr}", raddr)
+#define TRACE_SENDTO_KDC_HTTPS_SEND(c, raddr)                           \
+    TRACE(c, "Sending HTTPS request to {raddr}", raddr)
+#define TRACE_SENDTO_KDC_HTTPS_ERROR(c, errs)                           \
+    TRACE(c, "HTTPS error: {str}", errs)
 #define TRACE_SENDTO_KDC_TCP_CONNECT(c, raddr)                  \
     TRACE(c, "Initiating TCP connection to {raddr}", raddr)
 #define TRACE_SENDTO_KDC_TCP_DISCONNECT(c, raddr)               \
@@ -355,6 +370,19 @@ void krb5int_trace(krb5_context context, const char *fmt, ...);
 #define TRACE_TGS_REPLY_DECODE_SESSION(c, keyblock)                     \
     TRACE(c, "TGS reply didn't decode with subkey; trying session key " \
           "({keyblock)}", keyblock)
+
+#define TRACE_TLS_ERROR(c, errs)                \
+    TRACE(c, "TLS error: {str}", errs)
+#define TRACE_TLS_NO_REMOTE_CERTIFICATE(c)              \
+    TRACE(c, "TLS server certificate not received")
+#define TRACE_TLS_CERT_ERROR(c, depth, namelen, name, err, errs)        \
+    TRACE(c, "TLS certificate error at {int} ({lenstr}): {int} ({str})", \
+          depth, namelen, name, err, errs)
+#define TRACE_TLS_SERVER_NAME_MISMATCH(c, hostname)                     \
+    TRACE(c, "TLS certificate name mismatch: server certificate is "    \
+          "not for \"{str}\"", hostname)
+#define TRACE_TLS_SERVER_NAME_MATCH(c, hostname)                        \
+    TRACE(c, "TLS certificate name matched \"{str}\"", hostname)
 
 #define TRACE_TKT_CREDS(c, creds, cache)                            \
     TRACE(c, "Getting credentials {creds} using ccache {ccache}",   \
@@ -406,18 +434,6 @@ void krb5int_trace(krb5_context context, const char *fmt, ...);
     TRACE(c, "TXT record {str} not found", host)
 #define TRACE_TXT_LOOKUP_SUCCESS(c, host, realm)                \
     TRACE(c, "TXT record {str} found: {str}", host, realm)
-
-#define TRACE_SNAME_TO_PRINCIPAL(c, host, sname, type) \
-    TRACE(c, "Convert service {str} ({ptype}) on host {str} to principal", \
-          sname, type, host)
-#define TRACE_SNAME_TO_PRINCIPAL_NOCANON(c, host) \
-    TRACE(c, "Failed to canonicalize {str}; using as-is", host)
-#define TRACE_SNAME_TO_PRINCIPAL_CANON(c, host) \
-    TRACE(c, "Remote host after forward canonicalization: {str}", host)
-#define TRACE_SNAME_TO_PRINCIPAL_RDNS(c, host) \
-    TRACE(c, "Remote host after reverse DNS processing: {str}", host)
-#define TRACE_SNAME_TO_PRINCIPAL_RETURN(c, princ) \
-    TRACE(c, "Got service principal {princ}", princ)
 
 #define TRACE_CHECK_REPLY_SERVER_DIFFERS(c, request, reply) \
     TRACE(c, "Reply server {princ} differs from requested {princ}", \

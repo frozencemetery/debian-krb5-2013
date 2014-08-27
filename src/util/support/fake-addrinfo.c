@@ -101,14 +101,11 @@
  *   these functions, and throw all this away.  Pleeease?  :-)
  */
 
-#include "port-sockets.h"
-#include "socket-utils.h"
 #include "k5-platform.h"
 #include "k5-thread.h"
+#include "port-sockets.h"
+#include "socket-utils.h"
 #include "supp-int.h"
-
-#include <stdio.h>
-#include <errno.h>
 
 #define IMPLEMENT_FAKE_GETADDRINFO
 #include "fake-addrinfo.h"
@@ -566,9 +563,6 @@ static inline int fai_add_entry (struct addrinfo **result, void *addr,
         sin4->sin_family = AF_INET;
         sin4->sin_addr = *(struct in_addr *)addr;
         sin4->sin_port = port;
-#ifdef HAVE_SA_LEN
-        sin4->sin_len = sizeof (struct sockaddr_in);
-#endif
     }
     if (template->ai_family == AF_INET6) {
         struct sockaddr_in6 *sin6;
@@ -580,9 +574,6 @@ static inline int fai_add_entry (struct addrinfo **result, void *addr,
         sin6->sin6_family = AF_INET6;
         sin6->sin6_addr = *(struct in6_addr *)addr;
         sin6->sin6_port = port;
-#ifdef HAVE_SA_LEN
-        sin6->sin6_len = sizeof (struct sockaddr_in6);
-#endif
     }
     n->ai_next = *result;
     *result = n;
@@ -1145,7 +1136,7 @@ getaddrinfo (const char *name, const char *serv, const struct addrinfo *hint,
             if (lport > 65535)
                 return EAI_SOCKTYPE;
             service_is_numeric = 1;
-            service_port = htons(lport);
+            service_port = lport;
 #ifdef AI_NUMERICSERV
             if (hint && hint->ai_flags & AI_NUMERICSERV)
                 serv = "9";
@@ -1281,14 +1272,7 @@ getaddrinfo (const char *name, const char *serv, const struct addrinfo *hint,
             if (socket_type != 0 && ai->ai_socktype == 0)
                 /* Is this check actually needed?  */
                 ai->ai_socktype = socket_type;
-            switch (ai->ai_family) {
-            case AF_INET:
-                ((struct sockaddr_in *)ai->ai_addr)->sin_port = service_port;
-                break;
-            case AF_INET6:
-                ((struct sockaddr_in6 *)ai->ai_addr)->sin6_port = service_port;
-                break;
-            }
+            sa_setport(ai->ai_addr, service_port);
         }
     }
 #endif
@@ -1301,9 +1285,6 @@ getaddrinfo (const char *name, const char *serv, const struct addrinfo *hint,
            just leftover from previous contents of the memory
            block?).  So, always override what libc returned.  */
         ai->ai_addr->sa_family = ai->ai_family;
-#ifdef HAVE_SA_LEN /* always true on AIX, actually */
-        ai->ai_addr->sa_len = ai->ai_addrlen;
-#endif
     }
 #endif
 

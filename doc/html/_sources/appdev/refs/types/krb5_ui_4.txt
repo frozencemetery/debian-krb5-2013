@@ -1,12 +1,20 @@
 .. highlightlang:: c
 
-.. _krb5-ui4-struct:
+.. _krb5-ui-4-struct:
 
 krb5_ui_4
-==========
+=========
 
 ..
 .. c:type:: krb5_ui_4
 ..
 
-krb5_ui_4 is an unsigned 32-bit integer type.
+
+
+
+Declaration
+------------
+
+typedef uint32_t krb5_ui_4
+
+

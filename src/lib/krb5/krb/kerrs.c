@@ -24,7 +24,6 @@
  * or implied warranty.
  */
 
-#include <stdarg.h>
 #include "k5-int.h"
 #include "int-proto.h"
 
@@ -35,7 +34,6 @@ static int error_message_debug = 0;
 #endif
 #endif
 
-#undef krb5_set_error_message
 void KRB5_CALLCONV_C
 krb5_set_error_message(krb5_context ctx, krb5_error_code code,
                        const char *fmt, ...)
@@ -53,30 +51,6 @@ krb5_set_error_message(krb5_context ctx, krb5_error_code code,
     }
 #endif
     k5_vset_error(&ctx->err, code, fmt, args);
-#ifdef DEBUG
-    if (ERROR_MESSAGE_DEBUG())
-        fprintf(stderr, "->%s\n", ctx->err.msg);
-#endif
-    va_end(args);
-}
-
-void KRB5_CALLCONV_C
-krb5_set_error_message_fl(krb5_context ctx, krb5_error_code code,
-                          const char *file, int line, const char *fmt, ...)
-{
-    va_list args;
-
-    if (ctx == NULL)
-        return;
-    va_start(args, fmt);
-#ifdef DEBUG
-    if (ERROR_MESSAGE_DEBUG()) {
-        fprintf(stderr,
-                "krb5_set_error_message(ctx=%p/err=%p, code=%ld, ...)\n",
-                ctx, &ctx->err, (long)code);
-    }
-#endif
-    k5_vset_error_fl(&ctx->err, code, file, line, fmt, args);
 #ifdef DEBUG
     if (ERROR_MESSAGE_DEBUG())
         fprintf(stderr, "->%s\n", ctx->err.msg);
@@ -179,4 +153,14 @@ k5_restore_ctx_error(krb5_context ctx, struct errinfo *in)
         k5_clear_error(in);
     }
     return code;
+}
+
+/* If ctx contains an extended error message for oldcode, change it to be an
+ * extended error message for newcode. */
+void
+k5_change_error_message_code(krb5_context ctx, krb5_error_code oldcode,
+                             krb5_error_code newcode)
+{
+    if (ctx != NULL && ctx->err.msg != NULL && ctx->err.code == oldcode)
+        ctx->err.code = newcode;
 }

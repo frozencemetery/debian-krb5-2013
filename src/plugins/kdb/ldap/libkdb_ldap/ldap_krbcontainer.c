@@ -40,7 +40,6 @@ krb5_error_code
 krb5_ldap_read_krbcontainer_dn(krb5_context context, char **container_dn)
 {
     krb5_error_code                 st=0;
-    LDAP                            *ld=NULL;
     char                            *dn=NULL;
     kdb5_dal_handle                 *dal_handle=NULL;
     krb5_ldap_context               *ldap_context=NULL;
@@ -48,15 +47,13 @@ krb5_ldap_read_krbcontainer_dn(krb5_context context, char **container_dn)
 
     *container_dn = NULL;
     SETUP_CONTEXT();
-    GET_HANDLE();
 
     /* read kerberos containter location from [dbmodules] section of krb5.conf file */
     if (ldap_context->conf_section) {
         if ((st=profile_get_string(context->profile, KDB_MODULE_SECTION, ldap_context->conf_section,
                                    KRB5_CONF_LDAP_KERBEROS_CONTAINER_DN, NULL,
                                    &dn)) != 0) {
-            krb5_set_error_message(context, st,
-                                   _("Error reading kerberos container "
+            k5_setmsg(context, st, _("Error reading kerberos container "
                                      "location from krb5.conf"));
             goto cleanup;
         }
@@ -67,8 +64,7 @@ krb5_ldap_read_krbcontainer_dn(krb5_context context, char **container_dn)
         if ((st=profile_get_string(context->profile, KDB_MODULE_DEF_SECTION,
                                    KRB5_CONF_LDAP_KERBEROS_CONTAINER_DN, NULL,
                                    NULL, &dn)) != 0) {
-            krb5_set_error_message(context, st,
-                                   _("Error reading kerberos container "
+            k5_setmsg(context, st, _("Error reading kerberos container "
                                      "location from krb5.conf"));
             goto cleanup;
         }
@@ -76,8 +72,7 @@ krb5_ldap_read_krbcontainer_dn(krb5_context context, char **container_dn)
 
     if (dn == NULL) {
         st = KRB5_KDB_SERVER_INTERNAL_ERR;
-        krb5_set_error_message(context, st,
-                               _("Kerberos container location not specified"));
+        k5_setmsg(context, st, _("Kerberos container location not specified"));
         goto cleanup;
     }
 

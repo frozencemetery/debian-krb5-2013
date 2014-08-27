@@ -1864,7 +1864,7 @@ ure_write_dfa(ure_dfa_t dfa, FILE *out)
                     if (sym->props & (1 << k)) {
                         if (h != 0)
                           putc(',', out);
-                        fprintf(out, "%hd", k + 1);
+                        fprintf(out, "%d", k + 1);
                         h = 1;
                     }
                 }
@@ -1957,7 +1957,7 @@ int
 ure_exec(ure_dfa_t dfa, int flags, ucs2_t *text, unsigned long textlen,
          unsigned long *match_start, unsigned long *match_end)
 {
-    int i, j, matched, found, skip;
+    int i, j, matched, found;
     unsigned long ms, me;
     ucs4_t c;
     ucs2_t *sp, *ep, *lp;
@@ -1983,7 +1983,7 @@ ure_exec(ure_dfa_t dfa, int flags, ucs2_t *text, unsigned long textlen,
 
     stp = dfa->states;
 
-    for (found = skip = 0; found == 0 && sp < ep; ) {
+    for (found = 0; found == 0 && sp < ep; ) {
         lp = sp;
         c = *sp++;
 

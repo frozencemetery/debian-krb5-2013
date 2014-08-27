@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -105,13 +103,14 @@ configuration files and user commands.  The allowed formats are:</p>
 <p class="last">The time interval should not exceed 2147483647 seconds.</p>
 </div>
 <p>Examples:</p>
-<div class="highlight-python"><pre>Request a ticket valid for one hour, five hours, 30 minutes
+<div class="highlight-python"><div class="highlight"><pre>Request a ticket valid for one hour, five hours, 30 minutes
 and 10 days respectively:
 
   kinit -l 3600
   kinit -l 5:00
   kinit -l 30m
-  kinit -l "10d 0h 0m 0s"</pre>
+  kinit -l &quot;10d 0h 0m 0s&quot;
+</pre></div>
 </div>
 </div>
 <div class="section" id="getdate-time">
@@ -168,12 +167,13 @@ time</td>
 </div></blockquote>
 <p>(See <a class="reference internal" href="#abbreviation"><em>Abbreviations used in this document</em></a>.)</p>
 <p>Examples:</p>
-<div class="highlight-python"><pre>Create a principal that expires on the date indicated:
-    addprinc test1 -expire "3/27/12 10:00:07 EST"
-    addprinc test2 -expire "January 23, 2015 10:05pm"
-    addprinc test3 -expire "22:00 GMT"
+<div class="highlight-python"><div class="highlight"><pre>Create a principal that expires on the date indicated:
+    addprinc test1 -expire &quot;3/27/12 10:00:07 EST&quot;
+    addprinc test2 -expire &quot;January 23, 2015 10:05pm&quot;
+    addprinc test3 -expire &quot;22:00 GMT&quot;
 Add a principal that will expire in 30 minutes:
-    addprinc test4 -expire "30 minutes"</pre>
+    addprinc test4 -expire &quot;30 minutes&quot;
+</pre></div>
 </div>
 </div>
 <div class="section" id="absolute-time">
@@ -223,9 +223,10 @@ the evening</td>
 </table>
 </div></blockquote>
 <p>(See <a class="reference internal" href="#abbreviation"><em>Abbreviations used in this document</em></a>.)</p>
-<p>Example</p>
-<div class="highlight-python"><pre>Set the default expiration date to July 27, 2012 at 20:30
-default_principal_expiration = 20120727203000</pre>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>Set the default expiration date to July 27, 2012 at 20:30
+default_principal_expiration = 20120727203000
+</pre></div>
 </div>
 <div class="section" id="abbreviations-used-in-this-document">
 <span id="abbreviation"></span><h3>Abbreviations used in this document<a class="headerlink" href="#abbreviations-used-in-this-document" title="Permalink to this headline">¶</a></h3>
@@ -315,8 +316,8 @@ enclose it in double quotes;</li>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

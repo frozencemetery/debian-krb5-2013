@@ -43,7 +43,7 @@ A string representation of a Kerberos name consists of one or more principal nam
 
 
 
-To use the slash and @ symbols as part of a component (quoted) instead of using them as a component separator or as a realm prefix), put a backslash (\) character in front of the symbol. Similarly, newline, tab, backspace, and NULL characters can be included in a component by using **n** , **t** , **b** or **0** , respectively.
+To use the slash and @ symbols as part of a component (quoted) instead of using them as a component separator or as a realm prefix), put a backslash () character in front of the symbol. Similarly, newline, tab, backspace, and NULL characters can be included in a component by using **n** , **t** , **b** or **0** , respectively.
 
 
 

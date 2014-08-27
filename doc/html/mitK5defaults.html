@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,8 +14,8 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '1.12.1',
+        URL_ROOT:    './',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -110,39 +108,43 @@
 <td><a class="reference internal" href="#paths"><em>LOCALSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt><tt class="docutils literal"><span class="pre">/kadm5.acl</span></tt></td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>Plugin base directory</td>
+<tr class="row-odd"><td>OTP socket directory</td>
+<td><a class="reference internal" href="#paths"><em>RUNSTATEDIR</em></a><tt class="docutils literal"><span class="pre">/krb5kdc</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Plugin base directory</td>
 <td><a class="reference internal" href="#paths"><em>LIBDIR</em></a><tt class="docutils literal"><span class="pre">/krb5/plugins</span></tt></td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="basic/rcache_def.html#rcache-definition"><em>replay cache</em></a> directory</td>
+<tr class="row-odd"><td><a class="reference internal" href="basic/rcache_def.html#rcache-definition"><em>replay cache</em></a> directory</td>
 <td><tt class="docutils literal"><span class="pre">/var/tmp</span></tt></td>
 <td><strong>KRB5RCACHEDIR</strong></td>
 </tr>
-<tr class="row-odd"><td>Master key default enctype</td>
+<tr class="row-even"><td>Master key default enctype</td>
 <td><tt class="docutils literal"><span class="pre">aes256-cts-hmac-sha1-96</span></tt></td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td>Default <a class="reference internal" href="admin/conf_files/kdc_conf.html#keysalt-lists"><em>keysalt list</em></a></td>
+<tr class="row-odd"><td>Default <a class="reference internal" href="admin/conf_files/kdc_conf.html#keysalt-lists"><em>keysalt list</em></a></td>
 <td><tt class="docutils literal"><span class="pre">aes256-cts-hmac-sha1-96:normal</span> <span class="pre">aes128-cts-hmac-sha1-96:normal</span> <span class="pre">des3-cbc-sha1:normal</span> <span class="pre">arcfour-hmac-md5:normal</span></tt></td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>Permitted enctypes</td>
+<tr class="row-even"><td>Permitted enctypes</td>
 <td><tt class="docutils literal"><span class="pre">aes256-cts-hmac-sha1-96</span> <span class="pre">aes128-cts-hmac-sha1-96</span> <span class="pre">des3-cbc-sha1</span> <span class="pre">arcfour-hmac-md5</span> <span class="pre">camellia256-cts-cmac</span> <span class="pre">camellia128-cts-cmac</span> <span class="pre">des-cbc-crc</span> <span class="pre">des-cbc-md5</span> <span class="pre">des-cbc-md4</span></tt></td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td>KDC default port</td>
+<tr class="row-odd"><td>KDC default port</td>
 <td>88</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>Second KDC default port</td>
+<tr class="row-even"><td>Second KDC default port</td>
 <td>750</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-even"><td>Admin server port</td>
+<tr class="row-odd"><td>Admin server port</td>
 <td>749</td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>Password change port</td>
+<tr class="row-even"><td>Password change port</td>
 <td>464</td>
 <td>&nbsp;</td>
 </tr>
@@ -230,22 +232,27 @@ operating system&#8217;s filesystem layout.</p>
 <td><tt class="docutils literal"><span class="pre">/usr/local/var</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">/var</span></tt></td>
 </tr>
-<tr class="row-odd"><td>Administrative programs</td>
+<tr class="row-odd"><td>Parent of KDC runtime dir</td>
+<td>RUNSTATEDIR</td>
+<td><tt class="docutils literal"><span class="pre">/usr/local/var/run</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">/run</span></tt></td>
+</tr>
+<tr class="row-even"><td>Administrative programs</td>
 <td>SBINDIR</td>
 <td><tt class="docutils literal"><span class="pre">/usr/local/sbin</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">/usr/sbin</span></tt></td>
 </tr>
-<tr class="row-even"><td>Alternate krb5.conf dir</td>
+<tr class="row-odd"><td>Alternate krb5.conf dir</td>
 <td>SYSCONFDIR</td>
 <td><tt class="docutils literal"><span class="pre">/usr/local/etc</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">/etc</span></tt></td>
 </tr>
-<tr class="row-odd"><td>Default ccache name</td>
+<tr class="row-even"><td>Default ccache name</td>
 <td>DEFCCNAME</td>
 <td><tt class="docutils literal"><span class="pre">FILE:/tmp/krb5cc_%{uid}</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">FILE:/tmp/krb5cc_%{uid}</span></tt></td>
 </tr>
-<tr class="row-even"><td>Default keytab name</td>
+<tr class="row-odd"><td>Default keytab name</td>
 <td>DEFKTNAME</td>
 <td><tt class="docutils literal"><span class="pre">FILE:/etc/krb5.keytab</span></tt></td>
 <td><tt class="docutils literal"><span class="pre">FILE:/etc/krb5.keytab</span></tt></td>
@@ -293,6 +300,7 @@ according to the operating system&#8217;s layout of <tt class="docutils literal"
 <li class="toctree-l2"><a class="reference internal" href="admin/otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin/princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin/enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="admin/https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin/admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">MIT Kerberos defaults</a><ul class="simple">
 </ul>
@@ -329,8 +337,8 @@ according to the operating system&#8217;s layout of <tt class="docutils literal"
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

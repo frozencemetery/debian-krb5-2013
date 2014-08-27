@@ -120,7 +120,7 @@ static krb5_key_data keys[] = {
           U("expsalt") }
     },
     {
-        1,                          /* key_data_ver */
+        2,                          /* key_data_ver */
         2,                          /* key_data_kvno */
         { ENCTYPE_AES128_CTS_HMAC_SHA1_96, 0 },
         { 16, 0 },
@@ -276,13 +276,9 @@ main()
     osa_policy_ent_t pol;
     krb5_pa_data **e_data;
     const char *status;
-    char *defrealm;
     int count;
 
     CHECK(krb5_init_context_profile(NULL, KRB5_INIT_CONTEXT_KDC, &ctx));
-
-    /* Currently necessary for krb5_db_open to work. */
-    CHECK(krb5_get_default_realm(ctx, &defrealm));
 
     /* If we can, revert to requiring all entries match sample_princ in
      * iter_princ_handler */
@@ -392,7 +388,7 @@ main()
 
     /* Exercise principal iteration code. */
     count = 0;
-    CHECK(krb5_db_iterate(ctx, "xy*", iter_princ_handler, &count));
+    CHECK(krb5_db_iterate(ctx, "xy*", iter_princ_handler, &count, 0));
     CHECK_COND(count == 1);
 
     CHECK(krb5_db_fini(ctx));
@@ -401,7 +397,6 @@ main()
     /* It might be nice to exercise krb5_db_destroy here, but the LDAP module
      * doesn't support it. */
 
-    krb5_free_default_realm(ctx, defrealm);
     krb5_free_context(ctx);
     return 0;
 }

@@ -1,4 +1,4 @@
-AC_PREREQ(2.52)
+AC_PREREQ(2.53)
 AC_COPYRIGHT([Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009
 Massachusetts Institute of Technology.
 ])
@@ -50,6 +50,9 @@ AC_DEFUN(CONFIG_RULES,[dnl
 AC_REQUIRE([V5_SET_TOPDIR]) dnl
 EXTRA_FILES=""
 AC_SUBST(EXTRA_FILES)
+dnl Consider using AC_USE_SYSTEM_EXTENSIONS when we require autoconf
+dnl 2.59c or later, but be sure to test on Solaris first.
+AC_DEFINE([_GNU_SOURCE], 1, [Define to enable extensions in glibc])
 WITH_CC dnl
 AC_REQUIRE_CPP
 if test -z "$LD" ; then LD=$CC; fi

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -79,23 +77,26 @@ administrators remote root access to the host via Kerberos.</p>
 <div class="section" id="examples">
 <h2>EXAMPLES<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>Suppose the user <tt class="docutils literal"><span class="pre">alice</span></tt> had a .k5login file in her home directory
-containing the following line:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>bob@FOOBAR.ORG</pre>
+containing just the following line:</p>
+<div class="highlight-python"><div class="highlight"><pre>bob@FOOBAR.ORG
+</pre></div>
 </div>
-</div></blockquote>
 <p>This would allow <tt class="docutils literal"><span class="pre">bob</span></tt> to use Kerberos network applications, such as
 ssh(1), to access <tt class="docutils literal"><span class="pre">alice</span></tt>&#8216;s account, using <tt class="docutils literal"><span class="pre">bob</span></tt>&#8216;s Kerberos
-tickets.</p>
+tickets.  In a default configuration (with <strong>k5login_authoritative</strong> set
+to true in <a class="reference internal" href="../../admin/conf_files/krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a>), this .k5login file would not let
+<tt class="docutils literal"><span class="pre">alice</span></tt> use those network applications to access her account, since
+she is not listed!  With no .k5login file, or with <strong>k5login_authoritative</strong>
+set to false, a default rule would permit the principal <tt class="docutils literal"><span class="pre">alice</span></tt> in the
+machine&#8217;s default realm to access the <tt class="docutils literal"><span class="pre">alice</span></tt> account.</p>
 <p>Let us further suppose that <tt class="docutils literal"><span class="pre">alice</span></tt> is a system administrator.
 Alice and the other system administrators would have their principals
 in root&#8217;s .k5login file on each host:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>alice@BLEEP.COM
+<div class="highlight-python"><div class="highlight"><pre>alice@BLEEP.COM
 
-joeadmin/root@BLEEP.COM</pre>
+joeadmin/root@BLEEP.COM
+</pre></div>
 </div>
-</div></blockquote>
 <p>This would allow either system administrator to log in to these hosts
 using their Kerberos tickets instead of having to type the root
 password.  Note that because <tt class="docutils literal"><span class="pre">bob</span></tt> retains the Kerberos tickets for
@@ -167,8 +168,8 @@ password.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

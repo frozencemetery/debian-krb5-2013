@@ -47,16 +47,13 @@
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
-#include <ctype.h>
-#include <errno.h>
 #include "k5-int.h"
+#include <ctype.h>
 
 struct param {
     krb5_int32 delta;
     char *p;
 };
-
-#define YYPARSE_PARAM tmv
 
 #define MAX_TIME KRB5_INT32_MAX
 #define MIN_TIME KRB5_INT32_MIN
@@ -107,7 +104,7 @@ struct param {
                           res = (a) + (b)
 
 
-#define OUT_D ((struct param *)tmv)->delta
+#define OUT_D tmv->delta
 #define DO(D,H,M,S) \
  { \
      /* Overflow testing - this does not handle negative values well.. */ \
@@ -118,21 +115,21 @@ struct param {
      DO_SUM(OUT_D, OUT_D, S); \
  }
 
-static int mylex (int *, char **);
-#define YYLEX_PARAM (&((struct param *)tmv)->p)
+static int mylex(int *intp, struct param *tmv);
 #undef yylex
 #define yylex(U, P)    mylex (&(U)->val, (P))
 
 #undef yyerror
-#define yyerror(MSG)
+#define yyerror(tmv, msg)
 
-static int yyparse (void *);
+static int yyparse(struct param *);
 
 %}
 
-%pure_parser
-
-%union { int val; }
+%union {int val;}
+%parse-param {struct param *tmv}
+%lex-param {struct param *tmv}
+%define api.pure
 
 %token <val> NUM LONGNUM OVERFLOW
 %token '-' ':' 'd' 'h' 'm' 's' tok_WS
@@ -179,10 +176,10 @@ opt_s:
 #endif
 
 static int
-mylex (krb5_int32 *intp, char **pp)
+mylex(int *intp, struct param *tmv)
 {
     int num, c;
-#define P (*pp)
+#define P (tmv->p)
     char *orig_p = P;
 
 #ifdef isascii

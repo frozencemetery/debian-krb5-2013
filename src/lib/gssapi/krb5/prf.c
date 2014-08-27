@@ -24,10 +24,8 @@
  * or implied warranty.
  */
 
-#include <assert.h>
-#include "k5-int.h"          /* for zap() */
+#include "k5-int.h"
 #include "gssapiP_krb5.h"
-#include <stdarg.h>
 
 #ifndef MIN             /* Usually found in <sys/param.h>. */
 #define MIN(_a,_b)  ((_a)<(_b)?(_a):(_b))
@@ -80,6 +78,9 @@ krb5_gss_pseudo_random(OM_uint32 *minor_status,
         code = EINVAL;
         goto cleanup;
     }
+
+    if (desired_output_len == 0)
+        return GSS_S_COMPLETE;
 
     prf_out->value = k5alloc(desired_output_len, &code);
     if (prf_out->value == NULL) {

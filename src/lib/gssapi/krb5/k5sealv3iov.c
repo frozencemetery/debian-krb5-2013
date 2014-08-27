@@ -24,11 +24,8 @@
  * or implied warranty.
  */
 
-#include <assert.h>
-#include "k5-platform.h"        /* for 64-bit support */
-#include "k5-int.h"          /* for zap() */
+#include "k5-int.h"
 #include "gssapiP_krb5.h"
-#include <stdarg.h>
 
 krb5_error_code
 gss_krb5int_make_seal_token_v3_iov(krb5_context context,
@@ -294,7 +291,7 @@ gss_krb5int_unseal_v3_iov(krb5_context context,
     size_t rrc, ec;
     size_t data_length, assoc_data_length;
     krb5_key key;
-    gssint_uint64 seqnum;
+    uint64_t seqnum;
     krb5_boolean valid;
     krb5_cksumtype cksumtype;
     int conf_flag = 0;
@@ -428,7 +425,7 @@ gss_krb5int_unseal_v3_iov(krb5_context context,
             }
         }
 
-        code = g_order_check(&ctx->seqstate, seqnum);
+        code = g_seqstate_check(ctx->seqstate, seqnum);
     } else if (toktype == KG_TOK_MIC_MSG) {
         if (load_16_be(ptr) != KG2_TOK_MIC_MSG)
             goto defective;
@@ -448,7 +445,7 @@ gss_krb5int_unseal_v3_iov(krb5_context context,
             *minor_status = code;
             return GSS_S_BAD_SIG;
         }
-        code = g_order_check(&ctx->seqstate, seqnum);
+        code = g_seqstate_check(ctx->seqstate, seqnum);
     } else if (toktype == KG_TOK_DEL_CTX) {
         if (load_16_be(ptr) != KG2_TOK_DEL_CTX)
             goto defective;

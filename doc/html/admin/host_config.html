@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -87,12 +85,13 @@ and the path to the module, separated by a colon.  The module name
 will often be the same as the shared object&#8217;s name, but in unusual
 cases (such as a shared object which implements multiple modules for
 the same interface) it might not be.  For example, to register a
-client preauthentication module named <tt class="docutils literal"><span class="pre">otp</span></tt> installed at
-<tt class="docutils literal"><span class="pre">/path/to/otp.so</span></tt>, you could write:</p>
-<div class="highlight-python"><pre>[plugins]
+client preauthentication module named <tt class="docutils literal"><span class="pre">mypreauth</span></tt> installed at
+<tt class="docutils literal"><span class="pre">/path/to/mypreauth.so</span></tt>, you could write:</p>
+<div class="highlight-python"><div class="highlight"><pre>[plugins]
     clpreauth = {
-        module = otp:/path/to/otp.so
-    }</pre>
+        module = mypreauth:/path/to/mypreauth.so
+    }
+</pre></div>
 </div>
 <p>Many of the pluggable behaviors in MIT krb5 contain built-in modules
 which can be switched off.  You can disable a built-in module (or one
@@ -100,10 +99,11 @@ you have registered) using the <strong>disable</strong> directive in the
 appropriate subsection of the [plugins] section.  For example, to
 disable the use of .k5identity files to select credential caches, you
 could write:</p>
-<div class="highlight-python"><pre>[plugins]
+<div class="highlight-python"><div class="highlight"><pre>[plugins]
     ccselect = {
         disable = k5identity
-    }</pre>
+    }
+</pre></div>
 </div>
 <p>If you want to disable multiple modules, specify the <strong>disable</strong>
 directive multiple times, giving one module to disable each time.</p>
@@ -111,11 +111,12 @@ directive multiple times, giving one module to disable each time.</p>
 enabled for that behavior using the <strong>enable_only</strong> directive.  For
 example, to make <a class="reference internal" href="admin_commands/kadmind.html#kadmind-8"><em>kadmind</em></a> check password quality using only a
 module you have registered, and no other mechanism, you could write:</p>
-<div class="highlight-python"><pre>[plugins]
+<div class="highlight-python"><div class="highlight"><pre>[plugins]
     pwqual = {
         module = mymodule:/path/to/mymodule.so
         enable_only = mymodule
-    }</pre>
+    }
+</pre></div>
 </div>
 <p>Again, if you want to specify multiple modules, specify the
 <strong>enable_only</strong> directive multiple times, giving one module to enable
@@ -133,9 +134,13 @@ locator plugin would be registered by placing its shared object in
 </div>
 <div class="section" id="gssapi-mechanism-modules">
 <span id="gssapi-plugin-config"></span><h3>GSSAPI mechanism modules<a class="headerlink" href="#gssapi-mechanism-modules" title="Permalink to this headline">¶</a></h3>
-<p>GSSAPI mechanism module are registered using the file
-<tt class="docutils literal"><span class="pre">/etc/gss/mech</span></tt>.  Each line in this file has the form:</p>
-<div class="highlight-python"><pre>oid  pathname  [options]  &lt;type&gt;</pre>
+<p>GSSAPI mechanism modules are registered using the file
+<tt class="docutils literal"><span class="pre">/etc/gss/mech</span></tt> or configuration files in the <tt class="docutils literal"><span class="pre">/etc/gss/mech.d/</span></tt>
+directory.  Only files with a <tt class="docutils literal"><span class="pre">.conf</span></tt> suffix will be read from the
+<tt class="docutils literal"><span class="pre">/etc/gss/mech.d/</span></tt> directory.  Each line in these files has the
+form:</p>
+<div class="highlight-python"><div class="highlight"><pre>oid  pathname  [options]  &lt;type&gt;
+</pre></div>
 </div>
 <p>Only the oid and pathname are required.  <em>oid</em> is the object
 identifier of the GSSAPI mechanism to be registered.  <em>pathname</em> is a
@@ -150,7 +155,8 @@ designed to intercept calls to other mechanisms.</p>
 <p>A configuration profile module replaces the information source for
 <a class="reference internal" href="conf_files/krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a> itself.  To use a profile module, begin krb5.conf
 with the line:</p>
-<div class="highlight-python"><pre>module PATHNAME:STRING</pre>
+<div class="highlight-python"><div class="highlight"><pre>module PATHNAME:STRING
+</pre></div>
 </div>
 <p>where <em>PATHNAME</em> is a path to the module shared object or DLL, and
 <em>STRING</em> is a string to provide to the module.  The module will then
@@ -198,6 +204,7 @@ take over, and the rest of krb5.conf will be ignored.</p>
 <li class="toctree-l2"><a class="reference internal" href="otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="env_variables.html">Environment variables</a></li>
@@ -232,8 +239,8 @@ take over, and the rest of krb5.conf will be ignored.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

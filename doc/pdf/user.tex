@@ -3,6 +3,7 @@
 \documentclass[letterpaper,10pt,english]{sphinxmanual}
 \usepackage[utf8]{inputenc}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
+\usepackage{cmap}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{times}
@@ -14,7 +15,7 @@
 
 \title{Kerberos User Guide}
 \date{ }
-\release{1.12.1}
+\release{1.13-alpha1}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -31,75 +32,81 @@
     \PYG@it{\PYG@bf{\PYG@ff{#1}}}}}}}
 \def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+\PYG@do{#2}}
 
-\def\PYG@tok@gd{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
-\def\PYG@tok@gu{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
-\def\PYG@tok@gt{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.25,0.82}{##1}}}
-\def\PYG@tok@gs{\let\PYG@bf=\textbf}
-\def\PYG@tok@gr{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
-\def\PYG@tok@cm{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@vg{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@m{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@mh{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@cs{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\colorbox[rgb]{1.00,0.94,0.94}{##1}}}
-\def\PYG@tok@ge{\let\PYG@it=\textit}
-\def\PYG@tok@vc{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@il{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@go{\def\PYG@tc##1{\textcolor[rgb]{0.19,0.19,0.19}{##1}}}
-\def\PYG@tok@cp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@gi{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
-\def\PYG@tok@gh{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
-\def\PYG@tok@ni{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
-\def\PYG@tok@nl{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
-\def\PYG@tok@nn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\def\PYG@tok@no{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
-\def\PYG@tok@na{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@nb{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@nc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\def\PYG@tok@nd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
-\def\PYG@tok@ne{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@nf{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
-\def\PYG@tok@si{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
-\def\PYG@tok@s2{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@vi{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@nt{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
-\def\PYG@tok@nv{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@s1{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@gp{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\def\PYG@tok@sh{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@ow{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@sx{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\def\PYG@tok@bp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@c1{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@kc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@c{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@mf{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@err{\def\PYG@bc##1{\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{##1}}}
-\def\PYG@tok@kd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@ss{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
-\def\PYG@tok@sr{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
-\def\PYG@tok@mo{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@mi{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@kn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@o{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
-\def\PYG@tok@kr{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@s{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@kp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@w{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
-\def\PYG@tok@kt{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
-\def\PYG@tok@sc{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@sb{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@k{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@se{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@sd{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@gd\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@gu\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PYG@tok@gs\endcsname{\let\PYG@bf=\textbf}
+\expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
+\expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
+\expandafter\def\csname PYG@tok@vc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@il\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.20,0.20,0.20}{##1}}}
+\expandafter\def\csname PYG@tok@cp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@gi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@gh\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PYG@tok@ni\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
+\expandafter\def\csname PYG@tok@nl\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
+\expandafter\def\csname PYG@tok@nn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\expandafter\def\csname PYG@tok@no\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@na\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@nb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@nc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\expandafter\def\csname PYG@tok@nd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
+\expandafter\def\csname PYG@tok@ne\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
+\expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
+\expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
+\expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@err\endcsname{\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@ss\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
+\expandafter\def\csname PYG@tok@sr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
+\expandafter\def\csname PYG@tok@mo\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@w\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 
 \def\PYGZbs{\char`\\}
 \def\PYGZus{\char`\_}
 \def\PYGZob{\char`\{}
 \def\PYGZcb{\char`\}}
 \def\PYGZca{\char`\^}
+\def\PYGZam{\char`\&}
+\def\PYGZlt{\char`\<}
+\def\PYGZgt{\char`\>}
 \def\PYGZsh{\char`\#}
 \def\PYGZpc{\char`\%}
 \def\PYGZdl{\char`\$}
+\def\PYGZhy{\char`\-}
+\def\PYGZsq{\char`\'}
+\def\PYGZdq{\char`\"}
 \def\PYGZti{\char`\~}
 % for compatibility with earlier versions
 \def\PYGZat{@}
@@ -140,34 +147,34 @@ have to type it twice is to make sure you have typed it correctly.)
 For example, user \code{david} would do the following:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kpasswd
-Password for david:    \textless{}- Type your old password.
-Enter new password:    \textless{}- Type your new password.
-Enter it again:  \textless{}- Type the new password again.
+shell\PYGZpc{} kpasswd
+Password for david:    \PYGZlt{}\PYGZhy{} Type your old password.
+Enter new password:    \PYGZlt{}\PYGZhy{} Type your new password.
+Enter it again:  \PYGZlt{}\PYGZhy{} Type the new password again.
 Password changed.
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 If \code{david} typed the incorrect old password, he would get the
 following message:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kpasswd
-Password for david:  \textless{}- Type the incorrect old password.
+shell\PYGZpc{} kpasswd
+Password for david:  \PYGZlt{}\PYGZhy{} Type the incorrect old password.
 kpasswd: Password incorrect while getting initial ticket
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 If you make a mistake and don't type the new password the same way
 twice, kpasswd will ask you to try again:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kpasswd
-Password for david:  \textless{}- Type the old password.
-Enter new password:  \textless{}- Type the new password.
-Enter it again: \textless{}- Type a different new password.
+shell\PYGZpc{} kpasswd
+Password for david:  \PYGZlt{}\PYGZhy{} Type the old password.
+Enter new password:  \PYGZlt{}\PYGZhy{} Type the new password.
+Enter it again: \PYGZlt{}\PYGZhy{} Type a different new password.
 kpasswd: Password mismatch while reading password
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 Once you change your password, it takes some time for the change to
@@ -337,19 +344,19 @@ domain name mit.edu and the Kerberos realm ATHENA.MIT.EDU).  She would
 type:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kinit
-Password for jennifer@ATHENA.MIT.EDU: \textless{}-- [Type jennifer's password here.]
-shell\%
+shell\PYGZpc{} kinit
+Password for jennifer@ATHENA.MIT.EDU: \PYGZlt{}\PYGZhy{}\PYGZhy{} [Type jennifer\PYGZsq{}s password here.]
+shell\PYGZpc{}
 \end{Verbatim}
 
 If you type your password incorrectly, kinit will give you the
 following error message:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kinit
-Password for jennifer@ATHENA.MIT.EDU: \textless{}-- [Type the wrong password here.]
+shell\PYGZpc{} kinit
+Password for jennifer@ATHENA.MIT.EDU: \PYGZlt{}\PYGZhy{}\PYGZhy{} [Type the wrong password here.]
 kinit: Password incorrect
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 and you won't get Kerberos tickets.
@@ -360,9 +367,9 @@ he wants to borrow a window to check his mail.  David needs to get
 tickets for himself in his own realm, EXAMPLE.COM.  He would type:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kinit david@EXAMPLE.COM
-Password for david@EXAMPLE.COM: \textless{}-- [Type david's password here.]
-shell\%
+shell\PYGZpc{} kinit david@EXAMPLE.COM
+Password for david@EXAMPLE.COM: \PYGZlt{}\PYGZhy{}\PYGZhy{} [Type david\PYGZsq{}s password here.]
+shell\PYGZpc{}
 \end{Verbatim}
 
 David would then have tickets which he could use to log onto his own
@@ -375,9 +382,9 @@ need to request forwardable tickets.  You do this by specifying the
 \textbf{-f} option:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kinit -f
-Password for jennifer@ATHENA.MIT.EDU: \textless{}-- [Type your password here.]
-shell\%
+shell\PYGZpc{} kinit \PYGZhy{}f
+Password for jennifer@ATHENA.MIT.EDU: \PYGZlt{}\PYGZhy{}\PYGZhy{} [Type your password here.]
+shell\PYGZpc{}
 \end{Verbatim}
 
 Note that kinit does not tell you that it obtained forwardable
@@ -393,9 +400,9 @@ different ticket lifetime with the \textbf{-l} option.  Add the letter
 type:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kinit -f -l 3h david@EXAMPLE.COM
-Password for david@EXAMPLE.COM: \textless{}-- [Type david's password here.]
-shell\%
+shell\PYGZpc{} kinit \PYGZhy{}f \PYGZhy{}l 3h david@EXAMPLE.COM
+Password for david@EXAMPLE.COM: \PYGZlt{}\PYGZhy{}\PYGZhy{} [Type david\PYGZsq{}s password here.]
+shell\PYGZpc{}
 \end{Verbatim}
 
 \begin{notice}{note}{Note:}
@@ -414,13 +421,13 @@ tickets, you will have only the ticket-granting ticket.  The listing
 would look like this:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% klist
-Ticket cache: /tmp/krb5cc\_ttypa
+shell\PYGZpc{} klist
+Ticket cache: /tmp/krb5cc\PYGZus{}ttypa
 Default principal: jennifer@ATHENA.MIT.EDU
 
 Valid starting     Expires            Service principal
 06/07/04 19:49:21  06/08/04 05:49:19  krbtgt/ATHENA.MIT.EDU@ATHENA.MIT.EDU
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 The ticket cache is the location of your ticket file. In the above
@@ -437,14 +444,14 @@ and then typed ``klist'' again, she would have gotten the following
 result:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% klist
-Ticket cache: /tmp/krb5cc\_ttypa
+shell\PYGZpc{} klist
+Ticket cache: /tmp/krb5cc\PYGZus{}ttypa
 Default principal: jennifer@ATHENA.MIT.EDU
 
 Valid starting     Expires            Service principal
 06/07/04 19:49:21  06/08/04 05:49:19  krbtgt/ATHENA.MIT.EDU@ATHENA.MIT.EDU
 06/07/04 20:22:30  06/08/04 05:49:19  host/daffodil.mit.edu@ATHENA.MIT.EDU
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 Here's what happened: when \code{jennifer} used ssh to connect to the
@@ -462,8 +469,8 @@ the new host ticket for \code{trillium.example.com}.  klist will now
 show:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% klist
-Ticket cache: /tmp/krb5cc\_ttypa
+shell\PYGZpc{} klist
+Ticket cache: /tmp/krb5cc\PYGZus{}ttypa
 Default principal: jennifer@ATHENA.MIT.EDU
 
 Valid starting     Expires            Service principal
@@ -471,7 +478,7 @@ Valid starting     Expires            Service principal
 06/07/04 20:22:30  06/08/04 05:49:19  host/daffodil.mit.edu@ATHENA.MIT.EDU
 06/07/04 20:24:18  06/08/04 05:49:19  krbtgt/EXAMPLE.COM@ATHENA.MIT.EDU
 06/07/04 20:24:18  06/08/04 05:49:19  host/trillium.example.com@EXAMPLE.COM
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 Depending on your host's and realm's configuration, you may also see a
@@ -491,73 +498,73 @@ tickets.  The flags are:
 F
  & 
 Forwardable
-\\\hline
-
+\\
+\hline
 f
  & 
 forwarded
-\\\hline
-
+\\
+\hline
 P
  & 
 Proxiable
-\\\hline
-
+\\
+\hline
 p
  & 
 proxy
-\\\hline
-
+\\
+\hline
 D
  & 
 postDateable
-\\\hline
-
+\\
+\hline
 d
  & 
 postdated
-\\\hline
-
+\\
+\hline
 R
  & 
 Renewable
-\\\hline
-
+\\
+\hline
 I
  & 
 Initial
-\\\hline
-
+\\
+\hline
 i
  & 
 invalid
-\\\hline
-
+\\
+\hline
 H
  & 
 Hardware authenticated
-\\\hline
-
+\\
+\hline
 A
  & 
 preAuthenticated
-\\\hline
-
+\\
+\hline
 T
  & 
 Transit policy checked
-\\\hline
-
+\\
+\hline
 O
  & 
 Okay as delegate
-\\\hline
-
+\\
+\hline
 a
  & 
 anonymous
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 Here is a sample listing.  In this example, the user \emph{jennifer}
@@ -565,14 +572,14 @@ obtained her initial tickets (\textbf{I}), which are forwardable (\textbf{F})
 and postdated (\textbf{d}) but not yet validated (\textbf{i}):
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% klist -f
-Ticket cache: /tmp/krb5cc\_320
+shell\PYGZpc{} klist \PYGZhy{}f
+Ticket cache: /tmp/krb5cc\PYGZus{}320
 Default principal: jennifer@ATHENA.MIT.EDU
 
 Valid starting      Expires             Service principal
 31/07/05 19:06:25  31/07/05 19:16:25  krbtgt/ATHENA.MIT.EDU@ATHENA.MIT.EDU
         Flags: FdiI
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 In the following example, the user \emph{david}`s tickets were forwarded
@@ -580,8 +587,8 @@ In the following example, the user \emph{david}`s tickets were forwarded
 (\textbf{F}):
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% klist -f
-Ticket cache: /tmp/krb5cc\_p11795
+shell\PYGZpc{} klist \PYGZhy{}f
+Ticket cache: /tmp/krb5cc\PYGZus{}p11795
 Default principal: david@EXAMPLE.COM
 
 Valid starting     Expires            Service principal
@@ -589,7 +596,7 @@ Valid starting     Expires            Service principal
         Flags: Ff
 07/31/05 12:03:48  07/31/05 21:11:23  host/trillium.example.com@EXAMPLE.COM
         Flags: Ff
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 
@@ -604,8 +611,8 @@ destroy your Kerberos tickets when you are away from your computer.
 Destroying your tickets is easy.  Simply type kdestroy:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kdestroy
-shell\%
+shell\PYGZpc{} kdestroy
+shell\PYGZpc{}
 \end{Verbatim}
 
 If {\hyperref[user/user_commands/kdestroy:kdestroy-1]{\emph{kdestroy}}} fails to destroy your tickets, it will beep and
@@ -613,9 +620,9 @@ give an error message.  For example, if kdestroy can't find any
 tickets to destroy, it will give the following message:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% kdestroy
+shell\PYGZpc{} kdestroy
 kdestroy: No credentials cache file found while destroying cache
-shell\%
+shell\PYGZpc{}
 \end{Verbatim}
 
 
@@ -642,29 +649,30 @@ administrators remote root access to the host via Kerberos.
 \subsection{EXAMPLES}
 \label{user/user_config/k5login:examples}
 Suppose the user \code{alice} had a .k5login file in her home directory
-containing the following line:
-\begin{quote}
+containing just the following line:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 bob@FOOBAR.ORG
 \end{Verbatim}
-\end{quote}
 
 This would allow \code{bob} to use Kerberos network applications, such as
 ssh(1), to access \code{alice}`s account, using \code{bob}`s Kerberos
-tickets.
+tickets.  In a default configuration (with \textbf{k5login\_authoritative} set
+to true in \emph{krb5.conf(5)}), this .k5login file would not let
+\code{alice} use those network applications to access her account, since
+she is not listed!  With no .k5login file, or with \textbf{k5login\_authoritative}
+set to false, a default rule would permit the principal \code{alice} in the
+machine's default realm to access the \code{alice} account.
 
 Let us further suppose that \code{alice} is a system administrator.
 Alice and the other system administrators would have their principals
 in root's .k5login file on each host:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
 alice@BLEEP.COM
 
 joeadmin/root@BLEEP.COM
 \end{Verbatim}
-\end{quote}
 
 This would allow either system administrator to log in to these hosts
 using their Kerberos tickets instead of having to type the root
@@ -734,14 +742,12 @@ The following example .k5identity file selects the client principal
 the principal \code{alice/root@EXAMPLE.COM} if the server host is within
 a servers subdomain, and the principal \code{alice/mail@EXAMPLE.COM} when
 accessing the IMAP service on \code{mail.example.com}:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
 alice@KRBTEST.COM       realm=KRBTEST.COM
 alice/root@EXAMPLE.COM  host=*.servers.example.com
 alice/mail@EXAMPLE.COM  host=mail.example.com service=imap
 \end{Verbatim}
-\end{quote}
 
 
 \subsection{SEE ALSO}
@@ -1096,7 +1102,6 @@ neither \textbf{-c} nor \textbf{-k} is specified.
 \item[{\textbf{-f}}] \leavevmode
 Shows the flags present in the credentials, using the following
 abbreviations:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
 F    Forwardable
@@ -1114,7 +1119,6 @@ T    Transit policy checked
 O    Okay as delegate
 a    anonymous
 \end{Verbatim}
-\end{quote}
 
 \item[{\textbf{-s}}] \leavevmode
 Causes klist to run silently (produce no output).  klist will exit
@@ -1286,28 +1290,28 @@ Allowed values for \emph{library} are:
 krb5
  & 
 Kerberos 5 applications (default)
-\\\hline
-
+\\
+\hline
 gssapi
  & 
 GSSAPI applications with Kerberos 5 bindings
-\\\hline
-
+\\
+\hline
 kadm-client
  & 
 Kadmin client
-\\\hline
-
+\\
+\hline
 kadm-server
  & 
 Kadmin server
-\\\hline
-
+\\
+\hline
 kdb
  & 
 Applications that access the Kerberos database
-\\\hline
-\end{tabulary}
+\\
+\hline\end{tabulary}
 
 
 \end{description}
@@ -1320,13 +1324,11 @@ installation that was installed in a non-standard location.  For example,
 a Kerberos installation that is installed in \code{/opt/krb5/} but uses
 libraries in \code{/usr/local/lib/} for text localization would produce
 the following output:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
-shell\% krb5-config --libs krb5
--L/opt/krb5/lib -Wl,-rpath -Wl,/opt/krb5/lib -L/usr/local/lib -lkrb5 -lk5crypto -lcom\_err
+shell\PYGZpc{} krb5\PYGZhy{}config \PYGZhy{}\PYGZhy{}libs krb5
+\PYGZhy{}L/opt/krb5/lib \PYGZhy{}Wl,\PYGZhy{}rpath \PYGZhy{}Wl,/opt/krb5/lib \PYGZhy{}L/usr/local/lib \PYGZhy{}lkrb5 \PYGZhy{}lk5crypto \PYGZhy{}lcom\PYGZus{}err
 \end{Verbatim}
-\end{quote}
 
 
 \subsection{SEE ALSO}
@@ -1415,15 +1417,14 @@ user's home directory, ksu attempts to access two authorization files:
 {\hyperref[user/user_config/k5login:k5login-5]{\emph{.k5login}}} and .k5users.  In the .k5login file each line
 contains the name of a principal that is authorized to access the
 account.
-\begin{description}
-\item[{For example:}] \leavevmode
+
+For example:
+
 \begin{Verbatim}[commandchars=\\\{\}]
 jqpublic@USC.EDU
 jqpublic/secure@USC.EDU
 jqpublic/admin@USC.EDU
 \end{Verbatim}
-
-\end{description}
 
 The format of .k5users is the same, except the principal name may be
 followed by a list of commands that the principal is authorized to
@@ -1565,12 +1566,10 @@ defined the source cache name is set to \code{krb5cc\_\textless{}source uid\text
 The target cache name is automatically set to \code{krb5cc\_\textless{}target
 uid\textgreater{}.(gen\_sym())}, where gen\_sym generates a new number such that
 the resulting cache does not already exist.  For example:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
-krb5cc\_1984.2
+krb5cc\PYGZus{}1984.2
 \end{Verbatim}
-\end{quote}
 \end{quote}
 \begin{description}
 \item[{\textbf{-k}}] \leavevmode
@@ -1632,12 +1631,10 @@ requested for the ticket.
 ksu proceeds exactly the same as if it was invoked without the
 \textbf{-e} option, except instead of executing the target shell, ksu
 executes the specified command. Example of usage:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
-ksu bob -e ls -lag
+ksu bob \PYGZhy{}e ls \PYGZhy{}lag
 \end{Verbatim}
-\end{quote}
 
 The authorization algorithm for \textbf{-e} is as follows:
 
@@ -1655,14 +1652,12 @@ list of commands that the principal is authorized to execute.  A
 principal name followed by a \code{*} means that the user is
 authorized to execute any command.  Thus, in the following
 example:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
 jqpublic@USC.EDU ls mail /local/kerberos/klist
 jqpublic/secure@USC.EDU *
 jqpublic/admin@USC.EDU
 \end{Verbatim}
-\end{quote}
 
 \code{jqpublic@USC.EDU} is only authorized to execute \code{ls},
 \code{mail} and \code{klist} commands.  \code{jqpublic/secure@USC.EDU} is
@@ -1691,12 +1686,10 @@ thus all options intended for ksu must precede \textbf{-a}.
 
 The \textbf{-a} option can be used to simulate the \textbf{-e} option if
 used as follows:
-\begin{quote}
 
 \begin{Verbatim}[commandchars=\\\{\}]
--a -c [command [arguments]].
+\PYGZhy{}a \PYGZhy{}c [command [arguments]].
 \end{Verbatim}
-\end{quote}
 
 \textbf{-c} is interpreted by the c-shell to execute the command.
 
@@ -1731,12 +1724,13 @@ shell to be invoked is a ``legal shell''.  \emph{getusershell(3)} is
 called to obtain the names of ``legal shells''.  Note that the
 target user's shell is obtained from the passwd file.
 
-\item[{Sample configuration:}] \leavevmode
-\begin{Verbatim}[commandchars=\\\{\}]
-KSU\_OPTS = -DGET\_TGT\_VIA\_PASSWD -DPRINC\_LOOK\_AHEAD -DCMD\_PATH='"/bin /usr/ucb /local/bin"
-\end{Verbatim}
-
 \end{description}
+
+Sample configuration:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+KSU\PYGZus{}OPTS = \PYGZhy{}DGET\PYGZus{}TGT\PYGZus{}VIA\PYGZus{}PASSWD \PYGZhy{}DPRINC\PYGZus{}LOOK\PYGZus{}AHEAD \PYGZhy{}DCMD\PYGZus{}PATH=\PYGZsq{}\PYGZdq{}/bin /usr/ucb /local/bin\PYGZdq{}
+\end{Verbatim}
 
 ksu should be owned by root and have the set user id bit turned on.
 

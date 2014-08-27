@@ -45,7 +45,7 @@ else:
 
 # General information about the project.
 project = u'MIT Kerberos'
-copyright = u'1985-2013, MIT'
+copyright = u'1985-2014, MIT'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -231,6 +231,7 @@ if 'mansubs' in tags:
     sbindir = '``@SBINDIR@``'
     libdir = '``@LIBDIR@``'
     localstatedir = '``@LOCALSTATEDIR@``'
+    runstatedir = '``@RUNSTATEDIR@``'
     sysconfdir = '``@SYSCONFDIR@``'
     ccache = '``@CCNAME@``'
     keytab = '``@KTNAME@``'
@@ -243,6 +244,7 @@ else:
     sbindir = ':ref:`SBINDIR <paths>`'
     libdir = ':ref:`LIBDIR <paths>`'
     localstatedir = ':ref:`LOCALSTATEDIR <paths>`'
+    runstatedir = ':ref:`RUNSTATEDIR <paths>`'
     sysconfdir = ':ref:`SYSCONFDIR <paths>`'
     ccache = ':ref:`DEFCCNAME <paths>`'
     keytab = ':ref:`DEFKTNAME <paths>`'
@@ -262,6 +264,7 @@ else:
     rst_epilog += '.. |sbindir| replace:: %s\n' % sbindir
     rst_epilog += '.. |libdir| replace:: %s\n' % libdir
     rst_epilog += '.. |kdcdir| replace:: %s\\ ``/krb5kdc``\n' % localstatedir
+    rst_epilog += '.. |kdcrundir| replace:: %s\\ ``/krb5kdc``\n' % runstatedir
     rst_epilog += '.. |sysconfdir| replace:: %s\n' % sysconfdir
     rst_epilog += '.. |ccache| replace:: %s\n' % ccache
     rst_epilog += '.. |keytab| replace:: %s\n' % keytab

@@ -8,6 +8,7 @@ SYNOPSIS
 
 **kpropd**
 [**-r** *realm*]
+[**-A** *admin_server*]
 [**-a** *acl_file*]
 [**-f** *slave_dumpfile*]
 [**-F** *principal_database*]
@@ -33,9 +34,7 @@ file, the slave Kerberos server will have an up-to-date KDC database.
 
 Where incremental propagation is not used, kpropd is commonly invoked
 out of inetd(8) as a nowait service.  This is done by adding a line to
-the ``/etc/inetd.conf`` file which looks like this:
-
- ::
+the ``/etc/inetd.conf`` file which looks like this::
 
     kprop  stream  tcp  nowait  root  /usr/local/sbin/kpropd  kpropd
 
@@ -69,6 +68,10 @@ OPTIONS
 
 **-r** *realm*
     Specifies the realm of the master server.
+
+**-A** *admin_server*
+    Specifies the server to be contacted for incremental updates; by
+    default, the master admin server is contacted.
 
 **-f** *file*
     Specifies the filename where the dumped principal database file is

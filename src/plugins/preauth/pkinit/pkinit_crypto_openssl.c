@@ -29,21 +29,12 @@
  * SUCH DAMAGES.
  */
 
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "pkinit_crypto_openssl.h"
+#include "k5-buf.h"
 #include <dlfcn.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <arpa/inet.h>
-
-#include "k5-platform.h"
-#include "k5-buf.h"
-
-#include "pkinit_crypto_openssl.h"
-
-static void openssl_init(void);
 
 static krb5_error_code pkinit_init_pkinit_oids(pkinit_plg_crypto_context );
 static void pkinit_fini_pkinit_oids(pkinit_plg_crypto_context );
@@ -157,16 +148,9 @@ create_krb5_invalidCertificates(krb5_context context,
 static krb5_error_code
 create_identifiers_from_stack(STACK_OF(X509) *sk,
                               krb5_external_principal_identifier *** ids);
-#ifdef LONGHORN_BETA_COMPAT
-static int
-wrap_signeddata(unsigned char *data, unsigned int data_len,
-                unsigned char **out, unsigned int *out_len,
-                int is_longhorn_server);
-#else
 static int
 wrap_signeddata(unsigned char *data, unsigned int data_len,
                 unsigned char **out, unsigned int *out_len);
-#endif
 
 static char *
 pkinit_pkcs11_code_to_text(int err);
@@ -423,7 +407,7 @@ unsigned char pkinit_4096_dhprime[4096/8] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
-static int pkinit_oids_refs = 0;
+MAKE_INIT_FUNCTION(pkinit_openssl_init);
 
 krb5_error_code
 pkinit_init_plg_crypto(pkinit_plg_crypto_context *cryptoctx)
@@ -431,8 +415,7 @@ pkinit_init_plg_crypto(pkinit_plg_crypto_context *cryptoctx)
     krb5_error_code retval = ENOMEM;
     pkinit_plg_crypto_context ctx = NULL;
 
-    /* initialize openssl routines */
-    openssl_init();
+    (void)CALL_INIT_FUNCTION(pkinit_openssl_init);
 
     ctx = malloc(sizeof(*ctx));
     if (ctx == NULL)
@@ -561,65 +544,43 @@ pkinit_fini_req_crypto(pkinit_req_crypto_context req_cryptoctx)
 static krb5_error_code
 pkinit_init_pkinit_oids(pkinit_plg_crypto_context ctx)
 {
-    krb5_error_code retval = ENOMEM;
-    int nid = 0;
+    ctx->id_pkinit_san = OBJ_txt2obj("1.3.6.1.5.2.2", 1);
+    if (ctx->id_pkinit_san == NULL)
+        return ENOMEM;
 
-    /*
-     * If OpenSSL already knows about the OID, use the
-     * existing definition. Otherwise, create an OID object.
-     */
-#define CREATE_OBJ_IF_NEEDED(oid, vn, sn, ln)                           \
-    nid = OBJ_txt2nid(oid);                                             \
-    if (nid == NID_undef) {                                             \
-        nid = OBJ_create(oid, sn, ln);                                  \
-        if (nid == NID_undef) {                                         \
-            pkiDebug("Error creating oid object for '%s'\n", oid);      \
-            goto out;                                                   \
-        }                                                               \
-    }                                                                   \
-    ctx->vn = OBJ_nid2obj(nid);
+    ctx->id_pkinit_authData = OBJ_txt2obj("1.3.6.1.5.2.3.1", 1);
+    if (ctx->id_pkinit_authData == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.2.2", id_pkinit_san,
-                         "id-pkinit-san", "KRB5PrincipalName");
+    ctx->id_pkinit_DHKeyData = OBJ_txt2obj("1.3.6.1.5.2.3.2", 1);
+    if (ctx->id_pkinit_DHKeyData == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.2.3.1", id_pkinit_authData,
-                         "id-pkinit-authdata", "PKINIT signedAuthPack");
+    ctx->id_pkinit_rkeyData = OBJ_txt2obj("1.3.6.1.5.2.3.3", 1);
+    if (ctx->id_pkinit_rkeyData == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.2.3.2", id_pkinit_DHKeyData,
-                         "id-pkinit-DHKeyData", "PKINIT dhSignedData");
+    ctx->id_pkinit_KPClientAuth = OBJ_txt2obj("1.3.6.1.5.2.3.4", 1);
+    if (ctx->id_pkinit_KPClientAuth == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.2.3.3", id_pkinit_rkeyData,
-                         "id-pkinit-rkeyData", "PKINIT encKeyPack");
+    ctx->id_pkinit_KPKdc = OBJ_txt2obj("1.3.6.1.5.2.3.5", 1);
+    if (ctx->id_pkinit_KPKdc == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.2.3.4", id_pkinit_KPClientAuth,
-                         "id-pkinit-KPClientAuth", "PKINIT Client EKU");
+    ctx->id_ms_kp_sc_logon = OBJ_txt2obj("1.3.6.1.4.1.311.20.2.2", 1);
+    if (ctx->id_ms_kp_sc_logon == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.2.3.5", id_pkinit_KPKdc,
-                         "id-pkinit-KPKdc", "KDC EKU");
+    ctx->id_ms_san_upn = OBJ_txt2obj("1.3.6.1.4.1.311.20.2.3", 1);
+    if (ctx->id_ms_san_upn == NULL)
+        return ENOMEM;
 
-#if 0
-    CREATE_OBJ_IF_NEEDED("1.2.840.113549.1.7.1", id_pkinit_authData9,
-                         "id-pkcs7-data", "PKCS7 data");
-#else
-    /* See note in pkinit_pkcs7type2oid() */
-    ctx->id_pkinit_authData9 = NULL;
-#endif
+    ctx->id_kp_serverAuth = OBJ_txt2obj("1.3.6.1.5.5.7.3.1", 1);
+    if (ctx->id_kp_serverAuth == NULL)
+        return ENOMEM;
 
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.4.1.311.20.2.2", id_ms_kp_sc_logon,
-                         "id-ms-kp-sc-logon EKU", "Microsoft SmartCard Login EKU");
-
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.4.1.311.20.2.3", id_ms_san_upn,
-                         "id-ms-san-upn", "Microsoft Universal Principal Name");
-
-    CREATE_OBJ_IF_NEEDED("1.3.6.1.5.5.7.3.1", id_kp_serverAuth,
-                         "id-kp-serverAuth EKU", "Server Authentication EKU");
-
-    /* Success */
-    retval = 0;
-    pkinit_oids_refs++;
-
-out:
-    return retval;
+    return 0;
 }
 
 static krb5_error_code
@@ -765,10 +726,15 @@ pkinit_fini_pkinit_oids(pkinit_plg_crypto_context ctx)
 {
     if (ctx == NULL)
         return;
-
-    /* Only call OBJ_cleanup once! */
-    if (--pkinit_oids_refs == 0)
-        OBJ_cleanup();
+    ASN1_OBJECT_free(ctx->id_pkinit_san);
+    ASN1_OBJECT_free(ctx->id_pkinit_authData);
+    ASN1_OBJECT_free(ctx->id_pkinit_DHKeyData);
+    ASN1_OBJECT_free(ctx->id_pkinit_rkeyData);
+    ASN1_OBJECT_free(ctx->id_pkinit_KPClientAuth);
+    ASN1_OBJECT_free(ctx->id_pkinit_KPKdc);
+    ASN1_OBJECT_free(ctx->id_ms_kp_sc_logon);
+    ASN1_OBJECT_free(ctx->id_ms_san_upn);
+    ASN1_OBJECT_free(ctx->id_kp_serverAuth);
 }
 
 static krb5_error_code
@@ -931,46 +897,50 @@ pkinit_identity_set_prompter(pkinit_identity_crypto_context id_cryptoctx,
     return 0;
 }
 
-/*helper function for creating pkinit ContentInfo*/
+/* Create a CMS ContentInfo of type oid containing the octet string in data. */
 static krb5_error_code
-create_contentinfo(krb5_context context,
-                   pkinit_plg_crypto_context plg_crypto_context,
-                   ASN1_OBJECT *oid, unsigned char *data, size_t data_len,
-                   PKCS7 **out_p7)
+create_contentinfo(krb5_context context, ASN1_OBJECT *oid,
+                   unsigned char *data, size_t data_len, PKCS7 **p7_out)
 {
-    krb5_error_code retval = EINVAL;
-    PKCS7 *inner_p7;
-    ASN1_TYPE *pkinit_data = NULL;
+    PKCS7 *p7 = NULL;
+    ASN1_OCTET_STRING *ostr = NULL;
 
-    *out_p7 = NULL;
-    if ((inner_p7 = PKCS7_new()) == NULL)
-        goto cleanup;
-    if ((pkinit_data = ASN1_TYPE_new()) == NULL)
-        goto cleanup;
-    pkinit_data->type = V_ASN1_OCTET_STRING;
-    if ((pkinit_data->value.octet_string = ASN1_OCTET_STRING_new()) == NULL)
-        goto cleanup;
-    if (!ASN1_OCTET_STRING_set(pkinit_data->value.octet_string,
-                               (unsigned char *) data, data_len)) {
-        unsigned long err = ERR_peek_error();
-        retval = KRB5KDC_ERR_PREAUTH_FAILED;
-        krb5_set_error_message(context, retval, "%s\n",
-                               ERR_error_string(err, NULL));
-        pkiDebug("failed to add pkcs7 data\n");
-        goto cleanup;
+    *p7_out = NULL;
+
+    ostr = ASN1_OCTET_STRING_new();
+    if (ostr == NULL)
+        goto oom;
+    if (!ASN1_OCTET_STRING_set(ostr, (unsigned char *)data, data_len))
+        goto oom;
+
+    p7 = PKCS7_new();
+    if (p7 == NULL)
+        goto oom;
+    p7->type = OBJ_dup(oid);
+    if (p7->type == NULL)
+        goto oom;
+
+    if (OBJ_obj2nid(oid) == NID_pkcs7_data) {
+        /* Draft 9 uses id-pkcs7-data for signed data.  For this type OpenSSL
+         * expects an octet string in d.data. */
+        p7->d.data = ostr;
+    } else {
+        p7->d.other = ASN1_TYPE_new();
+        if (p7->d.other == NULL)
+            goto oom;
+        p7->d.other->type = V_ASN1_OCTET_STRING;
+        p7->d.other->value.octet_string = ostr;
     }
-    if (!PKCS7_set0_type_other(inner_p7, OBJ_obj2nid(oid), pkinit_data))
-        goto cleanup;
-    retval = 0;
-    *out_p7 = inner_p7;
-    inner_p7 = NULL;
-    pkinit_data = NULL;
-cleanup:
-    if (inner_p7)
-        PKCS7_free(inner_p7);
-    if (pkinit_data)
-        ASN1_TYPE_free(pkinit_data);
-    return retval;
+
+    *p7_out = p7;
+    return 0;
+
+oom:
+    if (ostr != NULL)
+        ASN1_OCTET_STRING_free(ostr);
+    if (p7 != NULL)
+        PKCS7_free(p7);
+    return ENOMEM;
 }
 
 krb5_error_code
@@ -983,7 +953,7 @@ cms_contentinfo_create(krb5_context context,                          /* IN */
                        unsigned char **out_data, unsigned int *out_data_len)
 {
     krb5_error_code retval = ENOMEM;
-    ASN1_OBJECT *oid = NULL;
+    ASN1_OBJECT *oid;
     PKCS7 *p7 = NULL;
     unsigned char *p;
 
@@ -991,8 +961,7 @@ cms_contentinfo_create(krb5_context context,                          /* IN */
     oid = pkinit_pkcs7type2oid(plg_cryptoctx, cms_msg_type);
     if (oid == NULL)
         goto cleanup;
-    retval = create_contentinfo(context, plg_cryptoctx, oid,
-                                data, data_len, &p7);
+    retval = create_contentinfo(context, oid, data, data_len, &p7);
     if (retval != 0)
         goto cleanup;
     *out_data_len = i2d_PKCS7(p7, NULL);
@@ -1022,8 +991,6 @@ cms_contentinfo_create(krb5_context context,                          /* IN */
 cleanup:
     if (p7)
         PKCS7_free(p7);
-    if (oid)
-        ASN1_OBJECT_free(oid);
     return retval;
 }
 
@@ -1061,7 +1028,7 @@ cms_signeddata_create(krb5_context context,
     unsigned int alg_len = 0, digest_len = 0;
     unsigned char *y = NULL, *alg_buf = NULL, *digest_buf = NULL;
     X509 *cert = NULL;
-    ASN1_OBJECT *oid = NULL;
+    ASN1_OBJECT *oid = NULL, *oid_copy;
 
     /* Start creating PKCS7 data. */
     if ((p7 = PKCS7_new()) == NULL)
@@ -1183,8 +1150,11 @@ cms_signeddata_create(krb5_context context,
                                        V_ASN1_OCTET_STRING, (char *) digest_attr);
 
             /* create a content-type attr */
+            oid_copy = OBJ_dup(oid);
+            if (oid_copy == NULL)
+                goto cleanup2;
             PKCS7_add_signed_attribute(p7si, NID_pkcs9_contentType,
-                                       V_ASN1_OBJECT, oid);
+                                       V_ASN1_OBJECT, oid_copy);
 
             /* create the signature over signed attributes. get DER encoded value */
             /* This is the place where smartcard signature needs to be calculated */
@@ -1282,8 +1252,7 @@ cms_signeddata_create(krb5_context context,
     } /* we have a certificate */
 
     /* start on adding data to the pkcs7 signed */
-    retval = create_contentinfo(context, plg_cryptoctx, oid,
-                                data, data_len, &inner_p7);
+    retval = create_contentinfo(context, oid, data, data_len, &inner_p7);
     if (p7s->contents != NULL)
         PKCS7_free(p7s->contents);
     p7s->contents = inner_p7;
@@ -1407,7 +1376,7 @@ cms_signeddata_verify(krb5_context context,
 #endif
     if (is_signed)
         *is_signed = 1;
-    /* Do this early enough to create the shadow OID for pkcs7-data if needed */
+
     oid = pkinit_pkcs7type2oid(plgctx, cms_msg_type);
     if (oid == NULL)
         goto cleanup;
@@ -1970,29 +1939,6 @@ cms_envelopeddata_verify(krb5_context context,
      * For draft9-compatible, we don't do anything because it
      * is already wrapped.
      */
-#ifdef LONGHORN_BETA_COMPAT
-    /*
-     * The Longhorn server returns the expected RFC-style data, but
-     * it is missing the sequence tag and length, so it requires
-     * special processing when wrapping.
-     * This will hopefully be fixed before the final release and
-     * this can all be removed.
-     */
-    if (msg_type == CMS_ENVEL_SERVER || longhorn == 1) {
-        retval = wrap_signeddata(tmp_buf, tmp_buf_len,
-                                 &tmp_buf2, &tmp_buf2_len, longhorn);
-        if (retval) {
-            pkiDebug("failed to encode signeddata\n");
-            goto cleanup;
-        }
-        vfy_buf = tmp_buf2;
-        vfy_buf_len = tmp_buf2_len;
-
-    } else {
-        vfy_buf = tmp_buf;
-        vfy_buf_len = tmp_buf_len;
-    }
-#else
     if (msg_type == CMS_ENVEL_SERVER) {
         retval = wrap_signeddata(tmp_buf, tmp_buf_len,
                                  &tmp_buf2, &tmp_buf2_len);
@@ -2007,7 +1953,6 @@ cms_envelopeddata_verify(krb5_context context,
         vfy_buf = tmp_buf;
         vfy_buf_len = tmp_buf_len;
     }
-#endif
 
 #ifdef DEBUG_ASN1
     print_buffer_bin(vfy_buf, vfy_buf_len, "/tmp/client_enc_keypack2");
@@ -2937,18 +2882,14 @@ cleanup:
     return retval;
 }
 
-static void
-openssl_init()
+int
+pkinit_openssl_init()
 {
-    static int did_init = 0;
-
-    if (!did_init) {
-        /* initialize openssl routines */
-        CRYPTO_malloc_init();
-        ERR_load_crypto_strings();
-        OpenSSL_add_all_algorithms();
-        did_init++;
-    }
+    /* Initialize OpenSSL. */
+    CRYPTO_malloc_init();
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+    return 0;
 }
 
 static krb5_error_code
@@ -3464,31 +3405,11 @@ openssl_callback_ignore_crls(int ok, X509_STORE_CTX * ctx)
 static ASN1_OBJECT *
 pkinit_pkcs7type2oid(pkinit_plg_crypto_context cryptoctx, int pkcs7_type)
 {
-    int nid;
-
     switch (pkcs7_type) {
     case CMS_SIGN_CLIENT:
         return cryptoctx->id_pkinit_authData;
     case CMS_SIGN_DRAFT9:
-        /*
-         * Delay creating this OID until we know we need it.
-         * It shadows an existing OpenSSL oid.  If it
-         * is created too early, it breaks things like
-         * the use of pkcs12 (which uses pkcs7 structures).
-         * We need this shadow version because our code
-         * depends on the "other" type to be unknown to the
-         * OpenSSL code.
-         */
-        if (cryptoctx->id_pkinit_authData9 == NULL) {
-            pkiDebug("%s: Creating shadow instance of pkcs7-data oid\n",
-                     __FUNCTION__);
-            nid = OBJ_create("1.2.840.113549.1.7.1", "id-pkcs7-data",
-                             "PKCS7 data");
-            if (nid == NID_undef)
-                return NULL;
-            cryptoctx->id_pkinit_authData9 = OBJ_nid2obj(nid);
-        }
-        return cryptoctx->id_pkinit_authData9;
+        return OBJ_nid2obj(NID_pkcs7_data);
     case CMS_SIGN_SERVER:
         return cryptoctx->id_pkinit_DHKeyData;
     case CMS_ENVEL_SERVER:
@@ -3499,112 +3420,6 @@ pkinit_pkcs7type2oid(pkinit_plg_crypto_context cryptoctx, int pkcs7_type)
 
 }
 
-#ifdef LONGHORN_BETA_COMPAT
-#if 0
-/*
- * This is a version that worked with Longhorn Beta 3.
- */
-static int
-wrap_signeddata(unsigned char *data, unsigned int data_len,
-                unsigned char **out, unsigned int *out_len,
-                int is_longhorn_server)
-{
-
-    unsigned int orig_len = 0, oid_len = 0, tot_len = 0;
-    ASN1_OBJECT *oid = NULL;
-    unsigned char *p = NULL;
-
-    pkiDebug("%s: This is the Longhorn version and is_longhorn_server = %d\n",
-             __FUNCTION__, is_longhorn_server);
-
-    /* Get length to wrap the original data with SEQUENCE tag */
-    tot_len = orig_len = ASN1_object_size(1, (int)data_len, V_ASN1_SEQUENCE);
-
-    if (is_longhorn_server == 0) {
-        /* Add the signedData OID and adjust lengths */
-        oid = OBJ_nid2obj(NID_pkcs7_signed);
-        oid_len = i2d_ASN1_OBJECT(oid, NULL);
-
-        tot_len = ASN1_object_size(1, (int)(orig_len+oid_len), V_ASN1_SEQUENCE);
-    }
-
-    p = *out = malloc(tot_len);
-    if (p == NULL) return -1;
-
-    if (is_longhorn_server == 0) {
-        ASN1_put_object(&p, 1, (int)(orig_len+oid_len),
-                        V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL);
-
-        i2d_ASN1_OBJECT(oid, &p);
-
-        ASN1_put_object(&p, 1, (int)data_len, 0, V_ASN1_CONTEXT_SPECIFIC);
-    } else {
-        ASN1_put_object(&p, 1, (int)data_len, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL);
-    }
-    memcpy(p, data, data_len);
-
-    *out_len = tot_len;
-
-    return 0;
-}
-#else
-/*
- * This is a version that works with a patched Longhorn KDC.
- * (Which should match SP1 ??).
- */
-static int
-wrap_signeddata(unsigned char *data, unsigned int data_len,
-                unsigned char **out, unsigned int *out_len,
-                int is_longhorn_server)
-{
-
-    unsigned int oid_len = 0, tot_len = 0, wrap_len = 0, tag_len = 0;
-    ASN1_OBJECT *oid = NULL;
-    unsigned char *p = NULL;
-
-    pkiDebug("%s: This is the Longhorn version and is_longhorn_server = %d\n",
-             __FUNCTION__, is_longhorn_server);
-
-    /* New longhorn is missing another sequence */
-    if (is_longhorn_server == 1)
-        wrap_len = ASN1_object_size(1, (int)(data_len), V_ASN1_SEQUENCE);
-    else
-        wrap_len = data_len;
-
-    /* Get length to wrap the original data with SEQUENCE tag */
-    tag_len = ASN1_object_size(1, (int)wrap_len, V_ASN1_SEQUENCE);
-
-    /* Always add oid */
-    oid = OBJ_nid2obj(NID_pkcs7_signed);
-    oid_len = i2d_ASN1_OBJECT(oid, NULL);
-    oid_len += tag_len;
-
-    tot_len = ASN1_object_size(1, (int)(oid_len), V_ASN1_SEQUENCE);
-
-    p = *out = malloc(tot_len);
-    if (p == NULL)
-        return -1;
-
-    ASN1_put_object(&p, 1, (int)(oid_len),
-                    V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL);
-
-    i2d_ASN1_OBJECT(oid, &p);
-
-    ASN1_put_object(&p, 1, (int)wrap_len, 0, V_ASN1_CONTEXT_SPECIFIC);
-
-    /* Wrap in extra seq tag */
-    if (is_longhorn_server == 1) {
-        ASN1_put_object(&p, 1, (int)data_len, V_ASN1_SEQUENCE, V_ASN1_UNIVERSAL);
-    }
-    memcpy(p, data, data_len);
-
-    *out_len = tot_len;
-
-    return 0;
-}
-
-#endif
-#else
 static int
 wrap_signeddata(unsigned char *data, unsigned int data_len,
                 unsigned char **out, unsigned int *out_len)
@@ -3638,7 +3453,6 @@ wrap_signeddata(unsigned char *data, unsigned int data_len,
 
     return 0;
 }
-#endif
 
 static int
 prepare_enc_data(unsigned char *indata,
@@ -3779,6 +3593,7 @@ pkinit_open_session(krb5_context context,
 {
     CK_ULONG i, r;
     unsigned char *cp;
+    size_t label_len;
     CK_ULONG count = 0;
     CK_SLOT_ID_PTR slotlist;
     CK_TOKEN_INFO tinfo;
@@ -3801,23 +3616,22 @@ pkinit_open_session(krb5_context context,
     }
 
     /* Get the list of available slots */
-    if (cctx->slotid != PK_NOSLOT) {
-        /* A slot was specified, so that's the only one in the list */
-        count = 1;
-        slotlist = malloc(sizeof(CK_SLOT_ID));
-        slotlist[0] = cctx->slotid;
-    } else {
-        if (cctx->p11->C_GetSlotList(TRUE, NULL, &count) != CKR_OK)
-            return KRB5KDC_ERR_PREAUTH_FAILED;
-        if (count == 0)
-            return KRB5KDC_ERR_PREAUTH_FAILED;
-        slotlist = malloc(count * sizeof (CK_SLOT_ID));
-        if (cctx->p11->C_GetSlotList(TRUE, slotlist, &count) != CKR_OK)
-            return KRB5KDC_ERR_PREAUTH_FAILED;
-    }
+    if (cctx->p11->C_GetSlotList(TRUE, NULL, &count) != CKR_OK)
+        return KRB5KDC_ERR_PREAUTH_FAILED;
+    if (count == 0)
+        return KRB5KDC_ERR_PREAUTH_FAILED;
+    slotlist = calloc(count, sizeof(CK_SLOT_ID));
+    if (slotlist == NULL)
+        return ENOMEM;
+    if (cctx->p11->C_GetSlotList(TRUE, slotlist, &count) != CKR_OK)
+        return KRB5KDC_ERR_PREAUTH_FAILED;
 
     /* Look for the given token label, or if none given take the first one */
     for (i = 0; i < count; i++) {
+        /* Skip slots that don't match the specified slotid, if given. */
+        if (cctx->slotid != PK_NOSLOT && cctx->slotid != slotlist[i])
+            continue;
+
         /* Open session */
         if ((r = cctx->p11->C_OpenSession(slotlist[i], CKF_SERIAL_SESSION,
                                           NULL, NULL, &cctx->session)) != CKR_OK) {
@@ -3830,13 +3644,20 @@ pkinit_open_session(krb5_context context,
             pkiDebug("C_GetTokenInfo: %s\n", pkinit_pkcs11_code_to_text(r));
             return KRB5KDC_ERR_PREAUTH_FAILED;
         }
-        for (cp = tinfo.label + sizeof (tinfo.label) - 1;
-             *cp == '\0' || *cp == ' '; cp--)
-            *cp = '\0';
-        pkiDebug("open_session: slotid %d token \"%s\"\n",
-                 (int) slotlist[i], tinfo.label);
+
+        /* tinfo.label is zero-filled but not necessarily zero-terminated.
+         * Find the length, ignoring any trailing spaces. */
+        for (cp = tinfo.label + sizeof(tinfo.label); cp > tinfo.label; cp--) {
+            if (cp[-1] != '\0' && cp[-1] != ' ')
+                break;
+        }
+        label_len = cp - tinfo.label;
+
+        pkiDebug("open_session: slotid %d token \"%.*s\"\n",
+                 (int)slotlist[i], (int)label_len, tinfo.label);
         if (cctx->token_label == NULL ||
-            !strcmp((char *) cctx->token_label, (char *) tinfo.label))
+            (strlen(cctx->token_label) == label_len &&
+             memcmp(cctx->token_label, tinfo.label, label_len) == 0))
             break;
         cctx->p11->C_CloseSession(cctx->session);
     }
@@ -3855,15 +3676,15 @@ pkinit_open_session(krb5_context context,
         if (cctx->p11_module_name != NULL) {
             if (cctx->slotid != PK_NOSLOT) {
                 if (asprintf(&p11name,
-                             "PKCS11:module_name=%s:slotid=%ld:token=%s",
+                             "PKCS11:module_name=%s:slotid=%ld:token=%.*s",
                              cctx->p11_module_name, (long)cctx->slotid,
-                             tinfo.label) < 0)
+                             (int)label_len, tinfo.label) < 0)
                     p11name = NULL;
             } else {
                 if (asprintf(&p11name,
-                             "PKCS11:module_name=%s,token=%s",
+                             "PKCS11:module_name=%s,token=%.*s",
                              cctx->p11_module_name,
-                             tinfo.label) < 0)
+                             (int)label_len, tinfo.label) < 0)
                     p11name = NULL;
             }
         } else {
@@ -4629,11 +4450,11 @@ reassemble_pkcs11_name(pkinit_identity_opts *idopts)
         k5_buf_add_fmt(&buf, "%sslotid=%ld", n++ ? ":" : "",
                        (long)idopts->slotid);
     }
-    if (k5_buf_len(&buf) >= 0)
-        ret = strdup(k5_buf_data(&buf));
+    if (k5_buf_status(&buf) == 0)
+        ret = strdup(buf.data);
     else
         ret = NULL;
-    k5_free_buf(&buf);
+    k5_buf_free(&buf);
     return ret;
 }
 
@@ -5633,7 +5454,6 @@ static krb5_error_code
 create_identifiers_from_stack(STACK_OF(X509) *sk,
                               krb5_external_principal_identifier *** ids)
 {
-    krb5_error_code retval = ENOMEM;
     int i = 0, sk_size = sk_X509_num(sk);
     krb5_external_principal_identifier **krb5_cas = NULL;
     X509 *x = NULL;
@@ -5645,11 +5465,9 @@ create_identifiers_from_stack(STACK_OF(X509) *sk,
 
     *ids = NULL;
 
-    krb5_cas =
-        malloc((sk_size + 1) * sizeof(krb5_external_principal_identifier *));
+    krb5_cas = calloc(sk_size + 1, sizeof(*krb5_cas));
     if (krb5_cas == NULL)
         return ENOMEM;
-    krb5_cas[sk_size] = NULL;
 
     for (i = 0; i < sk_size; i++) {
         krb5_cas[i] = malloc(sizeof(krb5_external_principal_identifier));
@@ -5667,7 +5485,7 @@ create_identifiers_from_stack(STACK_OF(X509) *sk,
         xn = X509_get_subject_name(x);
         len = i2d_X509_NAME(xn, NULL);
         if ((p = malloc((size_t) len)) == NULL)
-            goto cleanup;
+            goto oom;
         krb5_cas[i]->subjectName.data = (char *)p;
         i2d_X509_NAME(xn, &p);
         krb5_cas[i]->subjectName.length = len;
@@ -5677,67 +5495,54 @@ create_identifiers_from_stack(STACK_OF(X509) *sk,
         krb5_cas[i]->issuerAndSerialNumber.magic = 0;
         krb5_cas[i]->issuerAndSerialNumber.data = NULL;
 
-#ifdef LONGHORN_BETA_COMPAT
-        if (longhorn == 0) { /* XXX Longhorn doesn't like this */
-#endif
-            is = PKCS7_ISSUER_AND_SERIAL_new();
-            X509_NAME_set(&is->issuer, X509_get_issuer_name(x));
-            M_ASN1_INTEGER_free(is->serial);
-            is->serial = M_ASN1_INTEGER_dup(X509_get_serialNumber(x));
-            len = i2d_PKCS7_ISSUER_AND_SERIAL(is, NULL);
-            if ((p = malloc((size_t) len)) == NULL)
-                goto cleanup;
-            krb5_cas[i]->issuerAndSerialNumber.data = (char *)p;
-            i2d_PKCS7_ISSUER_AND_SERIAL(is, &p);
-            krb5_cas[i]->issuerAndSerialNumber.length = len;
-#ifdef LONGHORN_BETA_COMPAT
-        }
-#endif
+        is = PKCS7_ISSUER_AND_SERIAL_new();
+        if (is == NULL)
+            goto oom;
+        X509_NAME_set(&is->issuer, X509_get_issuer_name(x));
+        M_ASN1_INTEGER_free(is->serial);
+        is->serial = M_ASN1_INTEGER_dup(X509_get_serialNumber(x));
+        if (is->serial == NULL)
+            goto oom;
+        len = i2d_PKCS7_ISSUER_AND_SERIAL(is, NULL);
+        p = malloc(len);
+        if (p == NULL)
+            goto oom;
+        krb5_cas[i]->issuerAndSerialNumber.data = (char *)p;
+        i2d_PKCS7_ISSUER_AND_SERIAL(is, &p);
+        krb5_cas[i]->issuerAndSerialNumber.length = len;
 
         /* fill-in subjectKeyIdentifier */
         krb5_cas[i]->subjectKeyIdentifier.length = 0;
         krb5_cas[i]->subjectKeyIdentifier.magic = 0;
         krb5_cas[i]->subjectKeyIdentifier.data = NULL;
 
+        if (X509_get_ext_by_NID(x, NID_subject_key_identifier, -1) >= 0) {
+            ASN1_OCTET_STRING *ikeyid;
 
-#ifdef LONGHORN_BETA_COMPAT
-        if (longhorn == 0) {    /* XXX Longhorn doesn't like this */
-#endif
-            if (X509_get_ext_by_NID(x, NID_subject_key_identifier, -1) >= 0) {
-                ASN1_OCTET_STRING *ikeyid = NULL;
-
-                if ((ikeyid = X509_get_ext_d2i(x, NID_subject_key_identifier, NULL,
-                                               NULL))) {
-                    len = i2d_ASN1_OCTET_STRING(ikeyid, NULL);
-                    if ((p = malloc((size_t) len)) == NULL)
-                        goto cleanup;
-                    krb5_cas[i]->subjectKeyIdentifier.data = (char *)p;
-                    i2d_ASN1_OCTET_STRING(ikeyid, &p);
-                    krb5_cas[i]->subjectKeyIdentifier.length = len;
-                }
-                if (ikeyid != NULL)
-                    ASN1_OCTET_STRING_free(ikeyid);
+            ikeyid = X509_get_ext_d2i(x, NID_subject_key_identifier, NULL,
+                                      NULL);
+            if (ikeyid != NULL) {
+                len = i2d_ASN1_OCTET_STRING(ikeyid, NULL);
+                p = malloc(len);
+                if (p == NULL)
+                    goto oom;
+                krb5_cas[i]->subjectKeyIdentifier.data = (char *)p;
+                i2d_ASN1_OCTET_STRING(ikeyid, &p);
+                krb5_cas[i]->subjectKeyIdentifier.length = len;
+                ASN1_OCTET_STRING_free(ikeyid);
             }
-#ifdef LONGHORN_BETA_COMPAT
         }
-#endif
-        if (is != NULL) {
-            if (is->issuer != NULL)
-                X509_NAME_free(is->issuer);
-            if (is->serial != NULL)
-                ASN1_INTEGER_free(is->serial);
-            free(is);
-        }
+        PKCS7_ISSUER_AND_SERIAL_free(is);
+        is = NULL;
     }
 
     *ids = krb5_cas;
+    return 0;
 
-    retval = 0;
-cleanup:
-    if (retval)
-        free_krb5_external_principal_identifier(&krb5_cas);
-
-    return retval;
+oom:
+    free_krb5_external_principal_identifier(&krb5_cas);
+    PKCS7_ISSUER_AND_SERIAL_free(is);
+    return ENOMEM;
 }
 
 static krb5_error_code

@@ -36,15 +36,11 @@
  *   on whether "-P" is given).
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+#include <k5-platform.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h> /* needed for IPPROTO_* on NetBSD */
-#include <k5-platform.h>
 #ifdef USE_FAKE_ADDRINFO
 #include "fake-addrinfo.h"
 #endif
@@ -265,12 +261,6 @@ int main (int argc, char *argv[])
         printf("\terror => %s\n", eaistr(err));
         return 1;
     }
-
-#if defined(SIN6_LEN)
-    if (ap->ai_addr->sa_len == 0)
-        printf ("BAD: sa_len not set!\n");
-#endif
-
 
     for (ap2 = ap; ap2; ap2 = ap2->ai_next) {
         char hbuf[NI_MAXHOST], pbuf[NI_MAXSERV];

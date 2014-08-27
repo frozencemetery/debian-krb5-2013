@@ -29,8 +29,8 @@
  */
 
 /* Implement alternate profile file handling. */
-#include "fake-addrinfo.h"
 #include "k5-int.h"
+#include "fake-addrinfo.h"
 #include <kadm5/admin.h>
 #include "adm_proto.h"
 #include <stdio.h>
@@ -66,7 +66,7 @@ krb5_aprof_init(char *fname, char *envname, krb5_pointer *acontextp)
     krb5_error_code ret;
     profile_t profile;
     const char *kdc_config;
-    char *profile_path, **filenames;
+    char **filenames;
     int i;
     struct k5buf buf;
 
@@ -79,17 +79,16 @@ krb5_aprof_init(char *fname, char *envname, krb5_pointer *acontextp)
     if (kdc_config)
         k5_buf_add(&buf, kdc_config);
     for (i = 0; filenames[i] != NULL; i++) {
-        if (k5_buf_len(&buf) > 0)
+        if (buf.len > 0)
             k5_buf_add(&buf, ":");
         k5_buf_add(&buf, filenames[i]);
     }
     krb5_free_config_files(filenames);
-    profile_path = k5_buf_data(&buf);
-    if (profile_path == NULL)
+    if (k5_buf_status(&buf) != 0)
         return ENOMEM;
     profile = (profile_t) NULL;
-    ret = profile_init_path(profile_path, &profile);
-    free(profile_path);
+    ret = profile_init_path(buf.data, &profile);
+    k5_buf_free(&buf);
     if (ret)
         return ret;
     *acontextp = profile;
@@ -727,8 +726,8 @@ krb5_error_code kadm5_get_config_params(krb5_context context,
         params.keysalts = NULL;
         params.num_keysalts = 0;
         krb5_string_to_keysalts(svalue,
-                                ", \t", /* Tuple separators */
-                                ":.-",  /* Key/salt separators */
+                                NULL, /* Tuple separators */
+                                NULL, /* Key/salt separators */
                                 0,      /* No duplicates */
                                 &params.keysalts,
                                 &params.num_keysalts);
@@ -851,10 +850,9 @@ kadm5_get_admin_service_name(krb5_context ctx, char *realm_in,
     err = getaddrinfo(params_out.admin_server, NULL, &hint, &ai);
     if (err != 0) {
         ret = KADM5_CANT_RESOLVE;
-        krb5_set_error_message(ctx, ret,
-                               _("Cannot resolve address of admin server "
-                                 "\"%s\" for realm \"%s\""),
-                               params_out.admin_server, realm_in);
+        k5_setmsg(ctx, ret,
+                  _("Cannot resolve address of admin server \"%s\" for realm "
+                    "\"%s\""), params_out.admin_server, realm_in);
         goto err_params;
     }
     if (strlen(ai->ai_canonname) + sizeof("kadmin/") > maxlen) {
