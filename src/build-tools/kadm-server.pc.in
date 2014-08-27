@@ -1,7 +1,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
+libdir=@libdir@/mit-krb5
+includedir=@includedir@/mit-krb5
 
 Name: kadm-server
 Description: Kerberos administration server library
