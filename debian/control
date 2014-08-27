@@ -346,6 +346,9 @@ Description: MIT Kerberos runtime libraries - Kerberos database
 
 Package: libkrb5support0
 Section: libs
+Breaks: libgssapi-krb5-2 (<< 1.12.1+dfsg-8),
+ libkadm5srv-mit9 (<< 1.12.1+dfsg-8), libkadm5clnt-mit9 (<< 1.12.1+dfsg-8),
+ libk5crypto3 (<< 1.12.1+dfsg-8), libkdb5-7 (<< 1.12.1+dfsg-8)
 Conflicts: libkrb53
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}

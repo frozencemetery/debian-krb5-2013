@@ -1,3 +1,11 @@
+krb5 (1.12.1+dfsg-8) UNRELEASED; urgency=medium
+
+  * Break old versions of libraries that consume libkrb5support0, which
+    had its export symbol list change in 1.12 without the dependencies
+    changing to reflect that.  Closes: #758288
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 27 Aug 2014 18:23:02 -0400
+
 krb5 (1.12.1+dfsg-7) unstable; urgency=high
 
   * Apply upstream's patch for CVE-2014-4345 (MITKRB5-SA-2014-001), buffer
