@@ -29,16 +29,6 @@
  * SUCH DAMAGES.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include <string.h>
-#include <ctype.h>
-#include <assert.h>
-
-#include "k5-platform.h"
-
 #include "pkinit.h"
 
 #define FAKECERT
@@ -63,8 +53,6 @@ pkinit_init_req_opts(pkinit_req_opts **reqopts)
     opts->dh_or_rsa = DH_PROTOCOL;
     opts->require_crl_checking = 0;
     opts->dh_size = PKINIT_DEFAULT_DH_MIN_BITS;
-    opts->win2k_target = 0;
-    opts->win2k_require_cksum = 0;
 
     *reqopts = opts;
 
@@ -299,27 +287,6 @@ init_krb5_reply_key_pack_draft9(krb5_reply_key_pack_draft9 **in)
     if ((*in) == NULL) return;
     (*in)->replyKey.contents = NULL;
     (*in)->replyKey.length = 0;
-}
-
-void
-init_krb5_auth_pack(krb5_auth_pack **in)
-{
-    (*in) = malloc(sizeof(krb5_auth_pack));
-    if ((*in) == NULL) return;
-    (*in)->clientPublicValue = NULL;
-    (*in)->supportedCMSTypes = NULL;
-    (*in)->clientDHNonce.length = 0;
-    (*in)->clientDHNonce.data = NULL;
-    (*in)->pkAuthenticator.paChecksum.contents = NULL;
-    (*in)->supportedKDFs = NULL;
-}
-
-void
-init_krb5_auth_pack_draft9(krb5_auth_pack_draft9 **in)
-{
-    (*in) = malloc(sizeof(krb5_auth_pack_draft9));
-    if ((*in) == NULL) return;
-    (*in)->clientPublicValue = NULL;
 }
 
 void

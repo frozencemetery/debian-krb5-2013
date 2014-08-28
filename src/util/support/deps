@@ -20,7 +20,7 @@ errors.so errors.po $(OUTPRE)errors.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
   $(top_srcdir)/include/k5-thread.h errors.c supp-int.h
 k5buf.so k5buf.po $(OUTPRE)k5buf.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
   $(top_srcdir)/include/k5-buf.h $(top_srcdir)/include/k5-platform.h \
-  $(top_srcdir)/include/k5-thread.h k5buf-int.h k5buf.c
+  $(top_srcdir)/include/k5-thread.h k5buf.c
 gmt_mktime.so gmt_mktime.po $(OUTPRE)gmt_mktime.$(OBJEXT): \
   $(BUILDTOP)/include/autoconf.h $(top_srcdir)/include/k5-gmt_mktime.h \
   gmt_mktime.c
@@ -53,7 +53,7 @@ mkstemp.so mkstemp.po $(OUTPRE)mkstemp.$(OBJEXT): $(BUILDTOP)/include/autoconf.h
   mkstemp.c
 t_k5buf.so t_k5buf.po $(OUTPRE)t_k5buf.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
   $(top_srcdir)/include/k5-buf.h $(top_srcdir)/include/k5-platform.h \
-  $(top_srcdir)/include/k5-thread.h k5buf-int.h t_k5buf.c
+  $(top_srcdir)/include/k5-thread.h t_k5buf.c
 t_unal.so t_unal.po $(OUTPRE)t_unal.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
   $(top_srcdir)/include/k5-platform.h $(top_srcdir)/include/k5-thread.h \
   t_unal.c
@@ -71,9 +71,13 @@ path.so path.po $(OUTPRE)path.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
 base64.so base64.po $(OUTPRE)base64.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
   $(top_srcdir)/include/k5-base64.h $(top_srcdir)/include/k5-platform.h \
   $(top_srcdir)/include/k5-thread.h base64.c
-json.so json.po $(OUTPRE)json.$(OBJEXT): $(top_srcdir)/include/k5-base64.h \
-  $(top_srcdir)/include/k5-buf.h $(top_srcdir)/include/k5-json.h \
-  json.c
+json.so json.po $(OUTPRE)json.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
+  $(top_srcdir)/include/k5-base64.h $(top_srcdir)/include/k5-buf.h \
+  $(top_srcdir)/include/k5-json.h $(top_srcdir)/include/k5-platform.h \
+  $(top_srcdir)/include/k5-thread.h json.c
 bcmp.so bcmp.po $(OUTPRE)bcmp.$(OBJEXT): $(BUILDTOP)/include/autoconf.h \
   $(top_srcdir)/include/k5-platform.h $(top_srcdir)/include/k5-thread.h \
   bcmp.c
+strerror_r.so strerror_r.po $(OUTPRE)strerror_r.$(OBJEXT): \
+  $(BUILDTOP)/include/autoconf.h $(top_srcdir)/include/k5-platform.h \
+  $(top_srcdir)/include/k5-thread.h strerror_r.c

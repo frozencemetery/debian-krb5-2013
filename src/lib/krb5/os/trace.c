@@ -197,12 +197,14 @@ trace_format(krb5_context context, const char *fmt, va_list ap)
             }
         } else if (strcmp(tmpbuf, "raddr") == 0) {
             ra = va_arg(ap, struct remote_address *);
-            if (ra->type == SOCK_DGRAM)
+            if (ra->transport == UDP)
                 k5_buf_add(&buf, "dgram");
-            else if (ra->type == SOCK_STREAM)
+            else if (ra->transport == TCP)
                 k5_buf_add(&buf, "stream");
+            else if (ra->transport == HTTPS)
+                k5_buf_add(&buf, "https");
             else
-                k5_buf_add_fmt(&buf, "socktype%d", ra->type);
+                k5_buf_add_fmt(&buf, "transport%d", ra->transport);
 
             if (getnameinfo((struct sockaddr *)&ra->saddr, ra->len,
                             addrbuf, sizeof(addrbuf), portbuf, sizeof(portbuf),
@@ -227,14 +229,9 @@ trace_format(krb5_context context, const char *fmt, va_list ap)
                 subfmt(context, &buf, "{hexlenstr}", d->length, d->data);
         } else if (strcmp(tmpbuf, "errno") == 0) {
             err = va_arg(ap, int);
-            p = NULL;
-#ifdef HAVE_STRERROR_R
+            k5_buf_add_fmt(&buf, "%d", err);
             if (strerror_r(err, tmpbuf, sizeof(tmpbuf)) == 0)
-                p = tmpbuf;
-#endif
-            if (p == NULL)
-                p = strerror(err);
-            k5_buf_add_fmt(&buf, "%d/%s", err, p);
+                k5_buf_add_fmt(&buf, "/%s", tmpbuf);
         } else if (strcmp(tmpbuf, "kerr") == 0) {
             kerr = va_arg(ap, krb5_error_code);
             p = krb5_get_error_message(context, kerr);
@@ -308,7 +305,7 @@ trace_format(krb5_context context, const char *fmt, va_list ap)
                    creds->client, creds->server);
         }
     }
-    return k5_buf_data(&buf);
+    return buf.data;
 }
 
 /* Allows trace_format formatters to be represented in terms of other

@@ -32,15 +32,15 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <errno.h>
-
 #include "k5-platform.h"
 #include "k5-buf.h"
 #include "k5-utf8.h"
 #include "krb5.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
 
 #include <prerror.h>
 #include <prmem.h>
@@ -2173,11 +2173,11 @@ reassemble_pkcs11_name(PLArenaPool *pool, pkinit_identity_opts *idopts)
         k5_buf_add_fmt(&buf, "%sslotid=%ld", n++ ? ":" : "",
                        (long)idopts->slotid);
     }
-    if (k5_buf_len(&buf) >= 0)
-        ret = PORT_ArenaStrdup(pool, k5_buf_data(&buf));
+    if (k5_buf_status(&buf) == 0)
+        ret = PORT_ArenaStrdup(pool, buf.data);
     else
         ret = NULL;
-    k5_free_buf(&buf);
+    k5_buf_free(&buf);
     return ret;
 }
 
@@ -2209,11 +2209,11 @@ reassemble_pkcs11_identity(PLArenaPool *pool, pkinit_identity_opts *idopts,
     if (tokenname != NULL)
         k5_buf_add_fmt(&buf, "%stoken=%s", n++ ? ":" : "", tokenname);
 
-    if (k5_buf_len(&buf) >= 0)
-        ret = PORT_ArenaStrdup(pool, k5_buf_data(&buf));
+    if (k5_buf_status(&buf) == 0)
+        ret = PORT_ArenaStrdup(pool, buf.data);
     else
         ret = NULL;
-    k5_free_buf(&buf);
+    k5_buf_free(&buf);
 
     return ret;
 }

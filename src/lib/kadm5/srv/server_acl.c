@@ -24,11 +24,10 @@
  * or implied warranty.
  */
 
-#include <stdio.h>
+#include "k5-int.h"
 #include <syslog.h>
 #include <sys/param.h>
 #include <gssapi/gssapi_generic.h>
-#include "k5-int.h"
 #include <kadm5/server_internal.h>
 #include <kadm5/admin.h>
 #include "adm_proto.h"
@@ -794,12 +793,11 @@ kadm5int_acl_check(kcontext, caller, opmask, principal, restrictions)
     krb5_boolean        retval;
     gss_buffer_desc     caller_buf;
     gss_OID             caller_oid;
-    OM_uint32           emaj, emin;
+    OM_uint32           emin;
     krb5_error_code     code;
     krb5_principal      caller_princ;
 
-    if (GSS_ERROR(emaj = gss_display_name(&emin, caller, &caller_buf,
-                                          &caller_oid)))
+    if (GSS_ERROR(gss_display_name(&emin, caller, &caller_buf, &caller_oid)))
         return FALSE;
 
     code = krb5_parse_name(kcontext, (char *) caller_buf.value,

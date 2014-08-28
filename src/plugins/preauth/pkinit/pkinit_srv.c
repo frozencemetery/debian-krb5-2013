@@ -29,11 +29,6 @@
  * SUCH DAMAGES.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-
 #include <k5-int.h>
 #include "pkinit.h"
 
@@ -1176,10 +1171,6 @@ pkinit_init_kdc_profile(krb5_context context, pkinit_kdc_context plgctx)
     pkinit_kdcdefault_string(context, plgctx->realmname,
                              KRB5_CONF_PKINIT_KDC_OCSP,
                              &plgctx->idopts->ocsp);
-
-    pkinit_kdcdefault_string(context, plgctx->realmname,
-                             KRB5_CONF_PKINIT_MAPPING_FILE,
-                             &plgctx->idopts->dn_mapping_file);
 
     pkinit_kdcdefault_integer(context, plgctx->realmname,
                               KRB5_CONF_PKINIT_DH_MIN_BITS,

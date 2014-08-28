@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -216,7 +214,8 @@ database module, the <strong>-update</strong> flag is required.</p>
 <dl class="docutils">
 <dt><strong>-b7</strong></dt>
 <dd>requires the database to be in the Kerberos 5 Beta 7 format
-(&#8220;kdb5_util load_dump version 4&#8221;).</dd>
+(&#8220;kdb5_util load_dump version 4&#8221;).  This was the dump format
+produced on releases prior to 1.2.2.</dd>
 <dt><strong>-ov</strong></dt>
 <dd>requires the database to be in &#8220;ovsec_adm_import&#8221; format.  Must be
 used with the <strong>-update</strong> option.</dd>
@@ -238,10 +237,7 @@ known to corrupt data and lose principals.</dd>
 is dumped.</dd>
 <dt><strong>-update</strong></dt>
 <dd>records from the dump file are added to or updated in the existing
-database.  (This is useful in conjunction with an ovsec_adm_export
-format dump if you want to preserve per-principal policy
-information, since the current default format does not contain
-this data.)  Otherwise, a new database is created containing only
+database.  Otherwise, a new database is created containing only
 what is in the dump file and the old one destroyed upon successful
 completion.</dd>
 </dl>
@@ -383,6 +379,7 @@ showing the actions which would have been taken.</p>
 <li class="toctree-l2"><a class="reference internal" href="../otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Administration  programs</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="kadmin_local.html">kadmin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kadmind.html">kadmind</a></li>
@@ -430,8 +427,8 @@ showing the actions which would have been taken.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

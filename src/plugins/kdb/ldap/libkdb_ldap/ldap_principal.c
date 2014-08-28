@@ -131,7 +131,7 @@ krb5_ldap_free_principal(krb5_context kcontext, krb5_db_entry *entry)
 krb5_error_code
 krb5_ldap_iterate(krb5_context context, char *match_expr,
                   krb5_error_code (*func)(krb5_pointer, krb5_db_entry *),
-                  krb5_pointer func_arg)
+                  krb5_pointer func_arg, krb5_flags iterflags)
 {
     krb5_db_entry            entry;
     krb5_principal           principal;
@@ -156,7 +156,7 @@ krb5_ldap_iterate(krb5_context context, char *match_expr,
         realm = context->default_realm;
         if (realm == NULL) {
             st = EINVAL;
-            krb5_set_error_message(context, st, _("Default realm not set"));
+            k5_setmsg(context, st, _("Default realm not set"));
             goto cleanup;
         }
     }
@@ -189,7 +189,7 @@ krb5_ldap_iterate(krb5_context context, char *match_expr,
                         continue;
                     if (krb5_parse_name(context, princ_name, &principal) != 0)
                         continue;
-                    if (is_principal_in_realm(ldap_context, principal) == 0) {
+                    if (is_principal_in_realm(ldap_context, principal)) {
                         if ((st = populate_krb5_db_entry(context, ldap_context, ld, ent, principal,
                                                          &entry)) != 0)
                             goto cleanup;
@@ -206,6 +206,7 @@ krb5_ldap_iterate(krb5_context context, char *match_expr,
             }
         } /* end of for (ent= ... */
         ldap_msgfree(result);
+        result = NULL;
     } /* end of for (tree= ... */
 
 cleanup:
@@ -215,7 +216,9 @@ cleanup:
     for (;ntree; --ntree)
         if (subtree[ntree-1])
             free (subtree[ntree-1]);
+    free(subtree);
 
+    ldap_msgfree(result);
     krb5_ldap_put_handle_to_pool(ldap_context, ldap_server_handle);
     return st;
 }
@@ -256,7 +259,7 @@ krb5_ldap_delete_principal(krb5_context context,
 
     if (DN == NULL) {
         st = EINVAL;
-        krb5_set_error_message(context, st, _("DN information missing"));
+        k5_setmsg(context, st, _("DN information missing"));
         goto cleanup;
     }
 
@@ -409,7 +412,7 @@ krb5_ldap_parse_principal_name(char *i_princ_name, char **o_princ_name)
     at_rlm_name = strrchr(i_princ_name, '@');
     if (!at_rlm_name) {
         *o_princ_name = strdup(i_princ_name);
-        if (!o_princ_name)
+        if (!*o_princ_name)
             return ENOMEM;
     } else {
         k5_buf_init_dynamic(&buf);
@@ -419,9 +422,9 @@ krb5_ldap_parse_principal_name(char *i_princ_name, char **o_princ_name)
             k5_buf_add_len(&buf, p, 1);
         }
         k5_buf_add(&buf, at_rlm_name);
-        *o_princ_name = k5_buf_data(&buf);
-        if (!*o_princ_name)
+        if (k5_buf_status(&buf) != 0)
             return ENOMEM;
+        *o_princ_name = buf.data;
     }
     return 0;
 }

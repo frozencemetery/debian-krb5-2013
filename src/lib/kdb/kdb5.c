@@ -37,10 +37,7 @@
  * Include files
  */
 
-#include <stdio.h>
-#include <string.h>
 #include <k5-int.h>
-#include <osconf.h>
 #include "kdb5.h"
 #include "kdb_log.h"
 #include "kdb5int.h"
@@ -212,26 +209,26 @@ static krb5_error_code
 get_conf_section(krb5_context context, char **section)
 {
     krb5_error_code status;
-    char *result = NULL;
-    char *value = NULL;
+    char *result = NULL, *value = NULL, *defrealm;
 
     *section = NULL;
 
-    if (context->default_realm == NULL) {
-        krb5_set_error_message(context, KRB5_KDB_SERVER_INTERNAL_ERR,
-                               _("No default realm set; cannot initialize "
-                                 "KDB"));
+    status = krb5_get_default_realm(context, &defrealm);
+    if (status) {
+        k5_setmsg(context, KRB5_KDB_SERVER_INTERNAL_ERR,
+                  _("No default realm set; cannot initialize KDB"));
         return KRB5_KDB_SERVER_INTERNAL_ERR;
     }
     status = profile_get_string(context->profile,
                                 /* realms */
                                 KDB_REALM_SECTION,
-                                context->default_realm,
+                                defrealm,
                                 /* under the realm name, database_module */
                                 KDB_MODULE_POINTER,
                                 /* default value is the realm name itself */
-                                context->default_realm,
+                                defrealm,
                                 &value);
+    krb5_free_default_realm(context, defrealm);
     if (status)
         return status;
     result = strdup(value);
@@ -246,18 +243,19 @@ static char *
 kdb_get_library_name(krb5_context kcontext)
 {
     krb5_error_code status = 0;
-    char   *result = NULL;
-    char   *value = NULL;
-    char   *lib = NULL;
+    char *result = NULL, *value = NULL, *lib = NULL, *defrealm = NULL;
 
+    status = krb5_get_default_realm(kcontext, &defrealm);
+    if (status)
+        goto clean_n_exit;
     status = profile_get_string(kcontext->profile,
                                 /* realms */
                                 KDB_REALM_SECTION,
-                                kcontext->default_realm,
+                                defrealm,
                                 /* under the realm name, database_module */
                                 KDB_MODULE_POINTER,
                                 /* default value is the realm name itself */
-                                kcontext->default_realm,
+                                defrealm,
                                 &value);
     if (status)
         goto clean_n_exit;
@@ -276,6 +274,7 @@ kdb_get_library_name(krb5_context kcontext)
 
     result = strdup(lib);
 clean_n_exit:
+    krb5_free_default_realm(kcontext, defrealm);
     profile_release_string(value);
     profile_release_string(lib);
     return result;
@@ -321,9 +320,8 @@ kdb_load_library(krb5_context kcontext, char *lib_name, db_library *libptr)
         vftabl_addr = &krb5_ldap_kdb_function_table;
 #endif
     if (!vftabl_addr) {
-        krb5_set_error_message(kcontext, KRB5_KDB_DBTYPE_NOTFOUND,
-                               _("Unable to find requested database type: %s"),
-                               lib_name);
+        k5_setmsg(kcontext, KRB5_KDB_DBTYPE_NOTFOUND,
+                  _("Unable to find requested database type: %s"), lib_name);
         return KRB5_PLUGIN_OP_NOTSUPP;
     }
 
@@ -404,9 +402,8 @@ kdb_load_library(krb5_context kcontext, char *lib_name, db_library *lib)
                                             &(*lib)->dl_dir_handle, &kcontext->err))) {
         const char *err_str = krb5_get_error_message(kcontext, status);
         status = KRB5_KDB_DBTYPE_NOTFOUND;
-        krb5_set_error_message(kcontext, status,
-                               _("Unable to find requested database type: %s"),
-                               err_str);
+        k5_setmsg(kcontext, status,
+                  _("Unable to find requested database type: %s"), err_str);
         krb5_free_error_message(kcontext, err_str);
         goto clean_n_exit;
     }
@@ -415,9 +412,9 @@ kdb_load_library(krb5_context kcontext, char *lib_name, db_library *lib)
                                                &vftabl_addrs, &kcontext->err))) {
         const char *err_str = krb5_get_error_message(kcontext, status);
         status = KRB5_KDB_DBTYPE_INIT;
-        krb5_set_error_message(kcontext, status,
-                               _("plugin symbol 'kdb_function_table' lookup "
-                                 "failed: %s"), err_str);
+        k5_setmsg(kcontext, status,
+                  _("plugin symbol 'kdb_function_table' lookup failed: %s"),
+                  err_str);
         krb5_free_error_message(kcontext, err_str);
         goto clean_n_exit;
     }
@@ -425,10 +422,9 @@ kdb_load_library(krb5_context kcontext, char *lib_name, db_library *lib)
     if (vftabl_addrs[0] == NULL) {
         /* No plugins! */
         status = KRB5_KDB_DBTYPE_NOTFOUND;
-        krb5_set_error_message(kcontext, status,
-                               _("Unable to load requested database module "
-                                 "'%s': plugin symbol 'kdb_function_table' "
-                                 "not found"), lib_name);
+        k5_setmsg(kcontext, status,
+                  _("Unable to load requested database module '%s': plugin "
+                    "symbol 'kdb_function_table' not found"), lib_name);
         goto clean_n_exit;
     }
 
@@ -881,23 +877,8 @@ krb5_error_code
 krb5_db_put_principal(krb5_context kcontext, krb5_db_entry *entry)
 {
     krb5_error_code status = 0;
-    kdb_vftabl *v;
-    char  **db_args = NULL;
     kdb_incr_update_t *upd = NULL;
     char *princ_name = NULL;
-    int ulog_locked = 0;
-
-    status = get_vftabl(kcontext, &v);
-    if (status)
-        return status;
-    if (v->put_principal == NULL)
-        return KRB5_PLUGIN_OP_NOTSUPP;
-
-    status = extract_db_args_from_tl_data(kcontext, &entry->tl_data,
-                                          &entry->n_tl_data,
-                                          &db_args);
-    if (status)
-        goto cleanup;
 
     if (logging(kcontext)) {
         upd = k5alloc(sizeof(*upd), &status);
@@ -906,30 +887,22 @@ krb5_db_put_principal(krb5_context kcontext, krb5_db_entry *entry)
         if ((status = ulog_conv_2logentry(kcontext, entry, upd)))
             goto cleanup;
 
-        status = ulog_lock(kcontext, KRB5_LOCKMODE_EXCLUSIVE);
-        if (status != 0)
-            goto cleanup;
-        ulog_locked = 1;
-
         status = krb5_unparse_name(kcontext, entry->princ, &princ_name);
         if (status != 0)
             goto cleanup;
 
         upd->kdb_princ_name.utf8str_t_val = princ_name;
         upd->kdb_princ_name.utf8str_t_len = strlen(princ_name);
-
-        if ((status = ulog_add_update(kcontext, upd)) != 0)
-            goto cleanup;
     }
 
-    status = v->put_principal(kcontext, entry, db_args);
-    if (status == 0 && ulog_locked)
-        (void) ulog_finish_update(kcontext, upd);
+    status = krb5int_put_principal_no_log(kcontext, entry);
+    if (status)
+        goto cleanup;
+
+    if (logging(kcontext))
+        status = ulog_add_update(kcontext, upd);
 
 cleanup:
-    if (ulog_locked)
-        ulog_lock(kcontext, KRB5_LOCKMODE_UNLOCK);
-    free_db_args(kcontext, db_args);
     ulog_free_entries(upd, 1);
     return status;
 }
@@ -953,44 +926,23 @@ krb5_error_code
 krb5_db_delete_principal(krb5_context kcontext, krb5_principal search_for)
 {
     krb5_error_code status = 0;
-    kdb_vftabl *v;
     kdb_incr_update_t upd;
     char *princ_name = NULL;
-    int ulog_locked = 0;
 
-    status = get_vftabl(kcontext, &v);
+    status = krb5int_delete_principal_no_log(kcontext, search_for);
+    if (status || !logging(kcontext))
+        return status;
+
+    status = krb5_unparse_name(kcontext, search_for, &princ_name);
     if (status)
         return status;
-    if (v->delete_principal == NULL)
-        return KRB5_PLUGIN_OP_NOTSUPP;
 
-    if (logging(kcontext)) {
-        status = ulog_lock(kcontext, KRB5_LOCKMODE_EXCLUSIVE);
-        if (status)
-            return status;
-        ulog_locked = 1;
+    memset(&upd, 0, sizeof(kdb_incr_update_t));
+    upd.kdb_princ_name.utf8str_t_val = princ_name;
+    upd.kdb_princ_name.utf8str_t_len = strlen(princ_name);
+    upd.kdb_deleted = TRUE;
 
-        status = krb5_unparse_name(kcontext, search_for, &princ_name);
-        if (status)
-            goto cleanup;
-
-        (void) memset(&upd, 0, sizeof (kdb_incr_update_t));
-
-        upd.kdb_princ_name.utf8str_t_val = princ_name;
-        upd.kdb_princ_name.utf8str_t_len = strlen(princ_name);
-
-        status = ulog_delete_update(kcontext, &upd);
-        if (status)
-            goto cleanup;
-    }
-
-    status = v->delete_principal(kcontext, search_for);
-    if (status == 0 && ulog_locked)
-        (void) ulog_finish_update(kcontext, &upd);
-
-cleanup:
-    if (ulog_locked)
-        ulog_lock(kcontext, KRB5_LOCKMODE_UNLOCK);
+    status = ulog_add_update(kcontext, &upd);
     free(princ_name);
     return status;
 }
@@ -998,7 +950,7 @@ cleanup:
 krb5_error_code
 krb5_db_iterate(krb5_context kcontext, char *match_entry,
                 int (*func)(krb5_pointer, krb5_db_entry *),
-                krb5_pointer func_arg)
+                krb5_pointer func_arg, krb5_flags iterflags)
 {
     krb5_error_code status = 0;
     kdb_vftabl *v;
@@ -1008,7 +960,7 @@ krb5_db_iterate(krb5_context kcontext, char *match_entry,
         return status;
     if (v->iterate == NULL)
         return KRB5_PLUGIN_OP_NOTSUPP;
-    return v->iterate(kcontext, match_entry, func, func_arg);
+    return v->iterate(kcontext, match_entry, func, func_arg, iterflags);
 }
 
 /* Return a read only pointer alias to mkey list.  Do not free this! */
@@ -1694,9 +1646,9 @@ krb5_dbe_lookup_mkey_aux(krb5_context context, krb5_db_entry *entry,
                 prev_data = new_data;
             }
         } else {
-            krb5_set_error_message(context, KRB5_KDB_BAD_VERSION,
-                                   _("Illegal version number for "
-                                     "KRB5_TL_MKEY_AUX %d\n"), version);
+            k5_setmsg(context, KRB5_KDB_BAD_VERSION,
+                      _("Illegal version number for KRB5_TL_MKEY_AUX %d\n"),
+                      version);
             return (KRB5_KDB_BAD_VERSION);
         }
     }
@@ -1863,9 +1815,9 @@ krb5_dbe_lookup_actkvno(krb5_context context, krb5_db_entry *entry,
                 next_tuple += ACTKVNO_TUPLE_SIZE;
             }
         } else {
-            krb5_set_error_message(context, KRB5_KDB_BAD_VERSION,
-                                   _("Illegal version number for "
-                                     "KRB5_TL_ACTKVNO %d\n"), version);
+            k5_setmsg(context, KRB5_KDB_BAD_VERSION,
+                      _("Illegal version number for KRB5_TL_ACTKVNO %d\n"),
+                      version);
             return (KRB5_KDB_BAD_VERSION);
         }
     }
@@ -2082,10 +2034,9 @@ krb5_dbe_set_string(krb5_context context, krb5_db_entry *entry,
 {
     krb5_error_code code;
     const char *pos, *end, *mapkey, *mapval;
-    struct k5buf buf;
+    struct k5buf buf = EMPTY_K5BUF;
     krb5_boolean found = FALSE;
     krb5_tl_data tl_data;
-    ssize_t len;
 
     /* Copy the current mapping to buf, updating key with value if found. */
     code = begin_attrs(context, entry, &pos, &end);
@@ -2111,17 +2062,20 @@ krb5_dbe_set_string(krb5_context context, krb5_db_entry *entry,
         k5_buf_add_len(&buf, value, strlen(value) + 1);
     }
 
-    len = k5_buf_len(&buf);
-    if (len == -1)
+    if (k5_buf_status(&buf) != 0)
         return ENOMEM;
-    if (len > 65535)
-        return KRB5_KDB_STRINGS_TOOLONG;
+    if (buf.len > 65535) {
+        code = KRB5_KDB_STRINGS_TOOLONG;
+        goto cleanup;
+    }
     tl_data.tl_data_type = KRB5_TL_STRING_ATTRS;
-    tl_data.tl_data_contents = (krb5_octet *)k5_buf_data(&buf);
-    tl_data.tl_data_length = len;
+    tl_data.tl_data_contents = buf.data;
+    tl_data.tl_data_length = buf.len;
 
     code = krb5_dbe_update_tl_data(context, entry, &tl_data);
-    k5_free_buf(&buf);
+
+cleanup:
+    k5_buf_free(&buf);
     return code;
 }
 
@@ -2297,7 +2251,6 @@ krb5_db_create_policy(krb5_context kcontext, osa_policy_ent_t policy)
 {
     krb5_error_code status = 0;
     kdb_vftabl *v;
-    int ulog_locked = 0;
 
     status = get_vftabl(kcontext, &v);
     if (status)
@@ -2305,20 +2258,10 @@ krb5_db_create_policy(krb5_context kcontext, osa_policy_ent_t policy)
     if (v->create_policy == NULL)
         return KRB5_PLUGIN_OP_NOTSUPP;
 
-    if (logging(kcontext)) {
-        status = ulog_lock(kcontext, KRB5_LOCKMODE_EXCLUSIVE);
-        if (status != 0)
-            return status;
-        ulog_locked = 1;
-    }
-
     status = v->create_policy(kcontext, policy);
     /* iprop does not support policy mods; force full resync. */
-    if (!status && ulog_locked)
-        ulog_init_header(kcontext);
-
-    if (ulog_locked)
-        ulog_lock(kcontext, KRB5_LOCKMODE_UNLOCK);
+    if (!status && logging(kcontext))
+        status = ulog_init_header(kcontext);
     return status;
 }
 
@@ -2341,7 +2284,6 @@ krb5_db_put_policy(krb5_context kcontext, osa_policy_ent_t policy)
 {
     krb5_error_code status = 0;
     kdb_vftabl *v;
-    int ulog_locked = 0;
 
     status = get_vftabl(kcontext, &v);
     if (status)
@@ -2349,20 +2291,10 @@ krb5_db_put_policy(krb5_context kcontext, osa_policy_ent_t policy)
     if (v->put_policy == NULL)
         return KRB5_PLUGIN_OP_NOTSUPP;
 
-    if (logging(kcontext)) {
-        status = ulog_lock(kcontext, KRB5_LOCKMODE_EXCLUSIVE);
-        if (status)
-            return status;
-        ulog_locked = 1;
-    }
-
     status = v->put_policy(kcontext, policy);
     /* iprop does not support policy mods; force full resync. */
-    if (!status && ulog_locked)
-        ulog_init_header(kcontext);
-
-    if (ulog_locked)
-        ulog_lock(kcontext, KRB5_LOCKMODE_UNLOCK);
+    if (!status && logging(kcontext))
+        status = ulog_init_header(kcontext);
     return status;
 }
 
@@ -2386,7 +2318,6 @@ krb5_db_delete_policy(krb5_context kcontext, char *policy)
 {
     krb5_error_code status = 0;
     kdb_vftabl *v;
-    int ulog_locked = 0;
 
     status = get_vftabl(kcontext, &v);
     if (status)
@@ -2394,20 +2325,10 @@ krb5_db_delete_policy(krb5_context kcontext, char *policy)
     if (v->delete_policy == NULL)
         return KRB5_PLUGIN_OP_NOTSUPP;
 
-    if (logging(kcontext)) {
-        status = ulog_lock(kcontext, KRB5_LOCKMODE_EXCLUSIVE);
-        if (status)
-            return status;
-        ulog_locked = 1;
-    }
-
     status = v->delete_policy(kcontext, policy);
     /* iprop does not support policy mods; force full resync. */
-    if (!status && ulog_locked)
-        ulog_init_header(kcontext);
-
-    if (ulog_locked)
-        ulog_lock(kcontext, KRB5_LOCKMODE_UNLOCK);
+    if (!status && logging(kcontext))
+        status = ulog_init_header(kcontext);
     return status;
 }
 

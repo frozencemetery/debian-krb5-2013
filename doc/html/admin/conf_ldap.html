@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -126,10 +124,10 @@ container.</p>
 <li><p class="first">Configure the LDAP server ACLs to enable the KDC and kadmin server
 DNs to read and write the Kerberos data.</p>
 <p>Sample access control information:</p>
-<div class="highlight-python"><pre>access to dn.base=""
+<div class="highlight-python"><div class="highlight"><pre>access to dn.base=&quot;&quot;
     by * read
 
-access to dn.base="cn=Subschema"
+access to dn.base=&quot;cn=Subschema&quot;
     by * read
 
 access to attrs=userPassword,userPKCS12
@@ -141,31 +139,33 @@ access to attrs=shadowLastChange
     by * read
 
 # Providing access to realm container
-access to dn.subtree= "cn=EXAMPLE.COM,cn=krbcontainer,dc=example,dc=com"
-    by dn.exact="cn=kdc-service,dc=example,dc=com" read
-    by dn.exact="cn=adm-service,dc=example,dc=com" write
+access to dn.subtree= &quot;cn=EXAMPLE.COM,cn=krbcontainer,dc=example,dc=com&quot;
+    by dn.exact=&quot;cn=kdc-service,dc=example,dc=com&quot; read
+    by dn.exact=&quot;cn=adm-service,dc=example,dc=com&quot; write
     by * none
 
 # Providing access to principals, if not underneath realm container
-access to dn.subtree= "ou=users,dc=example,dc=com"
-    by dn.exact="cn=kdc-service,dc=example,dc=com" read
-    by dn.exact="cn=adm-service,dc=example,dc=com" write
+access to dn.subtree= &quot;ou=users,dc=example,dc=com&quot;
+    by dn.exact=&quot;cn=kdc-service,dc=example,dc=com&quot; read
+    by dn.exact=&quot;cn=adm-service,dc=example,dc=com&quot; write
     by * none
 
 access to *
-    by * read</pre>
+    by * read
+</pre></div>
 </div>
 <p>If the locations of the container and principals or the DNs of
 the service objects for a realm are changed then this
 information should be updated.</p>
 </li>
 <li><p class="first">Start the LDAP server as follows:</p>
-<div class="highlight-python"><pre>slapd -h "ldapi:/// ldaps:///"</pre>
+<div class="highlight-python"><div class="highlight"><pre>slapd -h &quot;ldapi:/// ldaps:///&quot;
+</pre></div>
 </div>
 </li>
 <li><p class="first">Modify the <a class="reference internal" href="conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> file to include LDAP specific items
 listed below:</p>
-<div class="highlight-python"><pre>realms
+<div class="highlight-python"><div class="highlight"><pre>realms
     database_module
 
 dbmodules
@@ -175,12 +175,14 @@ dbmodules
     ldap_kadmind_dn
     ldap_service_password_file
     ldap_servers
-    ldap_conns_per_server</pre>
+    ldap_conns_per_server
+</pre></div>
 </div>
 </li>
 <li><p class="first">Create the realm using <a class="reference internal" href="admin_commands/kdb5_ldap_util.html#kdb5-ldap-util-8"><em>kdb5_ldap_util</em></a> (see
 <a class="reference internal" href="database.html#ldap-create-realm"><em>Creating a Kerberos realm</em></a>):</p>
-<div class="highlight-python"><pre>kdb5_ldap_util -D cn=admin,dc=example,dc=com create -subtrees ou=users,dc=example,dc=com -r EXAMPLE.COM -s</pre>
+<div class="highlight-python"><div class="highlight"><pre>kdb5_ldap_util -D cn=admin,dc=example,dc=com create -subtrees ou=users,dc=example,dc=com -r EXAMPLE.COM -s
+</pre></div>
 </div>
 <p>Use the <strong>-subtrees</strong> option if the principals are to exist in a
 separate subtree from the realm container.  Before executing the
@@ -201,7 +203,8 @@ Administration service to bind to the LDAP server using the
 <a class="reference internal" href="database.html#stash-ldap"><em>Stashing service object&#8217;s password</em></a>).  The object DN should be the same as
 <strong>ldap_kdc_dn</strong> and <strong>ldap_kadmind_dn</strong> values specified in the
 <a class="reference internal" href="conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a> file:</p>
-<div class="highlight-python"><pre>kdb5_ldap_util -D cn=admin,dc=example,dc=com stashsrvpw -f /etc/kerberos/service.keyfile cn=krbadmin,dc=example,dc=com</pre>
+<div class="highlight-python"><div class="highlight"><pre>kdb5_ldap_util -D cn=admin,dc=example,dc=com stashsrvpw -f /etc/kerberos/service.keyfile cn=krbadmin,dc=example,dc=com
+</pre></div>
 </div>
 </li>
 <li><p class="first">Add <tt class="docutils literal"><span class="pre">krbPrincipalName</span></tt> to the indexes in slapd.conf to speed up
@@ -226,7 +229,7 @@ requests canonicalization.  Canonicalization is normally requested for
 service principals; for client principals, an explicit flag is often
 required (e.g., <tt class="docutils literal"><span class="pre">kinit</span> <span class="pre">-C</span></tt>) and canonicalization is only performed
 for initial ticket requests.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="advanced/ldapbackend.html#ldap-be-ubuntu"><em>LDAP backend on Ubuntu 10.4 (lucid)</em></a></p>
 </div>
@@ -261,6 +264,7 @@ for initial ticket requests.</p>
 <li class="toctree-l2"><a class="reference internal" href="otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="env_variables.html">Environment variables</a></li>
@@ -295,8 +299,8 @@ for initial ticket requests.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

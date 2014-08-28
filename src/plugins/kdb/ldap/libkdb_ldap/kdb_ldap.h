@@ -32,6 +32,12 @@
 #ifndef _KDB_LDAP_H
 #define _KDB_LDAP_H 1
 
+#include "k5-int.h"
+#include <k5-thread.h>
+#include <kdb5.h>
+#include "ldap_krbcontainer.h"
+#include "ldap_realm.h"
+
 /* We want the interfaces marked "deprecated" in OpenLDAP.  */
 #define LDAP_DEPRECATED 1
 #include <ldap.h>
@@ -50,12 +56,6 @@
 #  endif
 # endif
 #endif /* BUILD_WITH_BROKEN_LDAP */
-
-#include <k5-thread.h>
-#include <kdb5.h>
-#include "k5-int.h"
-#include "ldap_krbcontainer.h"
-#include "ldap_realm.h"
 
 extern struct timeval timelimit;
 
@@ -147,7 +147,7 @@ extern void prepend_err_str (krb5_context ctx, const char *s, krb5_error_code er
 #define KDB_TL_USERDN             0x03
 #define KDB_TL_KEYINFO            0x04
 #define KDB_TL_MASK               0x05
-#define KDB_TL_CONTAINERDN        0x06
+/* 0x06 was KDB_TL_CONTAINERDN but is no longer used */
 #define KDB_TL_LINKDN             0x07
 
 
@@ -158,12 +158,6 @@ extern void prepend_err_str (krb5_context ctx, const char *s, krb5_error_code er
 
 #define HNDL_LOCK(lcontext) k5_mutex_lock(&lcontext->hndl_lock)
 #define HNDL_UNLOCK(lcontext) k5_mutex_unlock(&lcontext->hndl_lock)
-
-/* To be used later */
-typedef struct _krb5_ldap_certificates{
-    char *certificate;
-    int  certtype;
-}krb5_ldap_certificates;
 
 /* ldap server info structure */
 
@@ -205,8 +199,11 @@ typedef struct _krb5_ldap_context {
     char                          *bind_dn;
     char                          *bind_pwd;
     char                          *service_password_file;
+    char                          *sasl_mech;
+    char                          *sasl_authcid;
+    char                          *sasl_authzid;
+    char                          *sasl_realm;
     char                          *root_certificate_file;
-    krb5_ldap_certificates        **certificates;
     krb5_ui_4                     cert_count; /* certificate count */
     k5_mutex_t                    hndl_lock;
     char                          *container_dn;
@@ -270,13 +267,10 @@ krb5_ldap_free_ldap_context(krb5_ldap_context *);
 krb5_error_code
 krb5_ldap_read_startup_information(krb5_context );
 
-int
-has_sasl_external_mech(krb5_context, char *);
+krb5_boolean
+has_modify_increment(krb5_context, const char *);
 
-int
-has_modify_increment(krb5_context, char *);
-
-krb5_error_code
+void
 krb5_ldap_free_server_context_params(krb5_ldap_context *ldap_context);
 
 krb5_error_code

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -89,17 +87,15 @@ installed as <a class="reference internal" href="../../mitK5defaults.html#paths"
 <p>The <strong>-S</strong> option allows for a different keytab than the default.</p>
 <p>sserver is normally invoked out of inetd(8), using a line in
 <tt class="docutils literal"><span class="pre">/etc/inetd.conf</span></tt> that looks like this:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>sample stream tcp nowait root /usr/local/sbin/sserver sserver</pre>
+<div class="highlight-python"><div class="highlight"><pre>sample stream tcp nowait root /usr/local/sbin/sserver sserver
+</pre></div>
 </div>
-</div></blockquote>
 <p>Since <tt class="docutils literal"><span class="pre">sample</span></tt> is normally not a port defined in <tt class="docutils literal"><span class="pre">/etc/services</span></tt>,
 you will usually have to add a line to <tt class="docutils literal"><span class="pre">/etc/services</span></tt> which looks
 like this:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>sample          13135/tcp</pre>
+<div class="highlight-python"><div class="highlight"><pre>sample          13135/tcp
+</pre></div>
 </div>
-</div></blockquote>
 <p>When using sclient, you will first have to have an entry in the
 Kerberos database, by using <a class="reference internal" href="kadmin_local.html#kadmin-1"><em>kadmin</em></a>, and then you have to get
 Kerberos tickets, by using <a class="reference internal" href="../../user/user_commands/kinit.html#kinit-1"><em>kinit</em></a>.  Also, if you are running
@@ -108,58 +104,52 @@ connecting to, be sure that both hosts have an entry in /etc/services
 for the sample tcp port, and that the same port number is in both
 files.</p>
 <p>When you run sclient you should see something like this:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>sendauth succeeded, reply is:
+<div class="highlight-python"><div class="highlight"><pre>sendauth succeeded, reply is:
 reply len 32, contents:
-You are nlgilman@JIMI.MIT.EDU</pre>
+You are nlgilman@JIMI.MIT.EDU
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="common-error-messages">
 <h2>COMMON ERROR MESSAGES<a class="headerlink" href="#common-error-messages" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p class="first">kinit returns the error:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kinit: Client not found in Kerberos database while getting
-    initial credentials</pre>
+<div class="highlight-python"><div class="highlight"><pre>kinit: Client not found in Kerberos database while getting
+       initial credentials
+</pre></div>
 </div>
-</div></blockquote>
 <p>This means that you didn&#8217;t create an entry for your username in the
 Kerberos database.</p>
 </li>
 <li><p class="first">sclient returns the error:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>unknown service sample/tcp; check /etc/services</pre>
+<div class="highlight-python"><div class="highlight"><pre>unknown service sample/tcp; check /etc/services
+</pre></div>
 </div>
-</div></blockquote>
 <p>This means that you don&#8217;t have an entry in /etc/services for the
 sample tcp port.</p>
 </li>
 <li><p class="first">sclient returns the error:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>connect: Connection refused</pre>
+<div class="highlight-python"><div class="highlight"><pre>connect: Connection refused
+</pre></div>
 </div>
-</div></blockquote>
 <p>This probably means you didn&#8217;t edit /etc/inetd.conf correctly, or
 you didn&#8217;t restart inetd after editing inetd.conf.</p>
 </li>
 <li><p class="first">sclient returns the error:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>sclient: Server not found in Kerberos database while using
-    sendauth</pre>
+<div class="highlight-python"><div class="highlight"><pre>sclient: Server not found in Kerberos database while using
+         sendauth
+</pre></div>
 </div>
-</div></blockquote>
 <p>This means that the <tt class="docutils literal"><span class="pre">sample/hostname&#64;LOCAL.REALM</span></tt> service was not
 defined in the Kerberos database; it should be created using
 <a class="reference internal" href="kadmin_local.html#kadmin-1"><em>kadmin</em></a>, and a keytab file needs to be generated to make
 the key for that service principal available for sclient.</p>
 </li>
 <li><p class="first">sclient returns the error:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>sendauth rejected, error reply is:
-    "No such file or directory"</pre>
+<div class="highlight-python"><div class="highlight"><pre>sendauth rejected, error reply is:
+    &quot;No such file or directory&quot;
+</pre></div>
 </div>
-</div></blockquote>
 <p>This probably means sserver couldn&#8217;t find the keytab file.  It was
 probably not installed in the proper directory.</p>
 </li>
@@ -206,6 +196,7 @@ probably not installed in the proper directory.</p>
 <li class="toctree-l2"><a class="reference internal" href="../otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Administration  programs</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="kadmin_local.html">kadmin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kadmind.html">kadmind</a></li>
@@ -253,8 +244,8 @@ probably not installed in the proper directory.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

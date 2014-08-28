@@ -25,6 +25,7 @@ decode_krb5_iakerb_finished
 decode_krb5_iakerb_header
 decode_krb5_kdc_req_body
 decode_krb5_otp_tokeninfo
+decode_krb5_kkdcp_message
 decode_krb5_pa_enc_ts
 decode_krb5_pa_for_user
 decode_krb5_pa_fx_fast_reply
@@ -72,6 +73,7 @@ encode_krb5_iakerb_finished
 encode_krb5_iakerb_header
 encode_krb5_kdc_req_body
 encode_krb5_otp_tokeninfo
+encode_krb5_kkdcp_message
 encode_krb5_pa_enc_ts
 encode_krb5_pa_for_user
 encode_krb5_pa_fx_fast_reply
@@ -107,11 +109,13 @@ initialize_kv5m_error_table
 initialize_prof_error_table
 k5_build_conf_principals
 k5_ccselect_free_context
+k5_change_error_message_code
 k5_etypes_contains
 k5_expand_path_tokens
 k5_expand_path_tokens_extra
 k5_free_algorithm_identifier
 k5_free_otp_tokeninfo
+k5_free_kkdcp_message
 k5_free_pa_otp_challenge
 k5_free_pa_otp_req
 k5_free_serverlist
@@ -120,6 +124,8 @@ k5_init_trace
 k5_kt_get_principal
 k5_localauth_free_context
 k5_locate_kdc
+k5_marshal_cred
+k5_marshal_princ
 k5_os_free_context
 k5_os_init_context
 k5_plugin_free_modules
@@ -127,6 +133,8 @@ k5_plugin_load
 k5_plugin_load_all
 k5_plugin_register
 k5_plugin_register_dyn
+k5_unmarshal_cred
+k5_unmarshal_princ
 krb524_convert_creds_kdc
 krb524_init_ets
 krb5_425_conv_principal
@@ -558,7 +566,6 @@ krb5_set_default_realm
 krb5_set_default_tgs_enctypes
 krb5_set_default_tgs_ktypes
 krb5_set_error_message
-krb5_set_error_message_fl
 krb5_set_password
 krb5_set_password_using_ccache
 krb5_set_principal_realm
@@ -615,6 +622,9 @@ profile_abandon
 profile_add_relation
 profile_clear_relation
 profile_flush
+profile_flush_to_buffer
+profile_flush_to_file
+profile_free_buffer
 profile_free_list
 profile_get_boolean
 profile_get_integer
@@ -623,7 +633,9 @@ profile_get_string
 profile_get_subsection_names
 profile_get_values
 profile_init
+profile_init_flags
 profile_init_path
+profile_init_vtable
 profile_iterator
 profile_iterator_create
 profile_iterator_free

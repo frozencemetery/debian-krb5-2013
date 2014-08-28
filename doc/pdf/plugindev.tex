@@ -3,6 +3,7 @@
 \documentclass[letterpaper,10pt,english]{sphinxmanual}
 \usepackage[utf8]{inputenc}
 \DeclareUnicodeCharacter{00A0}{\nobreakspace}
+\usepackage{cmap}
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{times}
@@ -14,7 +15,7 @@
 
 \title{Kerberos Plugin Module Developer Guide}
 \date{ }
-\release{1.12.1}
+\release{1.13-alpha1}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -31,75 +32,81 @@
     \PYG@it{\PYG@bf{\PYG@ff{#1}}}}}}}
 \def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+\PYG@do{#2}}
 
-\def\PYG@tok@gd{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
-\def\PYG@tok@gu{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
-\def\PYG@tok@gt{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.25,0.82}{##1}}}
-\def\PYG@tok@gs{\let\PYG@bf=\textbf}
-\def\PYG@tok@gr{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
-\def\PYG@tok@cm{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@vg{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@m{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@mh{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@cs{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\colorbox[rgb]{1.00,0.94,0.94}{##1}}}
-\def\PYG@tok@ge{\let\PYG@it=\textit}
-\def\PYG@tok@vc{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@il{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@go{\def\PYG@tc##1{\textcolor[rgb]{0.19,0.19,0.19}{##1}}}
-\def\PYG@tok@cp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@gi{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
-\def\PYG@tok@gh{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
-\def\PYG@tok@ni{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
-\def\PYG@tok@nl{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
-\def\PYG@tok@nn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\def\PYG@tok@no{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
-\def\PYG@tok@na{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@nb{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@nc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
-\def\PYG@tok@nd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
-\def\PYG@tok@ne{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@nf{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
-\def\PYG@tok@si{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
-\def\PYG@tok@s2{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@vi{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@nt{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
-\def\PYG@tok@nv{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\def\PYG@tok@s1{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@gp{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\def\PYG@tok@sh{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@ow{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@sx{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
-\def\PYG@tok@bp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@c1{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@kc{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@c{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
-\def\PYG@tok@mf{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@err{\def\PYG@bc##1{\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{##1}}}
-\def\PYG@tok@kd{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@ss{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
-\def\PYG@tok@sr{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
-\def\PYG@tok@mo{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@mi{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
-\def\PYG@tok@kn{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@o{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
-\def\PYG@tok@kr{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@s{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@kp{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@w{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
-\def\PYG@tok@kt{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
-\def\PYG@tok@sc{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@sb{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@k{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\def\PYG@tok@se{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\def\PYG@tok@sd{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@gd\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@gu\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PYG@tok@gt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PYG@tok@gs\endcsname{\let\PYG@bf=\textbf}
+\expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
+\expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
+\expandafter\def\csname PYG@tok@vc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@il\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@go\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.20,0.20,0.20}{##1}}}
+\expandafter\def\csname PYG@tok@cp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@gi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@gh\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PYG@tok@ni\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.84,0.33,0.22}{##1}}}
+\expandafter\def\csname PYG@tok@nl\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.13,0.44}{##1}}}
+\expandafter\def\csname PYG@tok@nn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\expandafter\def\csname PYG@tok@no\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.38,0.68,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@na\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@nb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@nc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.05,0.52,0.71}{##1}}}
+\expandafter\def\csname PYG@tok@nd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.33,0.33,0.33}{##1}}}
+\expandafter\def\csname PYG@tok@ne\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
+\expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
+\expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
+\expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
+\expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@err\endcsname{\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@ss\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.32,0.47,0.09}{##1}}}
+\expandafter\def\csname PYG@tok@sr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.14,0.33,0.53}{##1}}}
+\expandafter\def\csname PYG@tok@mo\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@w\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
+\expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
+\expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 
 \def\PYGZbs{\char`\\}
 \def\PYGZus{\char`\_}
 \def\PYGZob{\char`\{}
 \def\PYGZcb{\char`\}}
 \def\PYGZca{\char`\^}
+\def\PYGZam{\char`\&}
+\def\PYGZlt{\char`\<}
+\def\PYGZgt{\char`\>}
 \def\PYGZsh{\char`\#}
 \def\PYGZpc{\char`\%}
 \def\PYGZdl{\char`\$}
+\def\PYGZhy{\char`\-}
+\def\PYGZsq{\char`\'}
+\def\PYGZdq{\char`\"}
 \def\PYGZti{\char`\~}
 % for compatibility with earlier versions
 \def\PYGZat{@}
@@ -152,9 +159,9 @@ implementation should use \code{\#include \textless{}krb5/ccselect\_plugin.h\tex
 initvt functions have the following prototype:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-krb5\_error\_code interface\_modname\_initvt(krb5\_context context,
-                                         int maj\_ver, int min\_ver,
-                                         krb5\_plugin\_vtable vtable);
+krb5\PYGZus{}error\PYGZus{}code interface\PYGZus{}modname\PYGZus{}initvt(krb5\PYGZus{}context context,
+                                         int maj\PYGZus{}ver, int min\PYGZus{}ver,
+                                         krb5\PYGZus{}plugin\PYGZus{}vtable vtable);
 \end{Verbatim}
 
 and should do the following:
@@ -192,30 +199,30 @@ fictional pluggable interface named fences, for a module named
 ``wicker'':
 
 \begin{Verbatim}[commandchars=\\\{\}]
-krb5\_error\_code
-fences\_wicker\_initvt(krb5\_context context, int maj\_ver,
-                     int min\_ver, krb5\_plugin\_vtable vtable)
+krb5\PYGZus{}error\PYGZus{}code
+fences\PYGZus{}wicker\PYGZus{}initvt(krb5\PYGZus{}context context, int maj\PYGZus{}ver,
+                     int min\PYGZus{}ver, krb5\PYGZus{}plugin\PYGZus{}vtable vtable)
 \PYGZob{}
-    krb5\_ccselect\_vtable vt;
+    krb5\PYGZus{}ccselect\PYGZus{}vtable vt;
 
-    if (maj\_ver == 1) \PYGZob{}
-        krb5\_fences\_vtable vt = (krb5\_fences\_vtable)vtable;
-        vt-\textgreater{}name = "wicker";
-        vt-\textgreater{}slats = wicker\_slats;
-        vt-\textgreater{}braces = wicker\_braces;
-    \PYGZcb{} else if (maj\_ver == 2) \PYGZob{}
-        krb5\_fences\_vtable\_v2 vt = (krb5\_fences\_vtable\_v2)vtable;
-        vt-\textgreater{}name = "wicker";
-        vt-\textgreater{}material = wicker\_material;
-        vt-\textgreater{}construction = wicker\_construction;
-        if (min\_ver \textless{} 2)
+    if (maj\PYGZus{}ver == 1) \PYGZob{}
+        krb5\PYGZus{}fences\PYGZus{}vtable vt = (krb5\PYGZus{}fences\PYGZus{}vtable)vtable;
+        vt\PYGZhy{}\PYGZgt{}name = \PYGZdq{}wicker\PYGZdq{};
+        vt\PYGZhy{}\PYGZgt{}slats = wicker\PYGZus{}slats;
+        vt\PYGZhy{}\PYGZgt{}braces = wicker\PYGZus{}braces;
+    \PYGZcb{} else if (maj\PYGZus{}ver == 2) \PYGZob{}
+        krb5\PYGZus{}fences\PYGZus{}vtable\PYGZus{}v2 vt = (krb5\PYGZus{}fences\PYGZus{}vtable\PYGZus{}v2)vtable;
+        vt\PYGZhy{}\PYGZgt{}name = \PYGZdq{}wicker\PYGZdq{};
+        vt\PYGZhy{}\PYGZgt{}material = wicker\PYGZus{}material;
+        vt\PYGZhy{}\PYGZgt{}construction = wicker\PYGZus{}construction;
+        if (min\PYGZus{}ver \PYGZlt{} 2)
             return 0;
-        vt-\textgreater{}footing = wicker\_footing;
-        if (min\_ver \textless{} 3)
+        vt\PYGZhy{}\PYGZgt{}footing = wicker\PYGZus{}footing;
+        if (min\PYGZus{}ver \PYGZlt{} 3)
             return 0;
-        vt-\textgreater{}appearance = wicker\_appearance;
+        vt\PYGZhy{}\PYGZgt{}appearance = wicker\PYGZus{}appearance;
     \PYGZcb{} else \PYGZob{}
-        return KRB5\_PLUGIN\_VER\_NOTSUPP;
+        return KRB5\PYGZus{}PLUGIN\PYGZus{}VER\PYGZus{}NOTSUPP;
     \PYGZcb{}
     return 0;
 \PYGZcb{}
@@ -589,25 +596,25 @@ which returns a hardcoded value for the \textbf{default\_realm} variable in
 values of malloc and strdup.)
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\#include \textless{}stdlib.h\textgreater{}
-\#include \textless{}string.h\textgreater{}
-\#include \textless{}profile.h\textgreater{}
+\PYGZsh{}include \PYGZlt{}stdlib.h\PYGZgt{}
+\PYGZsh{}include \PYGZlt{}string.h\PYGZgt{}
+\PYGZsh{}include \PYGZlt{}profile.h\PYGZgt{}
 
 static long
-get\_values(void *cbdata, const char *const *names, char ***values)
+get\PYGZus{}values(void *cbdata, const char *const *names, char ***values)
 \PYGZob{}
-    if (names[0] != NULL \&\& strcmp(names[0], "libdefaults") == 0 \&\&
-        names[1] != NULL \&\& strcmp(names[1], "default\_realm") == 0) \PYGZob{}
+    if (names[0] != NULL \PYGZam{}\PYGZam{} strcmp(names[0], \PYGZdq{}libdefaults\PYGZdq{}) == 0 \PYGZam{}\PYGZam{}
+        names[1] != NULL \PYGZam{}\PYGZam{} strcmp(names[1], \PYGZdq{}default\PYGZus{}realm\PYGZdq{}) == 0) \PYGZob{}
         *values = malloc(2 * sizeof(char *));
-        (*values)[0] = strdup("ATHENA.MIT.EDU");
+        (*values)[0] = strdup(\PYGZdq{}ATHENA.MIT.EDU\PYGZdq{});
         (*values)[1] = NULL;
         return 0;
     \PYGZcb{}
-    return PROF\_NO\_RELATION;
+    return PROF\PYGZus{}NO\PYGZus{}RELATION;
 \PYGZcb{}
 
 static void
-free\_values(void *cbdata, char **values)
+free\PYGZus{}values(void *cbdata, char **values)
 \PYGZob{}
     char **v;
 
@@ -617,16 +624,16 @@ free\_values(void *cbdata, char **values)
 \PYGZcb{}
 
 long
-profile\_module\_init(const char *residual, struct profile\_vtable *vtable,
-                    void **cb\_ret);
+profile\PYGZus{}module\PYGZus{}init(const char *residual, struct profile\PYGZus{}vtable *vtable,
+                    void **cb\PYGZus{}ret);
 
 long
-profile\_module\_init(const char *residual, struct profile\_vtable *vtable,
-                    void **cb\_ret)
+profile\PYGZus{}module\PYGZus{}init(const char *residual, struct profile\PYGZus{}vtable *vtable,
+                    void **cb\PYGZus{}ret)
 \PYGZob{}
-    *cb\_ret = NULL;
-    vtable-\textgreater{}get\_values = get\_values;
-    vtable-\textgreater{}free\_values = free\_values;
+    *cb\PYGZus{}ret = NULL;
+    vtable\PYGZhy{}\PYGZgt{}get\PYGZus{}values = get\PYGZus{}values;
+    vtable\PYGZhy{}\PYGZgt{}free\PYGZus{}values = free\PYGZus{}values;
     return 0;
 \PYGZcb{}
 \end{Verbatim}
@@ -639,8 +646,8 @@ the set of built-in mechanisms.
 
 A mechanism module is a Unix shared object or Windows DLL, built
 separately from the krb5 tree.  Modules are loaded according to the
-\code{/etc/gss/mech} config file, as described in
-\emph{gssapi\_plugin\_config}.
+\code{/etc/gss/mech} or \code{/etc/gss/mech.d/*.conf} config files, as
+described in \emph{gssapi\_plugin\_config}.
 
 For the most part, a GSSAPI mechanism module exports the same
 functions as would a GSSAPI implementation itself, with the same
@@ -672,14 +679,14 @@ An interposer module must export the symbol \textbf{gss\_mech\_interposer}
 with the following signature:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-gss\_OID\_set gss\_mech\_interposer(gss\_OID mech\_type);
+gss\PYGZus{}OID\PYGZus{}set gss\PYGZus{}mech\PYGZus{}interposer(gss\PYGZus{}OID mech\PYGZus{}type);
 \end{Verbatim}
 
 This function is invoked with the OID of the interposer mechanism as
-specified in \code{/etc/gss/mech}, and returns a set of mechanism OIDs to
-be interposed.  The returned OID set must have been created using the
-mechglue's gss\_create\_empty\_oid\_set and gss\_add\_oid\_set\_member
-functions.
+specified in \code{/etc/gss/mech} or in a \code{/etc/gss/mech.d/*.conf}
+file, and returns a set of mechanism OIDs to be interposed.  The
+returned OID set must have been created using the mechglue's
+gss\_create\_empty\_oid\_set and gss\_add\_oid\_set\_member functions.
 
 An interposer module must use the prefix \code{gssi\_} for the GSSAPI
 functions it exports, instead of the prefix \code{gss\_}.
@@ -701,17 +708,17 @@ interposer module to know which mechanism should be used to interpret
 the token.  These functions have the following signatures:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-OM\_uint32 gssi\_import\_sec\_context\_by\_mech(OM\_uint32 *minor\_status,
-    gss\_OID desired\_mech, gss\_buffer\_t interprocess\_token,
-    gss\_ctx\_id\_t *context\_handle);
+OM\PYGZus{}uint32 gssi\PYGZus{}import\PYGZus{}sec\PYGZus{}context\PYGZus{}by\PYGZus{}mech(OM\PYGZus{}uint32 *minor\PYGZus{}status,
+    gss\PYGZus{}OID desired\PYGZus{}mech, gss\PYGZus{}buffer\PYGZus{}t interprocess\PYGZus{}token,
+    gss\PYGZus{}ctx\PYGZus{}id\PYGZus{}t *context\PYGZus{}handle);
 
-OM\_uint32 gssi\_import\_name\_by\_mech(OM\_uint32 *minor\_status,
-    gss\_OID mech\_type, gss\_buffer\_t input\_name\_buffer,
-    gss\_OID input\_name\_type, gss\_name\_t output\_name);
+OM\PYGZus{}uint32 gssi\PYGZus{}import\PYGZus{}name\PYGZus{}by\PYGZus{}mech(OM\PYGZus{}uint32 *minor\PYGZus{}status,
+    gss\PYGZus{}OID mech\PYGZus{}type, gss\PYGZus{}buffer\PYGZus{}t input\PYGZus{}name\PYGZus{}buffer,
+    gss\PYGZus{}OID input\PYGZus{}name\PYGZus{}type, gss\PYGZus{}name\PYGZus{}t output\PYGZus{}name);
 
-OM\_uint32 gssi\_import\_cred\_by\_mech(OM\_uint32 *minor\_status,
-    gss\_OID mech\_type, gss\_buffer\_t token,
-    gss\_cred\_id\_t *cred\_handle);
+OM\PYGZus{}uint32 gssi\PYGZus{}import\PYGZus{}cred\PYGZus{}by\PYGZus{}mech(OM\PYGZus{}uint32 *minor\PYGZus{}status,
+    gss\PYGZus{}OID mech\PYGZus{}type, gss\PYGZus{}buffer\PYGZus{}t token,
+    gss\PYGZus{}cred\PYGZus{}id\PYGZus{}t *cred\PYGZus{}handle);
 \end{Verbatim}
 
 To re-enter the original mechanism when importing tokens for the above

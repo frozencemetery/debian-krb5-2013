@@ -138,32 +138,73 @@ OPTIONS
     Prevent fallback to AUTH_GSSAPI authentication flavor.
 
 **-x** *db_args*
-    Specifies the database specific arguments.  Options supported for
-    the LDAP database module are:
+    Specifies the database specific arguments.  See the next section
+    for supported options.
 
-    **-x host=**\ *hostname*
+.. _kadmin_options_end:
+
+.. _dboptions:
+
+DATABASE OPTIONS
+----------------
+
+Database options can be used to override database-specific defaults.
+Supported options for the DB2 module are:
+
+    **-x dbname=**\ \*filename*
+        Specifies the base filename of the DB2 database.
+
+    **-x lockiter**
+        Make iteration operations hold the lock for the duration of
+        the entire operation, rather than temporarily releasing the
+        lock while handling each principal.  This is the default
+        behavior, but this option exists to allow command line
+        override of a [dbmodules] setting.  First introduced in
+        release 1.13.
+
+    **-x unlockiter**
+        Make iteration operations unlock the database for each
+        principal, instead of holding the lock for the duration of the
+        entire operation.  First introduced in release 1.13.
+
+Supported options for the LDAP module are:
+
+    **-x host=**\ *ldapuri*
         Specifies the LDAP server to connect to by a LDAP URI.
 
     **-x binddn=**\ *bind_dn*
-        Specifies the DN of the object used by the administration
-        server to bind to the LDAP server.  This object should have
-        the read and write privileges on the realm container, the
-        principal container, and the subtree that is referenced by the
-        realm.
+        Specifies the DN used to bind to the LDAP server.
 
-    **-x bindpwd=**\ *bind_password*
-        Specifies the password for the above mentioned binddn.  Using
-        this option may expose the password to other users on the
-        system via the process list; to avoid this, instead stash the
-        password using the **stashsrvpw** command of
+    **-x bindpwd=**\ *password*
+        Specifies the password or SASL secret used to bind to the LDAP
+        server.  Using this option may expose the password to other
+        users on the system via the process list; to avoid this,
+        instead stash the password using the **stashsrvpw** command of
         :ref:`kdb5_ldap_util(8)`.
+
+    **-x sasl_mech=**\ *mechanism*
+        Specifies the SASL mechanism used to bind to the LDAP server.
+        The bind DN is ignored if a SASL mechanism is used.  New in
+        release 1.13.
+
+    **-x sasl_authcid=**\ *name*
+        Specifies the authentication name used when binding to the
+        LDAP server with a SASL mechanism, if the mechanism requires
+        one.  New in release 1.13.
+
+    **-x sasl_authzid=**\ *name*
+        Specifies the authorization name used when binding to the LDAP
+        server with a SASL mechanism.  New in release 1.13.
+
+    **-x sasl_realm=**\ *realm*
+        Specifies the realm used when binding to the LDAP server with
+        a SASL mechanism, if the mechanism uses one.  New in release
+        1.13.
 
     **-x debug=**\ *level*
         sets the OpenLDAP client library debug level.  *level* is an
         integer to be interpreted by the library.  Debugging messages
         are printed to standard error.  New in release 1.12.
-
-.. _kadmin_options_end:
 
 
 COMMANDS
@@ -341,9 +382,7 @@ Options:
         - *dn* and *containerdn* should be within the subtrees or
           principal container configured in the realm.
 
-Example:
-
- ::
+Example::
 
     kadmin: addprinc jennifer
     WARNING: no policy specified for "jennifer@ATHENA.MIT.EDU";
@@ -448,9 +487,7 @@ The following options are available:
     Keeps the existing keys in the database.  This flag is usually not
     necessary except perhaps for ``krbtgt`` principals.
 
-Example:
-
- ::
+Example::
 
     kadmin: cpw systest
     Enter password for principal systest@BLEEP.COM:
@@ -492,9 +529,7 @@ running the the program to be the same as the one being listed.
 
 Alias: **getprinc**
 
-Examples:
-
- ::
+Examples::
 
     kadmin: getprinc tlyu/admin
     Principal: tlyu/admin@BLEEP.COM
@@ -508,8 +543,8 @@ Examples:
     Last failed authentication: [never]
     Failed password attempts: 0
     Number of keys: 2
-    Key: vno 1, DES cbc mode with CRC-32, no salt
-    Key: vno 1, DES cbc mode with CRC-32, Version 4
+    Key: vno 1, des-cbc-crc
+    Key: vno 1, des-cbc-crc:v4
     Attributes:
     Policy: [none]
 
@@ -540,9 +575,7 @@ This command requires the **list** privilege.
 
 Alias: **listprincs**, **get_principals**, **get_princs**
 
-Example:
-
- ::
+Example::
 
     kadmin:  listprincs test*
     test3@SECURE-TEST.OV.COM
@@ -573,11 +606,12 @@ Alias: **getstr**
 set_string
 ~~~~~~~~~~
 
-    **set_string** *principal* *key* *value*
+    **set_string** *principal* *name* *value*
 
 Sets a string attribute on *principal*.  String attributes are used to
 supply per-principal configuration to the KDC and some KDC plugin
-modules.  The following string attributes are recognized by the KDC:
+modules.  The following string attribute names are recognized by the
+KDC:
 
 **session_enctypes**
     Specifies the encryption types supported for session keys when the
@@ -585,9 +619,19 @@ modules.  The following string attributes are recognized by the KDC:
     :ref:`Encryption_types` in :ref:`kdc.conf(5)` for a list of the
     accepted values.
 
+**otp**
+    Enables One Time Passwords (OTP) preauthentication for a client
+    *principal*.  The *value* is a JSON string representing an array
+    of objects, each having optional ``type`` and ``username`` fields.
+
 This command requires the **modify** privilege.
 
 Alias: **setstr**
+
+Example::
+
+    set_string host/foo.mit.edu session_enctypes aes128-cts
+    set_string user@FOO.COM otp [{"type":"hotp","username":"custom"}]
 
 .. _set_string_end:
 
@@ -675,9 +719,7 @@ The following options are available:
     with commas (',') only.  To clear the allowed key/salt policy use
     a value of '-'.
 
-Example:
-
- ::
+Example::
 
     kadmin: add_policy -maxlife "2 days" -minlength 5 guests
     kadmin:
@@ -715,9 +757,7 @@ This command requires the **delete** privilege.
 
 Alias: **delpol**
 
-Example:
-
- ::
+Example::
 
     kadmin: del_policy guests
     Are you sure you want to delete the policy "guests"?
@@ -741,9 +781,7 @@ This command requires the **inquire** privilege.
 
 Alias: getpol
 
-Examples:
-
- ::
+Examples::
 
     kadmin: get_policy admin
     Policy: admin
@@ -781,9 +819,7 @@ This command requires the **list** privilege.
 
 Aliases: **listpols**, **get_policies**, **getpols**.
 
-Examples:
-
- ::
+Examples::
 
     kadmin:  listpols
     test-pol
@@ -837,9 +873,7 @@ An entry for each of the principal's unique encryption types is added,
 ignoring multiple keys with the same encryption type but different
 salt types.
 
-Example:
-
- ::
+Example::
 
     kadmin: ktadd -k /tmp/foo-new-keytab host/foo.mit.edu
     Entry for principal host/foo.mit.edu@ATHENA.MIT.EDU with kvno 3,
@@ -874,9 +908,7 @@ The options are:
 **-q**
     Display less verbose information.
 
-Example:
-
- ::
+Example::
 
     kadmin: ktremove kadmin/admin all
     Entry for principal kadmin/admin with kvno 3 removed from keytab

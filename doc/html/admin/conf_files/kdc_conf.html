@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -134,10 +132,11 @@ default value is 4096 bytes.</dd>
 value of the tag is a subsection where the relations define KDC
 parameters for that particular realm.  The following example shows how
 to define one parameter for the ATHENA.MIT.EDU realm:</p>
-<div class="highlight-python"><pre>[realms]
+<div class="highlight-python"><div class="highlight"><pre>[realms]
     ATHENA.MIT.EDU = {
         max_renewable_life = 7d 0h 0m 0s
-    }</pre>
+    }
+</pre></div>
 </div>
 <p>The following tags may be specified in a [realms] subsection:</p>
 <dl class="docutils">
@@ -246,8 +245,8 @@ not marked as host-based by the client.</dd>
 propagation is enabled.  The default value is false.</dd>
 <dt><strong>iprop_master_ulogsize</strong></dt>
 <dd>(Integer.)  Specifies the maximum number of log entries to be
-retained for incremental propagation.  The maximum value is 2500;
-the default value is 1000.</dd>
+retained for incremental propagation.  The default value is 1000.
+Prior to release 1.11, the maximum value was 2500.</dd>
 <dt><strong>iprop_slave_poll</strong></dt>
 <dd>(Delta time string.)  Specifies how often the slave KDC polls for
 new updates from the master.  The default value is <tt class="docutils literal"><span class="pre">2m</span></tt> (that
@@ -363,7 +362,15 @@ definitions of these relations.</p>
 <ul class="simple">
 <li><strong>ldap_kerberos_container_dn</strong></li>
 <li><strong>ldap_kdc_dn</strong></li>
+<li><strong>ldap_kdc_sasl_authcid</strong></li>
+<li><strong>ldap_kdc_sasl_authzid</strong></li>
+<li><strong>ldap_kdc_sasl_mech</strong></li>
+<li><strong>ldap_kdc_sasl_realm</strong></li>
 <li><strong>ldap_kadmind_dn</strong></li>
+<li><strong>ldap_kadmind_sasl_authcid</strong></li>
+<li><strong>ldap_kadmind_sasl_authzid</strong></li>
+<li><strong>ldap_kadmind_sasl_mech</strong></li>
+<li><strong>ldap_kadmind_sasl_realm</strong></li>
 <li><strong>ldap_service_password_file</strong></li>
 <li><strong>ldap_servers</strong></li>
 <li><strong>ldap_conns_per_server</strong></li>
@@ -376,10 +383,11 @@ library and database modules.  Each tag in the [dbmodules] section is
 the name of a Kerberos realm or a section name specified by a realm&#8217;s
 <strong>database_module</strong> parameter.  The following example shows how to
 define one database parameter for the ATHENA.MIT.EDU realm:</p>
-<div class="highlight-python"><pre>[dbmodules]
+<div class="highlight-python"><div class="highlight"><pre>[dbmodules]
     ATHENA.MIT.EDU = {
         disable_last_success = true
-    }</pre>
+    }
+</pre></div>
 </div>
 <p>The following tags may be specified in a [dbmodules] subsection:</p>
 <dl class="docutils">
@@ -406,17 +414,37 @@ introduced in release 1.9.</dd>
 <dt><strong>ldap_conns_per_server</strong></dt>
 <dd>This LDAP-specific tag indicates the number of connections to be
 maintained per LDAP server.</dd>
-<dt><strong>ldap_kadmind_dn</strong></dt>
-<dd>This LDAP-specific tag indicates the default bind DN for the
-<a class="reference internal" href="../admin_commands/kadmind.html#kadmind-8"><em>kadmind</em></a> daemon.  kadmind does a login to the directory
-as this object.  This object should have the rights to read and
-write the Kerberos data in the LDAP database.</dd>
-<dt><strong>ldap_kdc_dn</strong></dt>
-<dd>This LDAP-specific tag indicates the default bind DN for the
-<a class="reference internal" href="../admin_commands/krb5kdc.html#krb5kdc-8"><em>krb5kdc</em></a> daemon.  The KDC does a login to the directory
-as this object.  This object should have the rights to read the
-Kerberos data in the LDAP database, and to write data unless
-<strong>disable_lockout</strong> and <strong>disable_last_success</strong> are true.</dd>
+<dt><strong>ldap_kdc_dn</strong> and <strong>ldap_kadmind_dn</strong></dt>
+<dd>These LDAP-specific tags indicate the default DN for binding to
+the LDAP server.  The <a class="reference internal" href="../admin_commands/krb5kdc.html#krb5kdc-8"><em>krb5kdc</em></a> daemon uses
+<strong>ldap_kdc_dn</strong>, while the <a class="reference internal" href="../admin_commands/kadmind.html#kadmind-8"><em>kadmind</em></a> daemon and other
+administrative programs use <strong>ldap_kadmind_dn</strong>.  The kadmind DN
+must have the rights to read and write the Kerberos data in the
+LDAP database.  The KDC DN must have the same rights, unless
+<strong>disable_lockout</strong> and <strong>disable_last_success</strong> are true, in
+which case it only needs to have rights to read the Kerberos data.
+These tags are ignored if a SASL mechanism is set with
+<strong>ldap_kdc_sasl_mech</strong> or <strong>ldap_kadmind_sasl_mech</strong>.</dd>
+<dt><strong>ldap_kdc_sasl_mech</strong> and <strong>ldap_kadmind_sasl_mech</strong></dt>
+<dd>These LDAP-specific tags specify the SASL mechanism (such as
+<tt class="docutils literal"><span class="pre">EXTERNAL</span></tt>) to use when binding to the LDAP server.  New in
+release 1.13.</dd>
+<dt><strong>ldap_kdc_sasl_authcid</strong> and <strong>ldap_kadmind_sasl_authcid</strong></dt>
+<dd>These LDAP-specific tags specify the SASL authentication identity
+to use when binding to the LDAP server.  Not all SASL mechanisms
+require an authentication identity.  If the SASL mechanism
+requires a secret (such as the password for <tt class="docutils literal"><span class="pre">DIGEST-MD5</span></tt>), these
+tags also determine the name within the
+<strong>ldap_service_password_file</strong> where the secret is stashed.  New
+in release 1.13.</dd>
+<dt><strong>ldap_kdc_sasl_authzid</strong> and <strong>ldap_kadmind_sasl_authzid</strong></dt>
+<dd>These LDAP-specific tags specify the SASL authorization identity
+to use when binding to the LDAP server.  In most circumstances
+they do not need to be specified.  New in release 1.13.</dd>
+<dt><strong>ldap_kdc_sasl_realm</strong> and <strong>ldap_kadmind_sasl_realm</strong></dt>
+<dd>These LDAP-specific tags specify the SASL realm to use when
+binding to the LDAP server.  In most circumstances they do not
+need to be set.  New in release 1.13.</dd>
 <dt><strong>ldap_kerberos_container_dn</strong></dt>
 <dd>This LDAP-specific tag indicates the DN of the container object
 where the realm objects will be located.</dd>
@@ -429,8 +457,15 @@ to the LDAP server.</dd>
 <dt><strong>ldap_service_password_file</strong></dt>
 <dd>This LDAP-specific tag indicates the file containing the stashed
 passwords (created by <tt class="docutils literal"><span class="pre">kdb5_ldap_util</span> <span class="pre">stashsrvpw</span></tt>) for the
-<strong>ldap_kadmind_dn</strong> and <strong>ldap_kdc_dn</strong> objects.  This file must
-be kept secure.</dd>
+<strong>ldap_kdc_dn</strong> and <strong>ldap_kadmind_dn</strong> objects, or for the
+<strong>ldap_kdc_sasl_authcid</strong> or <strong>ldap_kadmind_sasl_authcid</strong> names
+for SASL authentication.  This file must be kept secure.</dd>
+<dt><strong>unlockiter</strong></dt>
+<dd>If set to <tt class="docutils literal"><span class="pre">true</span></tt>, this DB2-specific tag causes iteration
+operations to release the database lock while processing each
+principal.  Setting this flag to <tt class="docutils literal"><span class="pre">true</span></tt> can prevent extended
+blocking of KDC or kadmin operations when dumps of large databases
+are in progress.  First introduced in release 1.13.</dd>
 </dl>
 <p>The following tag may be specified directly in the [dbmodules]
 section to control where database modules are loaded from:</p>
@@ -490,14 +525,13 @@ the console and to the system log under the facility LOG_DAEMON with
 default severity of LOG_INFO; and the logging messages from the
 administrative server will be appended to the file
 <tt class="docutils literal"><span class="pre">/var/adm/kadmin.log</span></tt> and sent to the device <tt class="docutils literal"><span class="pre">/dev/tty04</span></tt>.</p>
-<blockquote>
-<div><div class="highlight-python"><pre>[logging]
+<div class="highlight-python"><div class="highlight"><pre>[logging]
     kdc = CONSOLE
     kdc = SYSLOG:INFO:DAEMON
     admin_server = FILE:/var/adm/kadmin.log
-    admin_server = DEVICE=/dev/tty04</pre>
+    admin_server = DEVICE=/dev/tty04
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="otp">
 <span id="id5"></span><h3>[otp]<a class="headerlink" href="#otp" title="Permalink to this headline">¶</a></h3>
@@ -532,29 +566,27 @@ server.  The default is 3 retries (4 tries).</dd>
 passed to the RADIUS server.  Otherwise, the realm will be
 included.  The default value is <tt class="docutils literal"><span class="pre">true</span></tt>.</dd>
 </dl>
-<p>In the following example, requests are sent to a remote server via UDP.</p>
-<blockquote>
-<div><div class="highlight-python"><pre>[otp]
+<p>In the following example, requests are sent to a remote server via UDP:</p>
+<div class="highlight-python"><div class="highlight"><pre>[otp]
     MyRemoteTokenType = {
         server = radius.mydomain.com:1812
         secret = SEmfiajf42$
         timeout = 15
         retries = 5
         strip_realm = true
-    }</pre>
+    }
+</pre></div>
 </div>
-</div></blockquote>
 <p>An implicit default token type named <tt class="docutils literal"><span class="pre">DEFAULT</span></tt> is defined for when
 the per-principal configuration does not specify a token type.  Its
 configuration is shown below.  You may override this token type to
-something applicable for your situation.</p>
-<blockquote>
-<div><div class="highlight-python"><pre>[otp]
+something applicable for your situation:</p>
+<div class="highlight-python"><div class="highlight"><pre>[otp]
     DEFAULT = {
         strip_realm = false
-    }</pre>
+    }
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 </div>
 <div class="section" id="pkinit-options">
@@ -568,21 +600,19 @@ realm-specific value over-rides, does not add to, a generic
 [kdcdefaults] specification.  The search order is:</p>
 </div>
 <ol class="arabic">
-<li><p class="first">realm-specific subsection of [realms],</p>
-<blockquote>
-<div><div class="highlight-python"><pre>[realms]
+<li><p class="first">realm-specific subsection of [realms]:</p>
+<div class="highlight-python"><div class="highlight"><pre>[realms]
     EXAMPLE.COM = {
         pkinit_anchors = FILE:/usr/local/example.com.crt
-    }</pre>
+    }
+</pre></div>
 </div>
-</div></blockquote>
 </li>
-<li><p class="first">generic value in the [kdcdefaults] section.</p>
-<blockquote>
-<div><div class="highlight-python"><pre>[kdcdefaults]
-    pkinit_anchors = DIR:/usr/local/generic_trusted_cas/</pre>
+<li><p class="first">generic value in the [kdcdefaults] section:</p>
+<div class="highlight-python"><div class="highlight"><pre>[kdcdefaults]
+    pkinit_anchors = DIR:/usr/local/generic_trusted_cas/
+</pre></div>
 </div>
-</div></blockquote>
 </li>
 </ol>
 <p>For information about the syntax of some of these options, see
@@ -631,9 +661,6 @@ this option is not recommended.</dd>
 This option is required if pkinit is to be supported by the KDC.</dd>
 <dt><strong>pkinit_kdc_ocsp</strong></dt>
 <dd>Specifies the location of the KDC&#8217;s OCSP.</dd>
-<dt><strong>pkinit_mapping_file</strong></dt>
-<dd>Specifies the name of the ACL pkinit mapping file.  This file maps
-principals to the certificates that they can use.</dd>
 <dt><strong>pkinit_pool</strong></dt>
 <dd>Specifies the location of intermediate certificates which may be
 used by the KDC to complete the trust chain between a client&#8217;s
@@ -750,10 +777,9 @@ take lists of enctype-salttype (&#8220;keysalt&#8221;) pairs, known as <em>keysa
 lists</em>.  Each keysalt pair is an enctype name followed by a salttype
 name, in the format <em>enc</em>:<em>salt</em>.  Individual keysalt list members are
 separated by comma (&#8221;,&#8221;) characters or space characters.  For example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>kadmin -e aes256-cts:normal,aes128-cts:normal</pre>
+<div class="highlight-python"><div class="highlight"><pre>kadmin -e aes256-cts:normal,aes128-cts:normal
+</pre></div>
 </div>
-</div></blockquote>
 <p>would start up kadmin so that by default it would generate
 password-derived keys for the <strong>aes256-cts</strong> and <strong>aes128-cts</strong>
 encryption types, using a <strong>normal</strong> salt.</p>
@@ -791,8 +817,7 @@ follows:</p>
 <div class="section" id="sample-kdc-conf-file">
 <h2>Sample kdc.conf File<a class="headerlink" href="#sample-kdc-conf-file" title="Permalink to this headline">¶</a></h2>
 <p>Here&#8217;s an example of a kdc.conf file:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>[kdcdefaults]
+<div class="highlight-python"><div class="highlight"><pre>[kdcdefaults]
     kdc_ports = 88
 
 [realms]
@@ -816,18 +841,18 @@ follows:</p>
     openldap_ldapconf = {
         db_library = kldap
         disable_last_success = true
-        ldap_kdc_dn = "cn=krbadmin,dc=mit,dc=edu"
+        ldap_kdc_dn = &quot;cn=krbadmin,dc=mit,dc=edu&quot;
             # this object needs to have read rights on
             # the realm container and principal subtrees
-        ldap_kadmind_dn = "cn=krbadmin,dc=mit,dc=edu"
+        ldap_kadmind_dn = &quot;cn=krbadmin,dc=mit,dc=edu&quot;
             # this object needs to have read and write rights on
             # the realm container and principal subtrees
         ldap_service_password_file = /etc/kerberos/service.keyfile
         ldap_servers = ldaps://kerberos.mit.edu
         ldap_conns_per_server = 5
-    }</pre>
+    }
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="files">
 <h2>FILES<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
@@ -891,6 +916,7 @@ follows:</p>
 <li class="toctree-l2"><a class="reference internal" href="../otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../env_variables.html">Environment variables</a></li>
@@ -925,8 +951,8 @@ follows:</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

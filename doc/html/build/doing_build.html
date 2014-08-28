@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -82,14 +80,16 @@ current directory is the top source directory.  It will automatically
 rebuild the configure script if it needs rebuilding.  If you know that
 you have made a change that will require that the configure file be
 rebuilt from scratch, specify the <strong>-</strong><strong>-force</strong> option:</p>
-<div class="highlight-python"><pre>cd /u1/krb5-VERSION/src
-./util/reconf --force</pre>
+<div class="highlight-python"><div class="highlight"><pre>cd /u1/krb5-VERSION/src
+./util/reconf --force
+</pre></div>
 </div>
 <p>Then follow the instructions for building packaged source trees
 (below).  To install the binaries into a binary tree, do:</p>
-<div class="highlight-python"><pre>cd /u1/krb5-VERSION/src
+<div class="highlight-python"><div class="highlight"><pre>cd /u1/krb5-VERSION/src
 make all
-make install DESTDIR=somewhere-else</pre>
+make install DESTDIR=somewhere-else
+</pre></div>
 </div>
 <p>You have a number of different options in how to build Kerberos.</p>
 </div>
@@ -104,9 +104,10 @@ Incompatibilities, for notes that we have on particular operating
 systems.</p>
 <p>If you don&#8217;t want separate build trees for each architecture, then use
 the following abbreviated procedure:</p>
-<div class="highlight-python"><pre>cd /u1/krb5-VERSION/src
+<div class="highlight-python"><div class="highlight"><pre>cd /u1/krb5-VERSION/src
 ./configure
-make</pre>
+make
+</pre></div>
 </div>
 <p>That&#8217;s it!</p>
 </div>
@@ -119,10 +120,11 @@ functionality, for example.)  If your make program does not support
 this, see the next section.</p>
 <p>For example, if you wish to store the binaries in <tt class="docutils literal"><span class="pre">tmpbuild</span></tt> build
 directory you might use the following procedure:</p>
-<div class="highlight-python"><pre>mkdir /u1/tmpbuild
+<div class="highlight-python"><div class="highlight"><pre>mkdir /u1/tmpbuild
 cd /u1/tmpbuild
 /u1/krb5-VERSION/src/configure
-make</pre>
+make
+</pre></div>
 </div>
 </div>
 <div class="section" id="building-using-lndir">
@@ -133,11 +135,12 @@ not lost.  You can use the lndir program to create symbolic link trees
 in your build directory.</p>
 <p>For example, if you wish to create a build directory for solaris
 binaries you might use the following procedure:</p>
-<div class="highlight-python"><pre>mkdir /u1/krb5-VERSION/solaris
+<div class="highlight-python"><div class="highlight"><pre>mkdir /u1/krb5-VERSION/solaris
 cd /u1/krb5-VERSION/solaris
 /u1/krb5-VERSION/src/util/lndir `pwd`/../src
 ./configure
-make</pre>
+make
+</pre></div>
 </div>
 <p>You must give an absolute pathname to lndir because it has a bug that
 makes it fail for relative pathnames.  Note that this version differs
@@ -148,13 +151,15 @@ XConsortium with X11R6.  Either version should be acceptable.</p>
 <h2>Installing the binaries<a class="headerlink" href="#installing-the-binaries" title="Permalink to this headline">¶</a></h2>
 <p>Once you have built Kerberos, you should install the binaries. You can
 do this by running:</p>
-<div class="highlight-python"><pre>make install</pre>
+<div class="highlight-python"><div class="highlight"><pre>make install
+</pre></div>
 </div>
 <p>If you want to install the binaries into a destination directory that
 is not their final destination, which may be convenient if you want to
 build a binary distribution to be deployed on multiple hosts, you may
 use:</p>
-<div class="highlight-python"><pre>make install DESTDIR=/path/to/destdir</pre>
+<div class="highlight-python"><div class="highlight"><pre>make install DESTDIR=/path/to/destdir
+</pre></div>
 </div>
 <p>This will install the binaries under <em>DESTDIR/PREFIX</em>, e.g., the user
 programs will install into <em>DESTDIR/PREFIX/bin</em>, the libraries into
@@ -170,7 +175,8 @@ build implementations.</p>
 run them, simply type the following command while in the top-level
 build directory (i.e., the directory where you sent typed make to
 start building Kerberos; see <a class="reference internal" href="#do-build"><em>Building within a single tree</em></a>):</p>
-<div class="highlight-python"><pre>make check</pre>
+<div class="highlight-python"><div class="highlight"><pre>make check
+</pre></div>
 </div>
 <p>However, there are several prerequisites that must be satisfied first:</p>
 <ul class="simple">
@@ -270,8 +276,8 @@ with executed <tt class="docutils literal"><span class="pre">util/reconf</span><
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

@@ -32,13 +32,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "autoconf.h"
 #include <stdio.h>
 #include <string.h>
 #include <gssrpc/rpc.h>
 #include <gssrpc/pmap_clnt.h>
 #include <netdb.h>
 #include <sys/socket.h>
-#include "autoconf.h"
 
 int
 gssrpc_getrpcport(
@@ -54,9 +54,6 @@ gssrpc_getrpcport(
 		return (0);
 	memset(&addr, 0, sizeof(addr));
 	memmove((char *) &addr.sin_addr, hp->h_addr, sizeof(addr.sin_addr));
-#if HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-	addr.sin_len = sizeof(addr);
-#endif
 	addr.sin_family = AF_INET;
 	addr.sin_port =  0;
 	return (pmap_getport(&addr, prognum, versnum, proto));

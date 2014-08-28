@@ -140,7 +140,7 @@ type the following::
     Principal "david@ATHENA.MIT.EDU" created.
     kadmin:
 
-If you want to delete a principal ::
+If you want to delete a principal::
 
     kadmin: delprinc jennifer
     Are you sure you want to delete the principal
@@ -805,7 +805,9 @@ Both master and slave sides must have a principal named
 ``kiprop/hostname`` (where *hostname* is the lowercase,
 fully-qualified, canonical name for the host) registered in the
 Kerberos database, and have keys for that principal stored in the
-default keytab file (|keytab|).
+default keytab file (|keytab|).  In release 1.13, the
+``kiprop/hostname`` principal is created automatically for the master
+KDC, but it must still be created for slave KDCs.
 
 On the master KDC side, the ``kiprop/hostname`` principal must be
 listed in the kadmind ACL file :ref:`kadm5.acl(5)`, and given the
@@ -826,12 +828,19 @@ point in the update log at which the slave should resume fetching
 incremental updates.  Thus, all the keytab and ACL setup previously
 described for kprop propagation is still needed.
 
-There are several known bugs and restrictions in the current
-implementation:
+If an environment has a large number of slaves, it may be desirable to
+arrange them in a hierarchy instead of having the master serve updates
+to every slave.  To do this, run ``kadmind -proponly`` on each
+intermediate slave, and ``kpropd -A upstreamhostname`` on downstream
+slaves to direct each one to the appropriate upstream slave.
 
-- The "call out to kprop" mechanism is a bit fragile; if the kprop
-  propagation fails to connect for some reason, the process on the
-  slave may hang waiting for it, and will need to be restarted.
+There are several known restrictions in the current implementation:
+
+- The incremental update protocol does not transport changes to policy
+  objects.  Any policy changes on the master will result in full
+  resyncs to all slaves.
+- The slave's KDB module must support locking; it cannot be using the
+  LDAP KDB module.
 - The master and slave must be able to initiate TCP connections in
   both directions, without an intervening NAT.
 

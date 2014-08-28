@@ -4,14 +4,13 @@
  * Use is subject to license terms.
  */
 
-#include <stdio.h>
-#include <time.h>
 #include <k5-int.h>
 #include <kdb.h>
 #include <kadm5/server_internal.h>
 #include <kadm5/admin.h>
 #include <adm_proto.h>
 #include "kdb5_util.h"
+#include <time.h>
 
 #if defined(HAVE_COMPILE) && defined(HAVE_STEP)
 #define SOLARIS_REGEXPS
@@ -337,7 +336,7 @@ kdb5_add_mkey(int argc, char *argv[])
                                           &new_mkeyblock,
                                           mkey_password);
         if (retval) {
-            com_err(progname, errno, _("while storing key"));
+            com_err(progname, retval, _("while storing key"));
             printf(_("Warning: couldn't stash master key.\n"));
         }
     }
@@ -610,22 +609,12 @@ kdb5_list_mkeys(int argc, char *argv[])
         goto cleanup_return;
     }
 
-    if (actkvno_list == NULL) {
-        act_kvno = master_entry->key_data[0].key_data_kvno;
-    } else {
-        retval = krb5_dbe_find_act_mkey(util_context, actkvno_list, &act_kvno,
-                                        &act_mkey);
-        if (retval == KRB5_KDB_NOACTMASTERKEY) {
-            /* Maybe we went through a time warp, and the only keys
-               with activation dates have them set in the future?  */
-            com_err(progname, retval, "");
-            /* Keep going.  */
-            act_kvno = -1;
-        } else if (retval != 0) {
-            com_err(progname, retval, _("while looking up active master key"));
-            exit_status++;
-            goto cleanup_return;
-        }
+    retval = krb5_dbe_find_act_mkey(util_context, actkvno_list, &act_kvno,
+                                    &act_mkey);
+    if (retval != 0) {
+        com_err(progname, retval, _("while looking up active master key"));
+        exit_status++;
+        goto cleanup_return;
     }
 
     printf("Master keys for Principal: %s\n", mkey_fullname);
@@ -640,24 +629,12 @@ kdb5_list_mkeys(int argc, char *argv[])
             goto cleanup_return;
         }
 
-        if (actkvno_list != NULL) {
-            act_time = -1; /* assume actkvno entry not found */
-            for (cur_actkvno = actkvno_list; cur_actkvno != NULL;
-                 cur_actkvno = cur_actkvno->next) {
-                if (cur_actkvno->act_kvno == cur_kb_node->kvno) {
-                    act_time = cur_actkvno->act_time;
-                    break;
-                }
-            }
-        } else {
-            /*
-             * mkey princ doesn't have an active knvo list so assume the current
-             * key is active now
-             */
-            if ((retval = krb5_timeofday(util_context, &act_time))) {
-                com_err(progname, retval, _("while getting current time"));
-                exit_status++;
-                goto cleanup_return;
+        act_time = -1; /* assume actkvno entry not found */
+        for (cur_actkvno = actkvno_list; cur_actkvno != NULL;
+             cur_actkvno = cur_actkvno->next) {
+            if (cur_actkvno->act_kvno == cur_kb_node->kvno) {
+                act_time = cur_actkvno->act_time;
+                break;
             }
         }
 
@@ -935,6 +912,7 @@ kdb5_update_princ_encryption(int argc, char *argv[])
     char *regexp = NULL;
     krb5_keyblock *act_mkey;
     krb5_keylist_node *master_keylist = krb5_db_mkey_list_alias(util_context);
+    krb5_flags iterflags;
 
     while ((optchar = getopt(argc, argv, "fnv")) != -1) {
         switch (optchar) {
@@ -1048,23 +1026,17 @@ kdb5_update_princ_encryption(int argc, char *argv[])
     if (!data.dry_run) {
         /* Grab a write lock so we don't have to upgrade to a write lock and
          * reopen the DB while iterating. */
-        retval = krb5_db_lock(util_context, KRB5_DB_LOCKMODE_EXCLUSIVE);
-        if (retval != 0 && retval != KRB5_PLUGIN_OP_NOTSUPP) {
-            com_err(progname, retval, _("trying to lock database"));
-            exit_status++;
-        }
+        iterflags = KRB5_DB_ITER_WRITE;
     }
 
     retval = krb5_db_iterate(util_context, name_pattern,
-                             update_princ_encryption_1, &data);
+                             update_princ_encryption_1, &data, iterflags);
     /* If exit_status is set, then update_princ_encryption_1 already
        printed a message.  */
     if (retval != 0 && exit_status == 0) {
         com_err(progname, retval, _("trying to process principal database"));
         exit_status++;
     }
-    if (!data.dry_run)
-        (void)krb5_db_unlock(util_context);
     (void) krb5_db_fini(util_context);
     if (data.dry_run) {
         printf(_("%u principals processed: %u would be updated, %u already "
@@ -1232,7 +1204,7 @@ kdb5_purge_mkeys(int argc, char *argv[])
     if ((retval = krb5_db_iterate(util_context,
                                   NULL,
                                   find_mkvnos_in_use,
-                                  (krb5_pointer) &args))) {
+                                  (krb5_pointer) &args, 0))) {
         com_err(progname, retval, _("while finding master keys in use"));
         exit_status++;
         goto cleanup_return;

@@ -31,11 +31,8 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include <k5-int.h>
+#include <ctype.h>
 #include <kdb.h>
 #include <kadm5/admin.h>
 #include <adm_proto.h>
@@ -126,31 +123,6 @@ int kadm5_create_magic_princs(kadm5_config_params *params,
 }
 
 /*
- * Function: build_name_with_realm
- *
- * Purpose: concatenate a name and a realm to form a krb5 name
- *
- * Arguments:
- *
- *      name    (input) the name
- *      realm   (input) the realm
- *
- * Returns:
- *
- *      pointer to name@realm, in allocated memory, or NULL if it
- *      cannot be allocated
- *
- * Requires: both strings are null-terminated
- */
-static char *build_name_with_realm(char *name, char *realm)
-{
-    char *n;
-
-    asprintf(&n, "%s@%s", name, realm);
-    return n;
-}
-
-/*
  * Function: add_admin_princs
  *
  * Purpose: create admin principals
@@ -173,7 +145,7 @@ static char *build_name_with_realm(char *name, char *realm)
 static int add_admin_princs(void *handle, krb5_context context, char *realm)
 {
     krb5_error_code ret = 0;
-    char *service_name = 0, *p;
+    char *service_name = 0, *kiprop_name = 0, *p;
     char localname[MAXHOSTNAMELEN];
     struct addrinfo *ai, ai_hints;
     int gai_error;
@@ -219,6 +191,12 @@ static int add_admin_princs(void *handle, krb5_context context, char *realm)
         freeaddrinfo(ai);
         goto clean_and_exit;
     }
+    if (asprintf(&kiprop_name, "kiprop/%s", ai->ai_canonname) < 0) {
+        ret = ENOMEM;
+        fprintf(stderr, _("Out of memory\n"));
+        freeaddrinfo(ai);
+        goto clean_and_exit;
+    }
     freeaddrinfo(ai);
 
     if ((ret = add_admin_princ(handle, context,
@@ -240,8 +218,11 @@ static int add_admin_princs(void *handle, krb5_context context, char *realm)
                                CHANGEPW_LIFETIME)))
         goto clean_and_exit;
 
+    ret = add_admin_princ(handle, context, kiprop_name, realm, 0, 0);
+
 clean_and_exit:
     free(service_name);
+    free(kiprop_name);
 
     return ret;
 }
@@ -281,10 +262,14 @@ int add_admin_princ(void *handle, krb5_context context,
     char *fullname;
     krb5_error_code ret;
     kadm5_principal_ent_rec ent;
+    long flags;
 
     memset(&ent, 0, sizeof(ent));
 
-    fullname = build_name_with_realm(name, realm);
+    if (asprintf(&fullname, "%s@%s", name, realm) < 0) {
+        com_err(progname, ENOMEM, _("while appending realm to principal"));
+        return ERR;
+    }
     ret = krb5_parse_name(context, fullname, &ent.principal);
     if (ret) {
         com_err(progname, ret, _("while parsing admin principal name"));
@@ -293,9 +278,10 @@ int add_admin_princ(void *handle, krb5_context context,
     ent.max_life = lifetime;
     ent.attributes = attrs;
 
-    ret = kadm5_create_principal(handle, &ent,
-                                 (KADM5_PRINCIPAL | KADM5_MAX_LIFE |
-                                  KADM5_ATTRIBUTES), NULL);
+    flags = KADM5_PRINCIPAL | KADM5_ATTRIBUTES;
+    if (lifetime)
+        flags |= KADM5_MAX_LIFE;
+    ret = kadm5_create_principal(handle, &ent, flags, NULL);
     if (ret && ret != KADM5_DUP) {
         com_err(progname, ret, _("while creating principal %s"), fullname);
         krb5_free_principal(context, ent.principal);

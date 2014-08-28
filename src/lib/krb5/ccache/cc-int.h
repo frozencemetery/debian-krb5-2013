@@ -131,6 +131,23 @@ krb5_error_code
 ccselect_k5identity_initvt(krb5_context context, int maj_ver, int min_ver,
                            krb5_plugin_vtable vtable);
 
+krb5_error_code
+k5_unmarshal_cred(const unsigned char *data, size_t len, int version,
+                  krb5_creds *creds);
+
+krb5_error_code
+k5_unmarshal_princ(const unsigned char *data, size_t len, int version,
+                   krb5_principal *princ_out);
+
+void
+k5_marshal_cred(struct k5buf *buf, int version, krb5_creds *creds);
+
+void
+k5_marshal_mcred(struct k5buf *buf, krb5_creds *mcred);
+
+void
+k5_marshal_princ(struct k5buf *buf, int version, krb5_principal princ);
+
 /*
  * Per-type ccache cursor.
  */

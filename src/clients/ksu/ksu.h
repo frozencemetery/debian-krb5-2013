@@ -44,8 +44,6 @@
 #define KRB5_DEFAULT_OPTIONS 0
 #define KRB5_DEFAULT_TKT_LIFE 60*60*12 /* 12 hours */
 
-#define KRB5_SECONDARY_CACHE "FILE:/tmp/krb5cc_"
-
 #define KRB5_LOGIN_NAME ".k5login"
 #define KRB5_USERS_NAME ".k5users"
 #define USE_DEFAULT_REALM_NAME "."
@@ -55,12 +53,12 @@
 
 #define CHUNK 3
 #define CACHE_MODE 0600
-#define MAX_CMD 2048 /* this is temp, should use realloc instead,          
-			as done in most of the code */       
+#define MAX_CMD 2048 /* this is temp, should use realloc instead,
+                        as done in most of the code */
 
 #ifndef MAXPATHLEN
 # define MAXPATHLEN 4096
-#endif		      
+#endif
 
 
 extern int optind;
@@ -110,8 +108,8 @@ extern krb5_error_code get_best_principal
 
 /* ccache.c */
 extern krb5_error_code krb5_ccache_copy
-(krb5_context, krb5_ccache, char *, krb5_principal,
- krb5_ccache *, krb5_boolean *, uid_t);
+(krb5_context, krb5_ccache, krb5_principal, krb5_ccache,
+ krb5_boolean, krb5_principal, krb5_boolean *);
 
 extern krb5_error_code krb5_store_all_creds
 (krb5_context, krb5_ccache, krb5_creds **, krb5_creds **);
@@ -136,7 +134,7 @@ extern krb5_error_code krb5_get_login_princ
 extern void show_credential
 (krb5_context, krb5_creds *, krb5_ccache);
 
-extern int gen_sym (void);
+krb5_error_code gen_sym(krb5_context context, char **sym);
 
 extern krb5_error_code krb5_ccache_overwrite
 (krb5_context, krb5_ccache, krb5_ccache, krb5_principal);
@@ -145,9 +143,11 @@ extern krb5_error_code krb5_store_some_creds
 (krb5_context, krb5_ccache, krb5_creds **, krb5_creds **,
  krb5_principal, krb5_boolean *);
 
-extern krb5_error_code krb5_ccache_copy_restricted
-(krb5_context, krb5_ccache, char *, krb5_principal,
- krb5_ccache *, krb5_boolean *, uid_t);
+extern krb5_boolean ks_ccache_name_is_initialized
+(krb5_context, const char *);
+
+extern krb5_boolean ks_ccache_is_initialized
+(krb5_context, krb5_ccache);
 
 extern krb5_error_code krb5_ccache_refresh
 (krb5_context, krb5_ccache);
@@ -205,8 +205,6 @@ extern void usage (void);
 extern int standard_shell (char *);
 
 extern krb5_error_code get_params (int *, int, char **, char ***);
-
-extern char *get_dir_of_file (const char *);
 
 /* heuristic.c */
 extern krb5_error_code get_all_princ_from_file (FILE *, char ***);

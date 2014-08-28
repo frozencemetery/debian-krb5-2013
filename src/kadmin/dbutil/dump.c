@@ -28,7 +28,6 @@
  * Use is subject to license terms.
  */
 
-#include <stdio.h>
 #include <k5-int.h>
 #include <kadm5/admin.h>
 #include <kadm5/server_internal.h>
@@ -1146,8 +1145,7 @@ dump_version ipropx_1_version = {
 /* Read the dump header.  Return 1 on success, 0 if the file is not a
  * recognized iprop dump format. */
 static int
-parse_iprop_header(char *buf, dump_version **dv, uint32_t *last_sno,
-                   uint32_t *last_seconds, uint32_t *last_useconds)
+parse_iprop_header(char *buf, dump_version **dv, kdb_last_t *last)
 {
     char head[128];
     int nread;
@@ -1180,24 +1178,22 @@ parse_iprop_header(char *buf, dump_version **dv, uint32_t *last_sno,
         return 0;
     }
 
-    *last_sno = *up++;
-    *last_seconds = *up++;
-    *last_useconds = *up++;
+    last->last_sno = *up++;
+    last->last_time.seconds = *up++;
+    last->last_time.useconds = *up++;
     return 1;
 }
 
-/* Return 1 if the {sno, timestamp} in an existing dump file is in the
- * ulog, else return 0. */
-static int
-current_dump_sno_in_ulog(char *ifile, kdb_hlog_t *ulog)
+/* Return true if the serial number and timestamp in an existing dump file is
+ * in the ulog. */
+static krb5_boolean
+current_dump_sno_in_ulog(krb5_context context, const char *ifile)
 {
+    update_status_t status;
     dump_version *junk;
-    uint32_t last_sno, last_seconds, last_useconds;
+    kdb_last_t last;
     char buf[BUFSIZ];
     FILE *f;
-
-    if (ulog->kdb_last_sno == 0)
-        return 0;              /* nothing in ulog */
 
     f = fopen(ifile, "r");
     if (f == NULL)
@@ -1207,17 +1203,11 @@ current_dump_sno_in_ulog(char *ifile, kdb_hlog_t *ulog)
         return errno ? -1 : 0;
     fclose(f);
 
-    if (!parse_iprop_header(buf, &junk, &last_sno, &last_seconds,
-                            &last_useconds))
+    if (!parse_iprop_header(buf, &junk, &last))
         return 0;
 
-    if (ulog->kdb_first_sno > last_sno ||
-        ulog->kdb_first_time.seconds > last_seconds ||
-        (ulog->kdb_first_time.seconds == last_seconds &&
-        ulog->kdb_first_time.useconds > last_useconds))
-        return 0;
-
-    return 1;
+    status = ulog_get_sno_status(context, &last);
+    return status == UPDATE_OK || status == UPDATE_NIL;
 }
 
 /*
@@ -1240,6 +1230,8 @@ dump_db(int argc, char **argv)
     unsigned int ipropx_version = IPROPX_VERSION_0;
     krb5_kvno kt_kvno;
     krb5_boolean conditional = FALSE;
+    kdb_last_t last;
+    krb5_flags iterflags = 0;
 
     /* Parse the arguments. */
     dump = &r1_11_version;
@@ -1287,10 +1279,11 @@ dump_db(int argc, char **argv)
         } else if (!strcmp(argv[aindex], "-new_mkey_file")) {
             new_mkey_file = argv[++aindex];
             mkey_convert = 1;
-        } else if (!strcmp(argv[aindex], "-rev") ||
-                   !strcmp(argv[aindex], "-recurse")) {
-            /* Accept these for compatibility, but do nothing since
-             * krb5_db_iterate doesn't support them. */
+        } else if (!strcmp(argv[aindex], "-rev")) {
+            iterflags |= KRB5_DB_ITER_REV;
+        } else if (!strcmp(argv[aindex], "-recurse")) {
+            /* Accept this for compatibility, but do nothing since
+             * krb5_db_iterate doesn't support it. */
         } else {
             break;
         }
@@ -1316,7 +1309,7 @@ dump_db(int argc, char **argv)
                       "use only for iprop dumps"));
             goto error;
         }
-        if (current_dump_sno_in_ulog(ofile, log_ctx->ulog))
+        if (current_dump_sno_in_ulog(util_context, ofile))
             return;
     }
 
@@ -1404,26 +1397,23 @@ dump_db(int argc, char **argv)
     args.dump = dump;
     fprintf(args.ofile, "%s", dump->header);
 
-    /* We grab the lock twice (once again in the iterator call), but that's ok
-     * since krb5_db_lock handles recursive locks. */
-    ret = krb5_db_lock(util_context, KRB5_LOCKMODE_SHARED);
-    if (ret != 0 && ret != KRB5_PLUGIN_OP_NOTSUPP) {
-        fprintf(stderr, _("%s: Couldn't grab lock\n"), progname);
-        goto error;
-    }
-
     if (dump_sno) {
+        ret = ulog_get_last(util_context, &last);
+        if (ret) {
+            com_err(progname, ret, _("while reading update log header"));
+            goto error;
+        }
         if (ipropx_version)
             fprintf(f, " %u", IPROPX_VERSION);
-        fprintf(f, " %u", log_ctx->ulog->kdb_last_sno);
-        fprintf(f, " %u", log_ctx->ulog->kdb_last_time.seconds);
-        fprintf(f, " %u", log_ctx->ulog->kdb_last_time.useconds);
+        fprintf(f, " %u", last.last_sno);
+        fprintf(f, " %u", last.last_time.seconds);
+        fprintf(f, " %u", last.last_time.useconds);
     }
 
     if (dump->header[strlen(dump->header)-1] != '\n')
         fputc('\n', args.ofile);
 
-    ret = krb5_db_iterate(util_context, NULL, dump_iterator, &args);
+    ret = krb5_db_iterate(util_context, NULL, dump_iterator, &args, iterflags);
     if (ret) {
         com_err(progname, ret, _("performing %s dump"), dump->name);
         goto error;
@@ -1445,7 +1435,6 @@ dump_db(int argc, char **argv)
     return;
 
 error:
-    krb5_db_unlock(util_context);
     if (tmpofile != NULL)
         unlink(tmpofile);
     free(tmpofile);
@@ -1479,15 +1468,15 @@ load_db(int argc, char **argv)
 {
     krb5_error_code ret;
     FILE *f = NULL;
-    extern char *optarg;
-    extern int optind;
     char *dumpfile = NULL, *dbname, buf[BUFSIZ];
     dump_version *load = NULL;
     int aindex;
     kdb_log_context *log_ctx;
+    kdb_last_t last;
     krb5_boolean db_locked = FALSE, temp_db_created = FALSE;
     krb5_boolean verbose = FALSE, update = FALSE, iprop_load = FALSE;
-    uint32_t caller = FKCOMMAND, last_sno = 0, last_seconds = 0, last_useconds = 0;
+
+    memset(&last, 0, sizeof(last));
 
     /* Parse the arguments. */
     dbname = global_params.dbname;
@@ -1507,7 +1496,6 @@ load_db(int argc, char **argv)
             if (log_ctx && log_ctx->iproprole) {
                 load = &iprop_version;
                 iprop_load = TRUE;
-                caller = FKLOAD;
             } else {
                 fprintf(stderr, _("Iprop not enabled\n"));
                 goto error;
@@ -1574,25 +1562,11 @@ load_db(int argc, char **argv)
         }
     }
 
-    /*
-     * Fail if the dump is not in iprop format and iprop is enabled and we have
-     * a ulog -- we don't want an accidental stepping on our toes by a sysadmin
-     * or wayward cronjob left over from before enabling iprop.
-     */
     if (global_params.iprop_enabled &&
         ulog_map(util_context, global_params.iprop_logfile,
-                 global_params.iprop_ulogsize, caller, db5util_db_args)) {
+                 global_params.iprop_ulogsize)) {
         fprintf(stderr, _("Could not open iprop ulog\n"));
         goto error;
-    }
-    if (global_params.iprop_enabled && !load->iprop) {
-        if (log_ctx->ulog != NULL && log_ctx->ulog->kdb_first_time.seconds &&
-            (log_ctx->ulog->kdb_first_sno || log_ctx->ulog->kdb_last_sno)) {
-            fprintf(stderr, _("%s: Loads disallowed when iprop is enabled "
-                              "and a ulog is present\n"),
-                    progname);
-            goto error;
-        }
     }
 
     if (load->updateonly && !update) {
@@ -1646,8 +1620,7 @@ load_db(int argc, char **argv)
         log_ctx->iproprole = IPROP_SLAVE;
         if (iprop_load) {
             /* Parse the iprop header information. */
-            if (!parse_iprop_header(buf, &load, &last_sno, &last_seconds,
-                                    &last_useconds))
+            if (!parse_iprop_header(buf, &load, &last))
                 goto error;
         }
     }
@@ -1664,6 +1637,16 @@ load_db(int argc, char **argv)
     }
 
     if (!update) {
+        /* Initialize the ulog header before promoting so we can't leave behind
+         * the pre-load ulog state if we are killed just after promoting. */
+        if (log_ctx != NULL && log_ctx->iproprole) {
+            ret = ulog_init_header(util_context);
+            if (ret) {
+                com_err(progname, ret, _("while reinitializing update log"));
+                goto error;
+            }
+        }
+
         ret = krb5_db_promote(util_context, db5util_db_args);
         /* Ignore a not supported error since there is nothing to do about it
          * anyway. */
@@ -1676,12 +1659,18 @@ load_db(int argc, char **argv)
         if (log_ctx != NULL && log_ctx->iproprole) {
             /* Reinitialize the ulog header since we replaced the DB, and
              * record the iprop state if we received it. */
-            ulog_init_header(util_context);
+            ret = ulog_init_header(util_context);
+            if (ret) {
+                com_err(progname, ret, _("while reinitializing update log"));
+                goto error;
+            }
             if (iprop_load) {
-                log_ctx->ulog->kdb_last_sno = last_sno;
-                log_ctx->ulog->kdb_last_time.seconds = last_seconds;
-                log_ctx->ulog->kdb_last_time.useconds = last_useconds;
-                ulog_sync_header(log_ctx->ulog);
+                ret = ulog_set_last(util_context, &last);
+                if (ret) {
+                    com_err(progname, ret,
+                            _("while writing update log header"));
+                    goto error;
+                }
             }
         }
     }

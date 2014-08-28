@@ -122,9 +122,7 @@ Creates realm in directory. Options:
     documented in the description of the **add_principal** command in
     :ref:`kadmin(1)`.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H ldaps://ldap-server1.mit.edu
         create -subtrees o=org -sscope SUB -r ATHENA.MIT.EDU
@@ -183,9 +181,7 @@ Modifies the attributes of a realm.  Options:
     documented in the description of the **add_principal** command in
     :ref:`kadmin(1)`.
 
-Example:
-
- ::
+Example::
 
     shell% kdb5_ldap_util -D cn=admin,o=org -H
         ldaps://ldap-server1.mit.edu modify +requires_preauth -r
@@ -207,9 +203,7 @@ Displays the attributes of a realm.  Options:
 **-r** *realm*
     Specifies the Kerberos realm of the database.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H ldaps://ldap-server1.mit.edu
         view -r ATHENA.MIT.EDU
@@ -239,9 +233,7 @@ Destroys an existing realm. Options:
 **-r** *realm*
     Specifies the Kerberos realm of the database.
 
-Example:
-
- ::
+Example::
 
     shell% kdb5_ldap_util -D cn=admin,o=org -H
         ldaps://ldap-server1.mit.edu destroy -r ATHENA.MIT.EDU
@@ -262,9 +254,7 @@ list
 
 Lists the name of realms.
 
-Example:
-
- ::
+Example::
 
     shell% kdb5_ldap_util -D cn=admin,o=org -H
         ldaps://ldap-server1.mit.edu list
@@ -283,7 +273,7 @@ stashsrvpw
 
     **stashsrvpw**
     [**-f** *filename*]
-    *servicedn*
+    *name*
 
 Allows an administrator to store the password for service object in a
 file so that KDC and Administration server can use it to authenticate
@@ -293,13 +283,17 @@ to the LDAP server.  Options:
     Specifies the complete path of the service password file. By
     default, ``/usr/local/var/service_passwd`` is used.
 
-*servicedn*
-    Specifies Distinguished Name (DN) of the service object whose
-    password is to be stored in file.
+*name*
+    Specifies the name of the object whose password is to be stored.
+    If :ref:`krb5kdc(8)` or :ref:`kadmind(8)` are configured for
+    simple binding, this should be the distinguished name it will
+    use as given by the **ldap_kdc_dn** or **ldap_kadmind_dn**
+    variable in :ref:`kdc.conf(5)`.  If the KDC or kadmind is
+    configured for SASL binding, this should be the authentication
+    name it will use as given by the **ldap_kdc_sasl_authcid** or
+    **ldap_kadmind_sasl_authcid** variable.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util stashsrvpw -f /home/andrew/conf_keyfile
         cn=service-kdc,o=org
@@ -342,9 +336,7 @@ Creates a ticket policy in the directory.  Options:
 *policy_name*
     Specifies the name of the ticket policy.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H ldaps://ldap-server1.mit.edu
         create_policy -r ATHENA.MIT.EDU -maxtktlife "1 day"
@@ -369,9 +361,7 @@ modify_policy
 Modifies the attributes of a ticket policy.  Options are same as for
 **create_policy**.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H
         ldaps://ldap-server1.mit.edu modify_policy -r ATHENA.MIT.EDU
@@ -395,9 +385,7 @@ Displays the attributes of a ticket policy.  Options:
 *policy_name*
     Specifies the name of the ticket policy.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H ldaps://ldap-server1.mit.edu
         view_policy -r ATHENA.MIT.EDU tktpolicy
@@ -431,9 +419,7 @@ Destroys an existing ticket policy.  Options:
 *policy_name*
     Specifies the name of the ticket policy.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H ldaps://ldap-server1.mit.edu
         destroy_policy -r ATHENA.MIT.EDU tktpolicy
@@ -458,9 +444,7 @@ realm.  Options:
 **-r** *realm*
     Specifies the Kerberos realm of the database.
 
-Example:
-
- ::
+Example::
 
     kdb5_ldap_util -D cn=admin,o=org -H ldaps://ldap-server1.mit.edu
         list_policy -r ATHENA.MIT.EDU

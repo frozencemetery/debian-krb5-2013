@@ -59,10 +59,6 @@
  */
 /* #pragma ident	"@(#)spnego_mech.c	1.7	04/09/28 SMI" */
 
-#include	<assert.h>
-#include	<stdio.h>
-#include	<stdlib.h>
-#include	<string.h>
 #include	<k5-int.h>
 #include	<krb5.h>
 #include	<mglueP.h>
@@ -477,6 +473,39 @@ create_spnego_ctx(void)
 	return (spnego_ctx);
 }
 
+/* iso(1) org(3) dod(6) internet(1) private(4) enterprises(1) samba(7165)
+ * gssntlmssp(655) controls(1) spnego_req_mechlistMIC(2) */
+static const gss_OID_desc spnego_req_mechlistMIC_oid =
+	{ 11, "\x2B\x06\x01\x04\x01\xB7\x7D\x85\x0F\x01\x02" };
+
+/*
+ * Return nonzero if the mechanism has reason to believe that a mechlistMIC
+ * exchange will be required.  Microsoft servers erroneously require SPNEGO
+ * mechlistMIC if they see an internal MIC within an NTLMSSP Authenticate
+ * message, even if NTLMSSP was the preferred mechanism.
+ */
+static int
+mech_requires_mechlistMIC(spnego_gss_ctx_id_t sc)
+{
+	OM_uint32 major, minor;
+	gss_ctx_id_t ctx = sc->ctx_handle;
+	gss_OID oid = (gss_OID)&spnego_req_mechlistMIC_oid;
+	gss_buffer_set_t bufs;
+	int result;
+
+	major = gss_inquire_sec_context_by_oid(&minor, ctx, oid, &bufs);
+	if (major != GSS_S_COMPLETE)
+		return 0;
+
+	/* Report true if the mech returns a single buffer containing a single
+	 * byte with value 1. */
+	result = (bufs != NULL && bufs->count == 1 &&
+		  bufs->elements[0].length == 1 &&
+		  memcmp(bufs->elements[0].value, "\1", 1) == 0);
+	(void) gss_release_buffer_set(&minor, &bufs);
+	return result;
+}
+
 /*
  * Both initiator and acceptor call here to verify and/or create mechListMIC,
  * and to consistency-check the MIC state.  handle_mic is invoked only if the
@@ -657,13 +686,6 @@ init_ctx_cont(OM_uint32 *minor_status, gss_ctx_id_t *ctx, gss_buffer_t buf,
 			       responseToken, mechListMIC);
 	if (ret != GSS_S_COMPLETE)
 		goto cleanup;
-	if (acc_negState == ACCEPT_DEFECTIVE_TOKEN &&
-	    supportedMech == GSS_C_NO_OID &&
-	    *responseToken == GSS_C_NO_BUFFER &&
-	    *mechListMIC == GSS_C_NO_BUFFER) {
-		/* Reject "empty" token. */
-		ret = GSS_S_DEFECTIVE_TOKEN;
-	}
 	if (acc_negState == REJECT) {
 		*minor_status = ERR_SPNEGO_NEGOTIATION_FAILED;
 		map_errcode(minor_status);
@@ -787,6 +809,11 @@ init_ctx_nego(OM_uint32 *minor_status, spnego_gss_ctx_id_t sc,
 	return ret;
 }
 
+/* iso(1) org(3) dod(6) internet(1) private(4) enterprise(1) Microsoft(311)
+ * security(2) mechanisms(2) NTLM(10) */
+static const gss_OID_desc gss_mech_ntlmssp_oid =
+	{ 10, "\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a" };
+
 /*
  * Handle acceptor's counter-proposal of an alternative mechanism.
  */
@@ -812,17 +839,21 @@ init_ctx_reselect(OM_uint32 *minor_status, spnego_gss_ctx_id_t sc,
 	sc->internal_mech = &sc->mech_set->elements[i];
 
 	/*
-	 * Windows 2003 and earlier don't correctly send a
-	 * negState of request-mic when counter-proposing a
-	 * mechanism.  They probably don't handle mechListMICs
-	 * properly either.
+	 * A server conforming to RFC4178 MUST set REQUEST_MIC here, but
+	 * Windows Server 2003 and earlier implement (roughly) RFC2478 instead,
+	 * and send ACCEPT_INCOMPLETE.  Tolerate that only if we are falling
+	 * back to NTLMSSP.
 	 */
-	if (acc_negState != REQUEST_MIC)
+	if (acc_negState == ACCEPT_INCOMPLETE) {
+		if (!g_OID_equal(supportedMech, &gss_mech_ntlmssp_oid))
+			return GSS_S_DEFECTIVE_TOKEN;
+	} else if (acc_negState != REQUEST_MIC) {
 		return GSS_S_DEFECTIVE_TOKEN;
+	}
 
 	sc->mech_complete = 0;
-	sc->mic_reqd = 1;
-	*negState = REQUEST_MIC;
+	sc->mic_reqd = (acc_negState == REQUEST_MIC);
+	*negState = acc_negState;
 	*tokflag = CONT_TOKEN_SEND;
 	return GSS_S_CONTINUE_NEEDED;
 }
@@ -1023,6 +1054,10 @@ spnego_gss_init_sec_context(
 			actual_mech, &mechtok_out,
 			ret_flags, time_rec,
 			&negState, &send_token);
+
+		/* Give the mechanism a chance to force a mechlistMIC. */
+		if (!HARD_ERROR(ret) && mech_requires_mechlistMIC(spnego_ctx))
+			spnego_ctx->mic_reqd = 1;
 	}
 
 	/* Step 3: process or generate the MIC, if the negotiated mech is
@@ -1397,8 +1432,8 @@ acc_ctx_new(OM_uint32 *minor_status,
 		*return_token = NO_TOKEN_SEND;
 		goto cleanup;
 	}
-	sc->mech_set = supported_mechSet;
-	supported_mechSet = GSS_C_NO_OID_SET;
+	sc->mech_set = mechTypes;
+	mechTypes = GSS_C_NO_OID_SET;
 	sc->internal_mech = mech_wanted;
 	sc->DER_mechTypes = der_mechTypes;
 	der_mechTypes.length = 0;
@@ -3547,7 +3582,7 @@ put_negResult(unsigned char **buf_out, OM_uint32 negResult,
  * is set to ACCEPT_INCOMPLETE if it's the first mech, REQUEST_MIC if
  * it's not the first mech, otherwise we return NULL and negResult
  * is set to REJECT. The returned pointer is an alias into
- * supported->elements and should not be freed.
+ * received->elements and should not be freed.
  *
  * NOTE: There is currently no way to specify a preference order of
  * mechanisms supported by the acceptor.
@@ -3569,7 +3604,7 @@ negotiate_mech(gss_OID_set supported, gss_OID_set received,
 			if (g_OID_equal(mech_oid, &supported->elements[j])) {
 				*negResult = (i == 0) ? ACCEPT_INCOMPLETE :
 					REQUEST_MIC;
-				return &supported->elements[j];
+				return &received->elements[i];
 			}
 		}
 	}

@@ -41,7 +41,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#ifndef _WIN32
 #include <glob.h>
+#endif
 
 #define	M_DEFAULT	"default"
 
@@ -94,7 +96,6 @@ static k5_mutex_t g_mechListLock = K5_MUTEX_PARTIAL_INITIALIZER;
 static time_t g_confFileModTime = (time_t)0;
 static time_t g_confLastCall = (time_t)0;
 
-static time_t g_mechSetTime = (time_t)0;
 static gss_OID_set_desc g_mechSet = { 0, NULL };
 static k5_mutex_t g_mechSetLock = K5_MUTEX_PARTIAL_INITIALIZER;
 
@@ -216,8 +217,6 @@ gss_indicate_mechs(minorStatus, mechSet_out)
 OM_uint32 *minorStatus;
 gss_OID_set *mechSet_out;
 {
-	char *fileName;
-	struct stat fileInfo;
 	OM_uint32 status;
 
 	/* Initialize outputs. */
@@ -236,16 +235,6 @@ gss_OID_set *mechSet_out;
 	if (*minorStatus != 0)
 		return (GSS_S_FAILURE);
 
-	fileName = MECH_CONF;
-
-	/*
-	 * If we have already computed the mechanisms supported and if it
-	 * is still valid; make a copy and return to caller,
-	 * otherwise build it first.
-	 */
-	if ((stat(fileName, &fileInfo) == 0 &&
-		fileInfo.st_mtime > g_mechSetTime)) {
-	} /* if g_mechSet is out of date or not initialized */
 	if (build_mechSet())
 		return GSS_S_FAILURE;
 
@@ -291,20 +280,6 @@ build_mechSet(void)
 	 * modified.
 	 */
 	k5_mutex_lock(&g_mechListLock);
-
-#if 0
-	/*
-	 * this checks for the case when we need to re-construct the
-	 * g_mechSet structure, but the mechanism list is upto date
-	 * (because it has been read by someone calling
-	 * gssint_get_mechanism)
-	 */
-	if (fileInfo.st_mtime > g_confFileModTime)
-	{
-		g_confFileModTime = fileInfo.st_mtime;
-		loadConfigFile(fileName);
-	}
-#endif
 
 	updateMechList();
 
@@ -429,49 +404,49 @@ check_link_mtime(const char *filename, time_t *mtime_out)
 	return (st1.st_mtime > st2.st_mtime) ? st1.st_mtime : st2.st_mtime;
 }
 
+/* Load pathname if it is newer than last.  Update *highest to the maximum of
+ * its current value and pathname's mod time. */
+static void
+load_if_changed(const char *pathname, time_t last, time_t *highest)
+{
+	time_t mtime;
+
+	mtime = check_link_mtime(pathname, &mtime);
+	if (mtime == (time_t)-1)
+		return;
+	if (mtime > *highest)
+		*highest = mtime;
+	if (mtime > last)
+		loadConfigFile(pathname);
+}
+
+#ifndef _WIN32
 /* Try to load any config files which have changed since the last call.  Config
  * files are MECH_CONF and any files matching MECH_CONF_PATTERN. */
 static void
 loadConfigFiles()
 {
 	glob_t globbuf;
-	time_t highest_mtime = 0, mtime, now;
-	char **pathptr;
+	time_t highest = 0, now;
+	char **path;
 
 	/* Don't glob and stat more than once per second. */
 	if (time(&now) == (time_t)-1 || now == g_confLastCall)
 		return;
 	g_confLastCall = now;
 
-	globbuf.gl_offs = 1;
-	if (glob(MECH_CONF_PATTERN, GLOB_DOOFFS, NULL, &globbuf) != 0) {
-		mtime = check_link_mtime(MECH_CONF, &mtime);
-		if (mtime == (time_t)-1)
-			return;
-		if (mtime > highest_mtime)
-			highest_mtime = mtime;
-		if (mtime > g_confFileModTime) {
-			loadConfigFile(MECH_CONF);
-			g_confFileModTime = highest_mtime;
-		}
-		return;
-	}
-	globbuf.gl_pathv[0] = MECH_CONF;
+	load_if_changed(MECH_CONF, g_confFileModTime, &highest);
 
-	for (pathptr = globbuf.gl_pathv; *pathptr != NULL; pathptr++) {
-		mtime = check_link_mtime(*pathptr, &mtime);
-		if (mtime == (time_t)-1)
-			continue;
-		if (mtime > highest_mtime)
-			highest_mtime = mtime;
-		if (mtime > g_confFileModTime)
-			loadConfigFile(*pathptr);
+	memset(&globbuf, 0, sizeof(globbuf));
+	if (glob(MECH_CONF_PATTERN, 0, NULL, &globbuf) == 0) {
+		for (path = globbuf.gl_pathv; *path != NULL; path++)
+			load_if_changed(*path, g_confFileModTime, &highest);
 	}
-	g_confFileModTime = highest_mtime;
-
-	globbuf.gl_pathv[0] = NULL;
 	globfree(&globbuf);
+
+	g_confFileModTime = highest;
 }
+#endif
 
 /*
  * determines if the mechList needs to be updated from file
@@ -642,8 +617,10 @@ gssint_register_mechinfo(gss_mech_info template)
 		if (krb5int_get_plugin_func(_dl, \
 					    #_symbol, \
 					    (void (**)())&(_mech)->_symbol, \
-					    &errinfo) || errinfo.code) \
+					    &errinfo) || errinfo.code) {  \
 			(_mech)->_symbol = NULL; \
+			k5_clear_error(&errinfo); \
+			} \
 	} while (0)
 
 /*
@@ -755,8 +732,10 @@ build_dynamicMech(void *dl, const gss_OID mech_type)
 					    "gssi" #_nsym,		\
 					    (void (**)())&(_mech)->_psym \
 					    ## _nsym,			\
-					    &errinfo) || errinfo.code)	\
+					    &errinfo) || errinfo.code) { \
 			(_mech)->_psym ## _nsym = NULL;			\
+			k5_clear_error(&errinfo);			\
+		}							\
 	} while (0)
 
 /* Build an interposer mechanism function table from dl. */

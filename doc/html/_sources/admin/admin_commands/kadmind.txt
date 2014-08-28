@@ -11,6 +11,7 @@ SYNOPSIS
 [**-r** *realm*]
 [**-m**]
 [**-nofork**]
+[**-proponly**]
 [**-port** *port-number*]
 [**-P** *pid_file*]
 [**-p** *kdb5_util_path*]
@@ -52,8 +53,9 @@ and policy updates incrementally instead of receiving full dumps of
 the database.  This facility can be enabled in the :ref:`kdc.conf(5)`
 file with the **iprop_enable** option.  Incremental propagation
 requires the principal ``kiprop/MASTER\@REALM`` (where MASTER is the
-master KDC's canonical host name, and REALM the realm name) to be
-registered in the database.
+master KDC's canonical host name, and REALM the realm name).  In
+release 1.13, this principal is automatically created and registered
+into the datebase.
 
 
 OPTIONS
@@ -73,6 +75,12 @@ OPTIONS
     causes the server to remain in the foreground and remain
     associated to the terminal.  In normal operation, you should allow
     the server to place itself in the background.
+
+**-proponly**
+    causes the server to only listen and respond to Kerberos slave
+    incremental propagation polling requests.  This option can be used
+    to set up a hierarchical propagation topology where a slave KDC
+    provides incremental updates to other Kerberos slaves.
 
 **-port** *port-number*
     specifies the port on which the administration server listens for
@@ -98,37 +106,9 @@ OPTIONS
     to full resync requests when iprop is enabled.
 
 **-x** *db_args*
-    specifies database-specific arguments.
+    specifies database-specific arguments.  See :ref:`Database Options
+    <dboptions>` in :ref:`kadmin(1)` for supported arguments.
 
-    Options supported for LDAP database are:
-
-        **-x nconns=**\ *number_of_connections*
-            specifies the number of connections to be maintained per
-            LDAP server.
-
-        **-x host=**\ *ldapuri*
-            specifies the LDAP server to connect to by URI.
-
-        **-x binddn=**\ *binddn*
-            specifies the DN of the object used by the administration
-            server to bind to the LDAP server.  This object should
-            have read and write privileges on the realm container, the
-            principal container, and the subtree that is referenced by
-            the realm.
-
-        **-x bindpwd=**\ *bind_password*
-            specifies the password for the above mentioned binddn.
-            Using this option may expose the password to other users
-            on the system via the process list; to avoid this, instead
-            stash the password using the **stashsrvpw** command of
-            :ref:`kdb5_ldap_util(8)`.
-
-        **-x debug=**\ *level*
-            sets the OpenLDAP client library debug level.  *level* is
-            an integer to be interpreted by the library.  Debugging
-            messages are printed to standard error, so this option
-            must be used with the **-nofork** option to be useful.
-            New in release 1.12.
 
 SEE ALSO
 --------

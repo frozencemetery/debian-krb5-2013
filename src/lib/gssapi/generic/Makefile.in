@@ -42,18 +42,12 @@ gssapi_err_generic.h: gssapi_err_generic.et
 gssapi_err_generic.c: gssapi_err_generic.et
 
 ##DOS##!if 0
-include_stdint=@include_stdint@
-include_inttypes=@include_inttypes@
 include_xom=@include_xom@
-##DOS##include_stdint=rem
-##DOS##include_inttypes=rem
 ##DOS##include_xom=rem
 gssapi.h: gssapi.hin
 	@echo "Creating gssapi.h" ; \
 	h=gss$$$$; $(RM) $$h; \
 	(echo "/* This is the gssapi.h prologue. */"; \
-	$(include_stdint) && \
-	$(include_inttypes) && \
 	$(include_xom) && \
 	echo "/* End of gssapi.h prologue. */"&& \
 	cat $(srcdir)/gssapi.hin )> $$h && \
@@ -72,10 +66,12 @@ SRCS = \
 	$(srcdir)/util_buffer.c \
 	$(srcdir)/util_buffer_set.c \
 	$(srcdir)/util_errmap.c \
-	$(srcdir)/util_ordering.c \
 	$(srcdir)/util_set.c \
+	$(srcdir)/util_seqstate.c \
 	$(srcdir)/util_token.c \
 	gssapi_err_generic.c
+
+EXTRADEPSRCS = t_seqstate.c
 
 OBJS = \
 	$(OUTPRE)disp_com_err_status.$(OBJEXT) \
@@ -87,8 +83,8 @@ OBJS = \
 	$(OUTPRE)util_buffer.$(OBJEXT) \
 	$(OUTPRE)util_buffer_set.$(OBJEXT) \
 	$(OUTPRE)util_errmap.$(OBJEXT) \
-	$(OUTPRE)util_ordering.$(OBJEXT) \
 	$(OUTPRE)util_set.$(OBJEXT) \
+	$(OUTPRE)util_seqstate.$(OBJEXT) \
 	$(OUTPRE)util_token.$(OBJEXT) \
 	$(OUTPRE)gssapi_err_generic.$(OBJEXT)
 
@@ -102,8 +98,8 @@ STLIBOBJS = \
 	util_buffer.o \
 	util_buffer_set.o \
 	util_errmap.o \
-	util_ordering.o \
 	util_set.o \
+	util_seqstate.o \
 	util_token.o \
 	gssapi_err_generic.o
 
@@ -144,10 +140,18 @@ win-create-ehdrdir:
 clean-unix:: clean-libobjs
 	$(RM) $(ETHDRS) $(ETSRCS) $(HDRS) $(EXPORTED_BUILT_HEADERS) \
 		$(EHDRDIR)$(S)timestamp errmap.h maptest.h
+	$(RM) t_seqstate.o t_seqstate
 
 clean-windows::
 	$(RM) $(HDRS) maptest.h
 	-if exist $(EHDRDIR)\nul rmdir $(EHDRDIR)
+
+t_seqstate: t_seqstate.o util_seqstate.o $(SUPPORT_DEPLIB)
+	$(CC_LINK) $(ALL_CFLAGS) -o $@ t_seqstate.o util_seqstate.o \
+		$(SUPPORT_LIB)
+
+check-unix:: t_seqstate
+	$(RUN_SETUP) $(VALGRIND) ./t_seqstate
 
 generate-files-mac: gssapi.h errmap.h
 

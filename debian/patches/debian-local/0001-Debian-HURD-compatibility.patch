@@ -1,0 +1,119 @@
+From 2fbc0f9889c4525bdfee0d59598db986123aad4e Mon Sep 17 00:00:00 2001
+From: Sam Hartman <hartmans@debian.org>
+Date: Mon, 26 Dec 2011 18:05:13 -0500
+Subject: Debian: HURD compatibility
+
+HURD has no MAXPATHLEN or MAXHOSTLEN.
+
+Patch-Category: debian-local
+---
+ src/clients/ksu/ksu.h                       | 4 ++++
+ src/include/k5-int.h                        | 3 +++
+ src/kadmin/ktutil/ktutil_funcs.c            | 4 ++++
+ src/lib/gssapi/spnego/spnego_mech.c         | 3 +++
+ src/lib/krb5/os/sn2princ.c                  | 4 ++++
+ src/plugins/kdb/db2/libdb2/include/db-int.h | 4 ++++
+ src/tests/resolve/resolve.c                 | 4 ++++
+ 7 files changed, 26 insertions(+)
+
+diff --git a/src/clients/ksu/ksu.h b/src/clients/ksu/ksu.h
+index 5ba5ceb..fc0dce3 100644
+--- a/src/clients/ksu/ksu.h
++++ b/src/clients/ksu/ksu.h
+@@ -56,6 +56,10 @@
+ #define MAX_CMD 2048 /* this is temp, should use realloc instead,
+                         as done in most of the code */
+ 
++#ifndef MAXPATHLEN
++# define MAXPATHLEN 4096
++#endif
++
+ 
+ extern int optind;
+ extern char * optarg;
+diff --git a/src/include/k5-int.h b/src/include/k5-int.h
+index d57dd6b..4989a71 100644
+--- a/src/include/k5-int.h
++++ b/src/include/k5-int.h
+@@ -564,6 +564,9 @@ extern char *strdup (const char *);
+ #ifdef HAVE_SYS_PARAM_H
+ #include <sys/param.h>                  /* MAXPATHLEN */
+ #endif
++#ifndef MAXPATHLEN
++# define MAXPATHLEN 4096
++#endif
+ 
+ #ifdef HAVE_SYS_FILE_H
+ #include <sys/file.h>                   /* prototypes for file-related
+diff --git a/src/kadmin/ktutil/ktutil_funcs.c b/src/kadmin/ktutil/ktutil_funcs.c
+index 20a348c..b8b61ce 100644
+--- a/src/kadmin/ktutil/ktutil_funcs.c
++++ b/src/kadmin/ktutil/ktutil_funcs.c
+@@ -33,6 +33,10 @@
+ #include <string.h>
+ #include <ctype.h>
+ 
++#ifndef MAXPATHLEN
++# define MAXPATHLEN 4096
++#endif
++
+ /*
+  * Free a kt_list
+  */
+diff --git a/src/lib/gssapi/spnego/spnego_mech.c b/src/lib/gssapi/spnego/spnego_mech.c
+index f9248ab..6e39c37 100644
+--- a/src/lib/gssapi/spnego/spnego_mech.c
++++ b/src/lib/gssapi/spnego/spnego_mech.c
+@@ -65,6 +65,9 @@
+ #include	"gssapiP_spnego.h"
+ #include	<gssapi_err_generic.h>
+ 
++#ifndef MAXHOSTNAMELEN
++#define MAXHOSTNAMELEN 64
++#endif
+ 
+ #undef g_token_size
+ #undef g_verify_token_header
+diff --git a/src/lib/krb5/os/sn2princ.c b/src/lib/krb5/os/sn2princ.c
+index 92969cd..b555ad4 100644
+--- a/src/lib/krb5/os/sn2princ.c
++++ b/src/lib/krb5/os/sn2princ.c
+@@ -130,6 +130,10 @@ find_trailer(const char *hostname)
+     return p;
+ }
+ 
++#ifndef MAXHOSTNAMELEN
++# define MAXHOSTNAMELEN 256
++#endif
++
+ krb5_error_code KRB5_CALLCONV
+ krb5_sname_to_principal(krb5_context context, const char *hostname,
+                         const char *sname, krb5_int32 type,
+diff --git a/src/plugins/kdb/db2/libdb2/include/db-int.h b/src/plugins/kdb/db2/libdb2/include/db-int.h
+index 0dcbf40..34fea13 100644
+--- a/src/plugins/kdb/db2/libdb2/include/db-int.h
++++ b/src/plugins/kdb/db2/libdb2/include/db-int.h
+@@ -274,4 +274,8 @@ void	 __dbpanic __P((DB *dbp));
+ #ifndef O_BINARY
+ #define O_BINARY	0		/* Needed for Win32 compiles */
+ #endif
++
++#ifndef MAXPATHLEN
++# define MAXPATHLEN 4096
++#endif
+ #endif /* _DB_INT_H_ */
+diff --git a/src/tests/resolve/resolve.c b/src/tests/resolve/resolve.c
+index 7339d21..38f7253 100644
+--- a/src/tests/resolve/resolve.c
++++ b/src/tests/resolve/resolve.c
+@@ -73,6 +73,10 @@ char *strchr();
+ #include <netinet/in.h>
+ #include <netdb.h>
+ 
++#ifndef MAXHOSTNAMELEN
++# define MAXHOSTNAMELEN 256
++#endif
++
+ int
+ main(argc, argv)
+     int argc;

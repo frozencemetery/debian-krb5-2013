@@ -132,7 +132,7 @@ static asn1_error_code
 decode_seqno(const taginfo *t, const unsigned char *asn1, size_t len, void *p)
 {
     asn1_error_code ret;
-    asn1_intmax val;
+    intmax_t val;
     ret = k5_asn1_decode_int(asn1, len, &val);
     if (ret)
         return ret;
@@ -330,7 +330,7 @@ decode_lr_type(const taginfo *t, const unsigned char *asn1, size_t len,
                void *p)
 {
     asn1_error_code ret;
-    asn1_intmax val;
+    intmax_t val;
     ret = k5_asn1_decode_int(asn1, len, &val);
     if (ret)
         return ret;
@@ -1711,3 +1711,17 @@ static const struct atype_info *pa_otp_enc_req_fields[] = {
 };
 DEFSEQTYPE(pa_otp_enc_req, krb5_data, pa_otp_enc_req_fields);
 MAKE_CODEC(krb5_pa_otp_enc_req, pa_otp_enc_req);
+
+DEFFIELD(kkdcp_message_0, krb5_kkdcp_message,
+         kerb_message, 0, ostring_data);
+DEFFIELD(kkdcp_message_1, krb5_kkdcp_message,
+         target_domain, 1, opt_gstring_data);
+DEFFIELD(kkdcp_message_2, krb5_kkdcp_message,
+         dclocator_hint, 2, opt_int32);
+static const struct atype_info *kkdcp_message_fields[] = {
+    &k5_atype_kkdcp_message_0, &k5_atype_kkdcp_message_1,
+    &k5_atype_kkdcp_message_2
+};
+DEFSEQTYPE(kkdcp_message, krb5_kkdcp_message,
+           kkdcp_message_fields);
+MAKE_CODEC(krb5_kkdcp_message, kkdcp_message);

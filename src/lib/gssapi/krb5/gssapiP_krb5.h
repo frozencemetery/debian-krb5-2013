@@ -90,6 +90,8 @@
 #define GSS_MECH_IAKERB_OID_LENGTH 6
 #define GSS_MECH_IAKERB_OID "\053\006\001\005\002\005"
 
+extern const gss_OID_set_desc * const kg_all_mechs;
+
 #define CKSUMTYPE_KG_CB         0x8003
 
 #define KG_TOK_CTX_AP_REQ       0x0100
@@ -221,9 +223,9 @@ typedef struct _krb5_gss_ctx_id_rec {
     /* XXX these used to be signed.  the old spec is inspecific, and
        the new spec specifies unsigned.  I don't believe that the change
        affects the wire encoding. */
-    gssint_uint64 seq_send;
-    gssint_uint64 seq_recv;
-    void *seqstate;
+    uint64_t seq_send;
+    uint64_t seq_recv;
+    g_seqnum_state seqstate;
     krb5_context k5_context;
     krb5_auth_context auth_context;
     gss_OID_desc *mech_used;
@@ -1260,6 +1262,7 @@ data_to_gss(krb5_data *input_k5data, gss_buffer_t output_buffer)
 #define KRB5_CS_CLI_KEYTAB_URN "client_keytab"
 #define KRB5_CS_KEYTAB_URN "keytab"
 #define KRB5_CS_CCACHE_URN "ccache"
+#define KRB5_CS_RCACHE_URN "rcache"
 
 OM_uint32
 kg_value_from_cred_store(gss_const_key_value_set_t cred_store,

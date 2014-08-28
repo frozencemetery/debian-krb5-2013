@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -86,9 +84,10 @@ named <tt class="docutils literal"><span class="pre">kdcpreauth_mymech_initvt</s
 pluggable interface.  For instance, a ccselect plugin module
 implementation should use <tt class="docutils literal"><span class="pre">#include</span> <span class="pre">&lt;krb5/ccselect_plugin.h&gt;</span></tt>.</p>
 <p>initvt functions have the following prototype:</p>
-<div class="highlight-python"><pre>krb5_error_code interface_modname_initvt(krb5_context context,
+<div class="highlight-python"><div class="highlight"><pre>krb5_error_code interface_modname_initvt(krb5_context context,
                                          int maj_ver, int min_ver,
-                                         krb5_plugin_vtable vtable);</pre>
+                                         krb5_plugin_vtable vtable);
+</pre></div>
 </div>
 <p>and should do the following:</p>
 <ol class="arabic simple">
@@ -114,7 +113,7 @@ literal containing the module name.</p>
 <p>Here is an example of what an initvt function might look like for a
 fictional pluggable interface named fences, for a module named
 &#8220;wicker&#8221;:</p>
-<div class="highlight-python"><pre>krb5_error_code
+<div class="highlight-python"><div class="highlight"><pre>krb5_error_code
 fences_wicker_initvt(krb5_context context, int maj_ver,
                      int min_ver, krb5_plugin_vtable vtable)
 {
@@ -122,12 +121,12 @@ fences_wicker_initvt(krb5_context context, int maj_ver,
 
     if (maj_ver == 1) {
         krb5_fences_vtable vt = (krb5_fences_vtable)vtable;
-        vt-&gt;name = "wicker";
+        vt-&gt;name = &quot;wicker&quot;;
         vt-&gt;slats = wicker_slats;
         vt-&gt;braces = wicker_braces;
     } else if (maj_ver == 2) {
         krb5_fences_vtable_v2 vt = (krb5_fences_vtable_v2)vtable;
-        vt-&gt;name = "wicker";
+        vt-&gt;name = &quot;wicker&quot;;
         vt-&gt;material = wicker_material;
         vt-&gt;construction = wicker_construction;
         if (min_ver &lt; 2)
@@ -140,7 +139,8 @@ fences_wicker_initvt(krb5_context context, int maj_ver,
         return KRB5_PLUGIN_VER_NOTSUPP;
     }
     return 0;
-}</pre>
+}
+</pre></div>
 </div>
 </div>
 
@@ -200,8 +200,8 @@ fences_wicker_initvt(krb5_context context, int maj_ver,
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

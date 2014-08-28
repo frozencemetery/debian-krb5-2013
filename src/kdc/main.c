@@ -23,16 +23,6 @@
  * or implied warranty.
  */
 
-#include <locale.h>
-#include <stdio.h>
-#include <syslog.h>
-#include <signal.h>
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <sys/wait.h>
-
 #include "k5-int.h"
 #include "com_err.h"
 #include <kadm5/admin.h>
@@ -46,6 +36,14 @@
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+
+#include <locale.h>
+#include <syslog.h>
+#include <signal.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <sys/wait.h>
 
 #if defined(NEED_DAEMON_PROTO)
 extern int daemon(int, int);
@@ -289,7 +287,7 @@ init_realm(kdc_realm_t *rdp, krb5_pointer aprof, char *realm, char *def_mpname,
         rdp->realm_reject_bad_transit = TRUE;
 
     /* Handle assume des-cbc-crc is supported for session keys */
-    hierarchy[2] = KRB5_CONF_ASSUME_DES_CRC_SESSION;
+    hierarchy[2] = KRB5_CONF_DES_CRC_SESSION_SUPPORTED;
     if (krb5_aprof_get_boolean(aprof, hierarchy, TRUE,
                                &rdp->realm_assume_des_crc_sess))
         rdp->realm_assume_des_crc_sess = TRUE;
@@ -635,7 +633,7 @@ initialize_realms(krb5_context kcontext, int argc, char **argv)
         hierarchy[1] = KRB5_CONF_KDC_TCP_PORTS;
         if (krb5_aprof_get_string(aprof, hierarchy, TRUE, &default_tcp_ports))
             default_tcp_ports = 0;
-        hierarchy[1] = KRB5_CONF_MAX_DGRAM_REPLY_SIZE;
+        hierarchy[1] = KRB5_CONF_KDC_MAX_DGRAM_REPLY_SIZE;
         if (krb5_aprof_get_int32(aprof, hierarchy, TRUE, &max_dgram_reply_size))
             max_dgram_reply_size = MAX_DGRAM_SIZE;
         hierarchy[1] = KRB5_CONF_RESTRICT_ANONYMOUS_TO_TGT;
@@ -665,9 +663,11 @@ initialize_realms(krb5_context kcontext, int argc, char **argv)
     }
 
     /*
-     * Loop through the option list.  Each time we encounter a realm name,
-     * use the previously scanned options to fill in for defaults.
+     * Loop through the option list.  Each time we encounter a realm name, use
+     * the previously scanned options to fill in for defaults.  We do this
+     * twice if worker processes are used, so we must initialize optind.
      */
+    optind = 1;
     while ((c = getopt(argc, argv, "x:r:d:mM:k:R:e:P:p:s:nw:4:T:X3")) != -1) {
         switch(c) {
         case 'x':

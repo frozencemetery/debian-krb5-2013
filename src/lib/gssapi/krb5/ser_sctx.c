@@ -150,25 +150,25 @@ kg_oid_size(kcontext, arg, sizep)
 }
 
 static krb5_error_code
-kg_queue_externalize(kcontext, arg, buffer, lenremain)
+kg_seqstate_externalize(kcontext, arg, buffer, lenremain)
     krb5_context        kcontext;
-    krb5_pointer        arg;
+    g_seqnum_state      arg;
     krb5_octet          **buffer;
     size_t              *lenremain;
 {
     krb5_error_code err;
     err = krb5_ser_pack_int32(KV5M_GSS_QUEUE, buffer, lenremain);
     if (err == 0)
-        err = g_queue_externalize(arg, buffer, lenremain);
+        err = g_seqstate_externalize(arg, buffer, lenremain);
     if (err == 0)
         err = krb5_ser_pack_int32(KV5M_GSS_QUEUE, buffer, lenremain);
     return err;
 }
 
 static krb5_error_code
-kg_queue_internalize(kcontext, argp, buffer, lenremain)
+kg_seqstate_internalize(kcontext, argp, buffer, lenremain)
     krb5_context        kcontext;
-    krb5_pointer        *argp;
+    g_seqnum_state      *argp;
     krb5_octet          **buffer;
     size_t              *lenremain;
 {
@@ -187,18 +187,18 @@ kg_queue_internalize(kcontext, argp, buffer, lenremain)
     if (ibuf != KV5M_GSS_QUEUE)
         return (EINVAL);
 
-    err = g_queue_internalize(argp, &bp, &remain);
+    err = g_seqstate_internalize(argp, &bp, &remain);
     if (err)
         return err;
 
     /* Read in and check our trailing magic number */
     if (krb5_ser_unpack_int32(&ibuf, &bp, &remain)) {
-        g_order_free(argp);
+        g_seqstate_free(*argp);
         return (EINVAL);
     }
 
     if (ibuf != KV5M_GSS_QUEUE) {
-        g_order_free(argp);
+        g_seqstate_free(*argp);
         return (EINVAL);
     }
 
@@ -208,9 +208,9 @@ kg_queue_internalize(kcontext, argp, buffer, lenremain)
 }
 
 static krb5_error_code
-kg_queue_size(kcontext, arg, sizep)
+kg_seqstate_size(kcontext, arg, sizep)
     krb5_context        kcontext;
-    krb5_pointer        arg;
+    g_seqnum_state      arg;
     size_t              *sizep;
 {
     krb5_error_code kret;
@@ -219,7 +219,7 @@ kg_queue_size(kcontext, arg, sizep)
     kret = EINVAL;
     if (arg) {
         required = 2*sizeof(krb5_int32); /* For the header and trailer */
-        g_queue_size(arg, &required);
+        g_seqstate_size(arg, &required);
 
         kret = 0;
         *sizep += required;
@@ -262,8 +262,8 @@ kg_ctx_size(kcontext, arg, sizep)
      *  krb5_int32      for endtime.
      *  krb5_int32      for renew_till.
      *  krb5_int32      for flags.
-     *  krb5_int64      for seq_send.
-     *  krb5_int64      for seq_recv.
+     *  int64_t         for seq_send.
+     *  int64_t         for seq_recv.
      *  ...             for seqstate
      *  ...             for auth_context
      *  ...             for mech_used
@@ -279,7 +279,7 @@ kg_ctx_size(kcontext, arg, sizep)
     kret = EINVAL;
     if ((ctx = (krb5_gss_ctx_id_rec *) arg)) {
         required = 21*sizeof(krb5_int32);
-        required += 2*sizeof(krb5_int64);
+        required += 2*sizeof(int64_t);
         required += sizeof(ctx->seed);
 
         kret = 0;
@@ -319,7 +319,7 @@ kg_ctx_size(kcontext, arg, sizep)
                                &required);
 
         if (!kret && ctx->seqstate)
-            kret = kg_queue_size(kcontext, ctx->seqstate, &required);
+            kret = kg_seqstate_size(kcontext, ctx->seqstate, &required);
 
         if (!kret)
             kret = krb5_size_opaque(kcontext,
@@ -425,9 +425,9 @@ kg_ctx_externalize(kcontext, arg, buffer, lenremain)
                                        &bp, &remain);
             (void) krb5_ser_pack_int32((krb5_int32) ctx->krb_flags,
                                        &bp, &remain);
-            (void) (*kaccess.ser_pack_int64)((krb5_int64) ctx->seq_send,
+            (void) (*kaccess.ser_pack_int64)((int64_t) ctx->seq_send,
                                              &bp, &remain);
-            (void) (*kaccess.ser_pack_int64)((krb5_int64) ctx->seq_recv,
+            (void) (*kaccess.ser_pack_int64)((int64_t) ctx->seq_recv,
                                              &bp, &remain);
 
             /* Now dynamic data */
@@ -468,8 +468,8 @@ kg_ctx_externalize(kcontext, arg, buffer, lenremain)
                                                &bp, &remain);
 
             if (!kret && ctx->seqstate)
-                kret = kg_queue_externalize(kcontext,
-                                            ctx->seqstate, &bp, &remain);
+                kret = kg_seqstate_externalize(kcontext,
+                                               ctx->seqstate, &bp, &remain);
 
             if (!kret)
                 kret = krb5_externalize_opaque(kcontext,
@@ -596,7 +596,7 @@ kg_ctx_internalize(kcontext, argp, buffer, lenremain)
 
         /* Get a context */
         if ((remain >= (17*sizeof(krb5_int32)
-                        + 2*sizeof(krb5_int64)
+                        + 2*sizeof(int64_t)
                         + sizeof(ctx->seed))) &&
             (ctx = (krb5_gss_ctx_id_rec *)
              xmalloc(sizeof(krb5_gss_ctx_id_rec)))) {
@@ -635,9 +635,9 @@ kg_ctx_internalize(kcontext, argp, buffer, lenremain)
             ctx->krb_times.renew_till = (krb5_timestamp) ibuf;
             (void) krb5_ser_unpack_int32(&ibuf, &bp, &remain);
             ctx->krb_flags = (krb5_flags) ibuf;
-            (void) (*kaccess.ser_unpack_int64)((krb5_int64 *)&ctx->seq_send,
+            (void) (*kaccess.ser_unpack_int64)((int64_t *)&ctx->seq_send,
                                                &bp, &remain);
-            kret = (*kaccess.ser_unpack_int64)((krb5_int64 *)&ctx->seq_recv,
+            kret = (*kaccess.ser_unpack_int64)((int64_t *)&ctx->seq_recv,
                                                &bp, &remain);
             if (kret) {
                 free(ctx);
@@ -695,8 +695,8 @@ kg_ctx_internalize(kcontext, argp, buffer, lenremain)
             }
 
             if (!kret) {
-                kret = kg_queue_internalize(kcontext, &ctx->seqstate,
-                                            &bp, &remain);
+                kret = kg_seqstate_internalize(kcontext, &ctx->seqstate,
+                                               &bp, &remain);
                 if (kret == EINVAL)
                     kret = 0;
             }

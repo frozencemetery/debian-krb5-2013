@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -85,14 +83,13 @@ over a secure channel), which they then verify against the KDC.  While
 this technique may be the only practical way to integrate Kerberos
 into some existing legacy systems, its use is contrary to the original
 design goals of Kerberos.</p>
-<p>The function <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a> will get initial
+<p>The function <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#c.krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a> will get initial
 credentials for a client using a password.  An application that needs
-to verify the credentials can call <a class="reference internal" href="refs/api/krb5_verify_init_creds.html#krb5_verify_init_creds" title="krb5_verify_init_creds"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds()</span></tt></a>.
+to verify the credentials can call <a class="reference internal" href="refs/api/krb5_verify_init_creds.html#c.krb5_verify_init_creds" title="krb5_verify_init_creds"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds()</span></tt></a>.
 Here is an example of code to obtain and verify TGT credentials, given
 strings <em>princname</em> and <em>password</em> for the client principal name and
 password:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>krb5_error_code ret;
+<div class="highlight-python"><div class="highlight"><pre>krb5_error_code ret;
 krb5_creds creds;
 krb5_principal client_princ = NULL;
 
@@ -109,18 +106,17 @@ ret = krb5_verify_init_creds(context, &amp;creds, NULL, NULL, NULL, NULL);
 cleanup:
 krb5_free_principal(context, client_princ);
 krb5_free_cred_contents(context, &amp;creds);
-return ret;</pre>
+return ret;
+</pre></div>
 </div>
-</div></blockquote>
 <div class="section" id="options-for-get-init-creds">
 <h2>Options for get_init_creds<a class="headerlink" href="#options-for-get-init-creds" title="Permalink to this headline">¶</a></h2>
-<p>The function <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a> takes an options
+<p>The function <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#c.krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a> takes an options
 parameter (which can be a null pointer).  Use the function
-<a class="reference internal" href="refs/api/krb5_get_init_creds_opt_alloc.html#krb5_get_init_creds_opt_alloc" title="krb5_get_init_creds_opt_alloc"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_alloc()</span></tt></a> to allocate an options
-structure, and <a class="reference internal" href="refs/api/krb5_get_init_creds_opt_free.html#krb5_get_init_creds_opt_free" title="krb5_get_init_creds_opt_free"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_free()</span></tt></a> to free it.  For
+<a class="reference internal" href="refs/api/krb5_get_init_creds_opt_alloc.html#c.krb5_get_init_creds_opt_alloc" title="krb5_get_init_creds_opt_alloc"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_alloc()</span></tt></a> to allocate an options
+structure, and <a class="reference internal" href="refs/api/krb5_get_init_creds_opt_free.html#c.krb5_get_init_creds_opt_free" title="krb5_get_init_creds_opt_free"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_free()</span></tt></a> to free it.  For
 example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>krb5_error_code ret;
+<div class="highlight-python"><div class="highlight"><pre>krb5_error_code ret;
 krb5_get_init_creds_opt *opt = NULL;
 krb5_creds creds;
 
@@ -137,9 +133,9 @@ if (ret)
 cleanup:
 krb5_get_init_creds_opt_free(context, opt);
 krb5_free_cred_contents(context, &amp;creds);
-return ret;</pre>
+return ret;
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="getting-anonymous-credentials">
 <h2>Getting anonymous credentials<a class="headerlink" href="#getting-anonymous-credentials" title="Permalink to this headline">¶</a></h2>
@@ -150,25 +146,24 @@ release 1.8 if configured appropriately (see <a class="reference internal" href=
 but does not support issuing realm-exposed anonymous credentials at
 this time.</p>
 <p>To obtain fully anonymous credentials, call
-<a class="reference internal" href="refs/api/krb5_get_init_creds_opt_set_anonymous.html#krb5_get_init_creds_opt_set_anonymous" title="krb5_get_init_creds_opt_set_anonymous"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_set_anonymous()</span></tt></a> on the options
+<a class="reference internal" href="refs/api/krb5_get_init_creds_opt_set_anonymous.html#c.krb5_get_init_creds_opt_set_anonymous" title="krb5_get_init_creds_opt_set_anonymous"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_set_anonymous()</span></tt></a> on the options
 structure to set the anonymous flag, and specify a client principal
 with the KDC&#8217;s realm and a single empty data component (the principal
 obtained by parsing <tt class="docutils literal"><span class="pre">&#64;</span></tt><em>realmname</em>).  Authentication will take
 place using anonymous PKINIT; if successful, the client principal of
 the resulting tickets will be
 <tt class="docutils literal"><span class="pre">WELLKNOWN/ANONYMOUS&#64;WELLKNOWN:ANONYMOUS</span></tt>.  Here is an example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>krb5_get_init_creds_opt_set_anonymous(opt, 1);
+<div class="highlight-python"><div class="highlight"><pre>krb5_get_init_creds_opt_set_anonymous(opt, 1);
 ret = krb5_build_principal(context, &amp;client_princ, strlen(myrealm),
-                           myrealm, "", (char *)NULL);
+                           myrealm, &quot;&quot;, (char *)NULL);
 if (ret)
     goto cleanup;
 ret = krb5_get_init_creds_password(context, &amp;creds, client_princ,
                                    password, NULL, NULL, 0, NULL, opt);
 if (ret)
-    goto cleanup;</pre>
+    goto cleanup;
+</pre></div>
 </div>
-</div></blockquote>
 <p>To obtain realm-exposed anonymous credentials, set the anonymous flag
 on the options structure as above, but specify a normal client
 principal in order to prove membership in the realm.  Authentication
@@ -179,7 +174,7 @@ principal of the resulting tickets will be <tt class="docutils literal"><span cl
 <h2>User interaction<a class="headerlink" href="#user-interaction" title="Permalink to this headline">¶</a></h2>
 <p>Authenticating a user usually requires the entry of secret
 information, such as a password.  A password can be supplied directly
-to <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a> via the <em>password</em>
+to <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#c.krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a> via the <em>password</em>
 parameter, or the application can supply prompter and/or responder
 callbacks instead.  If callbacks are used, the user can also be
 queried for other secret information such as a PIN, informed of
@@ -188,7 +183,7 @@ has expired.</p>
 <div class="section" id="prompter-callback">
 <h3>Prompter callback<a class="headerlink" href="#prompter-callback" title="Permalink to this headline">¶</a></h3>
 <p>A prompter callback can be specified via the <em>prompter</em> and <em>data</em>
-parameters to <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a>.  The prompter
+parameters to <a class="reference internal" href="refs/api/krb5_get_init_creds_password.html#c.krb5_get_init_creds_password" title="krb5_get_init_creds_password"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_password()</span></tt></a>.  The prompter
 will be invoked each time the krb5 library has a question to ask or
 information to present.  When the prompter callback is invoked, the
 <em>banner</em> argument (if not null) is intended to be displayed to the
@@ -199,37 +194,36 @@ display, and a storage area for the answer in the <em>reply</em> field.  The
 callback should fill in each question&#8217;s <tt class="docutils literal"><span class="pre">reply-&gt;data</span></tt> with the
 answer, up to a maximum number of <tt class="docutils literal"><span class="pre">reply-&gt;length</span></tt> bytes, and then
 reset <tt class="docutils literal"><span class="pre">reply-&gt;length</span></tt> to the length of the answer.</p>
-<p>A prompter callback can call <a class="reference internal" href="refs/api/krb5_get_prompt_types.html#krb5_get_prompt_types" title="krb5_get_prompt_types"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_prompt_types()</span></tt></a> to get an
+<p>A prompter callback can call <a class="reference internal" href="refs/api/krb5_get_prompt_types.html#c.krb5_get_prompt_types" title="krb5_get_prompt_types"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_prompt_types()</span></tt></a> to get an
 array of type constants corresponding to the prompts, to get
 programmatic information about the semantic meaning of the questions.
-<a class="reference internal" href="refs/api/krb5_get_prompt_types.html#krb5_get_prompt_types" title="krb5_get_prompt_types"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_prompt_types()</span></tt></a> may return a null pointer if no prompt
+<a class="reference internal" href="refs/api/krb5_get_prompt_types.html#c.krb5_get_prompt_types" title="krb5_get_prompt_types"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_prompt_types()</span></tt></a> may return a null pointer if no prompt
 type information is available.</p>
 <p>Text-based applications can use a built-in text prompter
-implementation by supplying <a class="reference internal" href="refs/api/krb5_prompter_posix.html#krb5_prompter_posix" title="krb5_prompter_posix"><tt class="xref c c-func docutils literal"><span class="pre">krb5_prompter_posix()</span></tt></a> as the
+implementation by supplying <a class="reference internal" href="refs/api/krb5_prompter_posix.html#c.krb5_prompter_posix" title="krb5_prompter_posix"><tt class="xref c c-func docutils literal"><span class="pre">krb5_prompter_posix()</span></tt></a> as the
 <em>prompter</em> parameter and a null pointer as the <em>data</em> parameter.  For
 example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>ret = krb5_get_init_creds_password(context, &amp;creds, client_princ,
+<div class="highlight-python"><div class="highlight"><pre>ret = krb5_get_init_creds_password(context, &amp;creds, client_princ,
                                    NULL, krb5_prompter_posix, NULL, 0,
-                                   NULL, NULL);</pre>
+                                   NULL, NULL);
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 <div class="section" id="responder-callback">
 <h3>Responder callback<a class="headerlink" href="#responder-callback" title="Permalink to this headline">¶</a></h3>
 <p>A responder callback can be specified through the init_creds options
-using the <a class="reference internal" href="refs/api/krb5_get_init_creds_opt_set_responder.html#krb5_get_init_creds_opt_set_responder" title="krb5_get_init_creds_opt_set_responder"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_set_responder()</span></tt></a> function.
+using the <a class="reference internal" href="refs/api/krb5_get_init_creds_opt_set_responder.html#c.krb5_get_init_creds_opt_set_responder" title="krb5_get_init_creds_opt_set_responder"><tt class="xref c c-func docutils literal"><span class="pre">krb5_get_init_creds_opt_set_responder()</span></tt></a> function.
 Responder callbacks can present a more sophisticated user interface
 for authentication secrets.  The responder callback is usually invoked
 only once per authentication, with a list of questions produced by all
 of the allowed preauthentication mechanisms.</p>
 <p>When the responder callback is invoked, the <em>rctx</em> argument can be
 accessed to obtain the list of questions and to answer them.  The
-<a class="reference internal" href="refs/api/krb5_responder_list_questions.html#krb5_responder_list_questions" title="krb5_responder_list_questions"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_list_questions()</span></tt></a> function retrieves an array of
+<a class="reference internal" href="refs/api/krb5_responder_list_questions.html#c.krb5_responder_list_questions" title="krb5_responder_list_questions"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_list_questions()</span></tt></a> function retrieves an array of
 question types.  For each question type, the
-<a class="reference internal" href="refs/api/krb5_responder_get_challenge.html#krb5_responder_get_challenge" title="krb5_responder_get_challenge"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_get_challenge()</span></tt></a> function retrieves additional
+<a class="reference internal" href="refs/api/krb5_responder_get_challenge.html#c.krb5_responder_get_challenge" title="krb5_responder_get_challenge"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_get_challenge()</span></tt></a> function retrieves additional
 information about the question, if applicable, and the
-<a class="reference internal" href="refs/api/krb5_responder_set_answer.html#krb5_responder_set_answer" title="krb5_responder_set_answer"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_set_answer()</span></tt></a> function sets the answer.</p>
+<a class="reference internal" href="refs/api/krb5_responder_set_answer.html#c.krb5_responder_set_answer" title="krb5_responder_set_answer"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_set_answer()</span></tt></a> function sets the answer.</p>
 <p>Responder question types, challenges, and answers are UTF-8 strings.
 The question type is a well-known string; the meaning of the challenge
 and answer depend on the question type.  If an application does not
@@ -249,9 +243,9 @@ type requests a choice among one-time password tokens and the PIN and
 value for the chosen token.  The challenge and answer are JSON-encoded
 strings, but an application can use convenience functions to avoid
 doing any JSON processing itself.</p>
-<p>The <a class="reference internal" href="refs/api/krb5_responder_otp_get_challenge.html#krb5_responder_otp_get_challenge" title="krb5_responder_otp_get_challenge"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_otp_get_challenge()</span></tt></a> function decodes the
+<p>The <a class="reference internal" href="refs/api/krb5_responder_otp_get_challenge.html#c.krb5_responder_otp_get_challenge" title="krb5_responder_otp_get_challenge"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_otp_get_challenge()</span></tt></a> function decodes the
 challenge into a krb5_responder_otp_challenge structure.  The
-<a class="reference internal" href="refs/api/krb5_responder_otp_set_answer.html#krb5_responder_otp_set_answer" title="krb5_responder_otp_set_answer"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_otp_set_answer()</span></tt></a> function selects one of the
+<a class="reference internal" href="refs/api/krb5_responder_otp_set_answer.html#c.krb5_responder_otp_set_answer" title="krb5_responder_otp_set_answer"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_otp_set_answer()</span></tt></a> function selects one of the
 token information elements from the challenge and supplies the value
 and pin for that token.</p>
 </div>
@@ -263,17 +257,16 @@ credentials which are stored on disk, potentially also supplying
 information about the state of the hardware devices.  The challenge and
 answer are JSON-encoded strings, but an application can use convenience
 functions to avoid doing any JSON processing itself.</p>
-<p>The <a class="reference internal" href="refs/api/krb5_responder_pkinit_get_challenge.html#krb5_responder_pkinit_get_challenge" title="krb5_responder_pkinit_get_challenge"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_pkinit_get_challenge()</span></tt></a> function decodes the
+<p>The <a class="reference internal" href="refs/api/krb5_responder_pkinit_get_challenge.html#c.krb5_responder_pkinit_get_challenge" title="krb5_responder_pkinit_get_challenge"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_pkinit_get_challenge()</span></tt></a> function decodes the
 challenges into a krb5_responder_pkinit_challenge structure.  The
-<a class="reference internal" href="refs/api/krb5_responder_pkinit_set_answer.html#krb5_responder_pkinit_set_answer" title="krb5_responder_pkinit_set_answer"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_pkinit_set_answer()</span></tt></a> function can be used to
+<a class="reference internal" href="refs/api/krb5_responder_pkinit_set_answer.html#c.krb5_responder_pkinit_set_answer" title="krb5_responder_pkinit_set_answer"><tt class="xref c c-func docutils literal"><span class="pre">krb5_responder_pkinit_set_answer()</span></tt></a> function can be used to
 supply the PIN or password for a particular client credential, and can
 be called multiple times.</p>
 </div>
 <div class="section" id="example">
 <h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
 <p>Here is an example of using a responder callback:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>static krb5_error_code
+<div class="highlight-python"><div class="highlight"><pre>static krb5_error_code
 my_responder(krb5_context context, void *data,
              krb5_responder_context rctx)
 {
@@ -284,13 +277,13 @@ my_responder(krb5_context context, void *data,
                                      KRB5_RESPONDER_QUESTION_PASSWORD)) {
         ret = krb5_responder_set_answer(context, rctx,
                                         KRB5_RESPONDER_QUESTION_PASSWORD,
-                                        "open sesame");
+                                        &quot;open sesame&quot;);
         if (ret)
             return ret;
     }
     ret = krb5_responder_otp_get_challenge(context, rctx, &amp;chl);
     if (ret == 0 &amp;&amp; chl != NULL) {
-        ret = krb5_responder_otp_set_answer(context, rctx, 0, "1234",
+        ret = krb5_responder_otp_set_answer(context, rctx, 0, &quot;1234&quot;,
                                             NULL);
         krb5_responder_otp_challenge_free(context, rctx, chl);
         if (ret)
@@ -321,31 +314,30 @@ cleanup:
     krb5_get_init_creds_opt_free(context, opt);
     krb5_free_cred_contents(context, &amp;creds);
     return ret;
-}</pre>
+}
+</pre></div>
 </div>
-</div></blockquote>
 </div>
 </div>
 </div>
 <div class="section" id="verifying-initial-credentials">
 <h2>Verifying initial credentials<a class="headerlink" href="#verifying-initial-credentials" title="Permalink to this headline">¶</a></h2>
-<p>Use the function <a class="reference internal" href="refs/api/krb5_verify_init_creds.html#krb5_verify_init_creds" title="krb5_verify_init_creds"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds()</span></tt></a> to verify initial
+<p>Use the function <a class="reference internal" href="refs/api/krb5_verify_init_creds.html#c.krb5_verify_init_creds" title="krb5_verify_init_creds"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds()</span></tt></a> to verify initial
 credentials.  It takes an options structure (which can be a null
-pointer).  Use <a class="reference internal" href="refs/api/krb5_verify_init_creds_opt_init.html#krb5_verify_init_creds_opt_init" title="krb5_verify_init_creds_opt_init"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds_opt_init()</span></tt></a> to initialize
+pointer).  Use <a class="reference internal" href="refs/api/krb5_verify_init_creds_opt_init.html#c.krb5_verify_init_creds_opt_init" title="krb5_verify_init_creds_opt_init"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds_opt_init()</span></tt></a> to initialize
 the caller-allocated options structure, and
-<a class="reference internal" href="refs/api/krb5_verify_init_creds_opt_set_ap_req_nofail.html#krb5_verify_init_creds_opt_set_ap_req_nofail" title="krb5_verify_init_creds_opt_set_ap_req_nofail"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds_opt_set_ap_req_nofail()</span></tt></a> to set the
+<a class="reference internal" href="refs/api/krb5_verify_init_creds_opt_set_ap_req_nofail.html#c.krb5_verify_init_creds_opt_set_ap_req_nofail" title="krb5_verify_init_creds_opt_set_ap_req_nofail"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds_opt_set_ap_req_nofail()</span></tt></a> to set the
 &#8220;nofail&#8221; option.  For example:</p>
-<blockquote>
-<div><div class="highlight-python"><pre>krb5_verify_init_creds_opt vopt;
+<div class="highlight-python"><div class="highlight"><pre>krb5_verify_init_creds_opt vopt;
 
 krb5_verify_init_creds_opt_init(&amp;vopt);
 krb5_verify_init_creds_opt_set_ap_req_nofail(&amp;vopt, 1);
-ret = krb5_verify_init_creds(context, &amp;creds, NULL, NULL, NULL, &amp;vopt);</pre>
+ret = krb5_verify_init_creds(context, &amp;creds, NULL, NULL, NULL, &amp;vopt);
+</pre></div>
 </div>
-</div></blockquote>
 <p>The confusingly named &#8220;nofail&#8221; option, when set, means that the
 verification must actually succeed in order for
-<a class="reference internal" href="refs/api/krb5_verify_init_creds.html#krb5_verify_init_creds" title="krb5_verify_init_creds"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds()</span></tt></a> to indicate success.  The default
+<a class="reference internal" href="refs/api/krb5_verify_init_creds.html#c.krb5_verify_init_creds" title="krb5_verify_init_creds"><tt class="xref c c-func docutils literal"><span class="pre">krb5_verify_init_creds()</span></tt></a> to indicate success.  The default
 state of this option (cleared) means that if there is no key material
 available to verify the user credentials, the verification will
 succeed anyway.  (The default can be changed by a configuration file
@@ -425,8 +417,8 @@ that the users would access reside on networked servers.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 

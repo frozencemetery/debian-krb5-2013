@@ -31,6 +31,8 @@
 #ifndef _PKINIT_CRYPTO_OPENSSL_H
 #define _PKINIT_CRYPTO_OPENSSL_H
 
+#include "pkinit.h"
+
 #include <openssl/bn.h>
 #include <openssl/dh.h>
 #include <openssl/x509.h>
@@ -44,8 +46,6 @@
 #include <openssl/sha.h>
 #include <openssl/asn1.h>
 #include <openssl/pem.h>
-
-#include "pkinit.h"
 
 #define DN_BUF_LEN  256
 #define MAX_CREDS_ALLOWED 20
@@ -95,7 +95,6 @@ struct _pkinit_plg_crypto_context {
     DH *dh_2048;
     DH *dh_4096;
     ASN1_OBJECT *id_pkinit_authData;
-    ASN1_OBJECT *id_pkinit_authData9;
     ASN1_OBJECT *id_pkinit_DHKeyData;
     ASN1_OBJECT *id_pkinit_rkeyData;
     ASN1_OBJECT *id_pkinit_san;

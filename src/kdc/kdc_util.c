@@ -72,8 +72,7 @@ static krb5_error_code kdc_rd_ap_req(kdc_realm_t *kdc_active_realm,
                                      krb5_ap_req *apreq,
                                      krb5_auth_context auth_context,
                                      krb5_db_entry **server,
-                                     krb5_keyblock **tgskey,
-                                     krb5_ticket **ticket);
+                                     krb5_keyblock **tgskey);
 static krb5_error_code find_server_key(krb5_context,
                                        krb5_db_entry *, krb5_enctype,
                                        krb5_kvno, krb5_keyblock **,
@@ -194,10 +193,11 @@ comp_cksum(krb5_context kcontext, krb5_data *source, krb5_ticket *ticket,
     return(0);
 }
 
+/* If a header ticket is decrypted, *ticket_out is filled in even on error. */
 krb5_error_code
 kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
                     krb5_kdc_req *request, const krb5_fulladdr *from,
-                    krb5_data *pkt, krb5_ticket **ticket,
+                    krb5_data *pkt, krb5_ticket **ticket_out,
                     krb5_db_entry **krbtgt_ptr,
                     krb5_keyblock **tgskey,
                     krb5_keyblock **subkey,
@@ -214,7 +214,9 @@ kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
     krb5_authenticator  * authenticator = NULL;
     krb5_checksum       * his_cksum = NULL;
     krb5_db_entry       * krbtgt = NULL;
+    krb5_ticket         * ticket;
 
+    *ticket_out = NULL;
     *krbtgt_ptr = NULL;
     *tgskey = NULL;
 
@@ -227,6 +229,7 @@ kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
     scratch1.data = (char *)tmppa->contents;
     if ((retval = decode_krb5_ap_req(&scratch1, &apreq)))
         return retval;
+    ticket = apreq->ticket;
 
     if (isflagset(apreq->ap_options, AP_OPTS_USE_SESSION_KEY) ||
         isflagset(apreq->ap_options, AP_OPTS_MUTUAL_REQUIRED)) {
@@ -260,13 +263,13 @@ kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
         goto cleanup_auth_context;
 
     retval = kdc_rd_ap_req(kdc_active_realm,
-                           apreq, auth_context, &krbtgt, tgskey, ticket);
+                           apreq, auth_context, &krbtgt, tgskey);
     if (retval)
         goto cleanup_auth_context;
 
     /* "invalid flag" tickets can must be used to validate */
-    if (isflagset((*ticket)->enc_part2->flags, TKT_FLG_INVALID)
-        && !isflagset(request->kdc_options, KDC_OPT_VALIDATE)) {
+    if (isflagset(ticket->enc_part2->flags, TKT_FLG_INVALID) &&
+        !isflagset(request->kdc_options, KDC_OPT_VALIDATE)) {
         retval = KRB5KRB_AP_ERR_TKT_INVALID;
         goto cleanup_auth_context;
     }
@@ -280,14 +283,14 @@ kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
         goto cleanup_auth_context;
 
     retval = krb5_find_authdata(kdc_context,
-                                (*ticket)->enc_part2->authorization_data,
+                                ticket->enc_part2->authorization_data,
                                 authenticator->authorization_data,
                                 KRB5_AUTHDATA_FX_ARMOR, &authdata);
     if (retval != 0)
         goto cleanup_authenticator;
     if (authdata&& authdata[0]) {
-        krb5_set_error_message(kdc_context, KRB5KDC_ERR_POLICY,
-                               "ticket valid only as FAST armor");
+        k5_setmsg(kdc_context, KRB5KDC_ERR_POLICY,
+                  "ticket valid only as FAST armor");
         retval = KRB5KDC_ERR_POLICY;
         krb5_free_authdata(kdc_context, authdata);
         goto cleanup_authenticator;
@@ -306,7 +309,7 @@ kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
         !krb5int_find_pa_data(kdc_context,
                               request->padata, KRB5_PADATA_FOR_USER)) {
         if (is_local_principal(kdc_active_realm,
-                               (*ticket)->enc_part2->client)) {
+                               ticket->enc_part2->client)) {
             /* someone in a foreign realm claiming to be local */
             krb5_klog_syslog(LOG_INFO, _("PROCESS_TGS: failed lineage check"));
             retval = KRB5KDC_ERR_POLICY;
@@ -324,9 +327,9 @@ kdc_process_tgs_req(kdc_realm_t *kdc_active_realm,
      */
     if (pkt && (fetch_asn1_field((unsigned char *) pkt->data,
                                  1, 4, &scratch1) >= 0)) {
-        if (comp_cksum(kdc_context, &scratch1, *ticket, his_cksum)) {
+        if (comp_cksum(kdc_context, &scratch1, ticket, his_cksum)) {
             if (!(retval = encode_krb5_kdc_req_body(request, &scratch)))
-                retval = comp_cksum(kdc_context, scratch, *ticket, his_cksum);
+                retval = comp_cksum(kdc_context, scratch, ticket, his_cksum);
             krb5_free_data(kdc_context, scratch);
             if (retval)
                 goto cleanup_authenticator;
@@ -348,6 +351,11 @@ cleanup:
         krb5_free_keyblock(kdc_context, *tgskey);
         *tgskey = NULL;
     }
+    if (apreq->ticket->enc_part2 != NULL) {
+        /* Steal the decrypted ticket pointer, even on error. */
+        *ticket_out = apreq->ticket;
+        apreq->ticket = NULL;
+    }
     krb5_free_ap_req(kdc_context, apreq);
     krb5_db_free_principal(kdc_context, krbtgt);
     return retval;
@@ -368,8 +376,7 @@ static
 krb5_error_code
 kdc_rd_ap_req(kdc_realm_t *kdc_active_realm,
               krb5_ap_req *apreq, krb5_auth_context auth_context,
-              krb5_db_entry **server, krb5_keyblock **tgskey,
-              krb5_ticket **ticket)
+              krb5_db_entry **server, krb5_keyblock **tgskey)
 {
     krb5_error_code     retval;
     krb5_enctype        search_enctype = apreq->ticket->enc_part.enctype;
@@ -413,7 +420,12 @@ kdc_rd_ap_req(kdc_realm_t *kdc_active_realm,
         retval = krb5_rd_req_decoded_anyflag(kdc_context, &auth_context, apreq,
                                              apreq->ticket->server,
                                              kdc_active_realm->realm_keytab,
-                                             NULL, ticket);
+                                             NULL, NULL);
+
+        /* If the ticket was decrypted, don't try any more keys. */
+        if (apreq->ticket->enc_part2 != NULL)
+            break;
+
     } while (retval && apreq->ticket->enc_part.kvno == 0 && kvno-- > 1 &&
              --tries > 0);
 
@@ -1602,202 +1614,6 @@ validate_transit_path(krb5_context context,
     }
 
     return 0;
-}
-
-
-/* Main logging routines for ticket requests.
-
-   There are a few simple cases -- unparseable requests mainly --
-   where messages are logged otherwise, but once a ticket request can
-   be decoded in some basic way, these routines are used for logging
-   the details.  */
-
-/* "status" is null to indicate success.  */
-/* Someday, pass local address/port as well.  */
-/* Currently no info about name canonicalization is logged.  */
-void
-log_as_req(krb5_context context, const krb5_fulladdr *from,
-           krb5_kdc_req *request, krb5_kdc_rep *reply,
-           krb5_db_entry *client, const char *cname,
-           krb5_db_entry *server, const char *sname,
-           krb5_timestamp authtime,
-           const char *status, krb5_error_code errcode, const char *emsg)
-{
-    const char *fromstring = 0;
-    char fromstringbuf[70];
-    char ktypestr[128];
-    const char *cname2 = cname ? cname : "<unknown client>";
-    const char *sname2 = sname ? sname : "<unknown server>";
-
-    fromstring = inet_ntop(ADDRTYPE2FAMILY (from->address->addrtype),
-                           from->address->contents,
-                           fromstringbuf, sizeof(fromstringbuf));
-    if (!fromstring)
-        fromstring = "<unknown>";
-    ktypes2str(ktypestr, sizeof(ktypestr),
-               request->nktypes, request->ktype);
-
-    if (status == NULL) {
-        /* success */
-        char rep_etypestr[128];
-        rep_etypes2str(rep_etypestr, sizeof(rep_etypestr), reply);
-        krb5_klog_syslog(LOG_INFO, _("AS_REQ (%s) %s: ISSUE: authtime %d, %s, "
-                                     "%s for %s"),
-                         ktypestr, fromstring, authtime,
-                         rep_etypestr, cname2, sname2);
-    } else {
-        /* fail */
-        krb5_klog_syslog(LOG_INFO, _("AS_REQ (%s) %s: %s: %s for %s%s%s"),
-                         ktypestr, fromstring, status,
-                         cname2, sname2, emsg ? ", " : "", emsg ? emsg : "");
-    }
-    krb5_db_audit_as_req(context, request, client, server, authtime,
-                         errcode);
-#if 0
-    /* Sun (OpenSolaris) version would probably something like this.
-       The client and server names passed can be null, unlike in the
-       logging routines used above.  Note that a struct in_addr is
-       used, but the real address could be an IPv6 address.  */
-    audit_krb5kdc_as_req(some in_addr *, (in_port_t)from->port, 0,
-                         cname, sname, errcode);
-#endif
-}
-
-/*
- * Unparse a principal for logging purposes and limit the string length.
- * Ignore errors because the most likely errors are memory exhaustion, and many
- * other things will fail in the logging functions in that case.
- */
-static void
-unparse_and_limit(krb5_context ctx, krb5_principal princ, char **str)
-{
-    /* Ignore errors */
-    krb5_unparse_name(ctx, princ, str);
-    limit_string(*str);
-}
-
-/* Here "status" must be non-null.  Error code
-   KRB5KDC_ERR_SERVER_NOMATCH is handled specially.
-
-   Currently no info about name canonicalization is logged.  */
-void
-log_tgs_req(krb5_context ctx, const krb5_fulladdr *from,
-            krb5_kdc_req *request, krb5_kdc_rep *reply,
-            krb5_principal cprinc, krb5_principal sprinc,
-            krb5_principal altcprinc,
-            krb5_timestamp authtime,
-            unsigned int c_flags,
-            const char *status, krb5_error_code errcode, const char *emsg)
-{
-    char ktypestr[128];
-    const char *fromstring = 0;
-    char fromstringbuf[70];
-    char rep_etypestr[128];
-    char *cname = NULL, *sname = NULL, *altcname = NULL;
-    char *logcname = NULL, *logsname = NULL, *logaltcname = NULL;
-
-    fromstring = inet_ntop(ADDRTYPE2FAMILY(from->address->addrtype),
-                           from->address->contents,
-                           fromstringbuf, sizeof(fromstringbuf));
-    if (!fromstring)
-        fromstring = "<unknown>";
-    ktypes2str(ktypestr, sizeof(ktypestr), request->nktypes, request->ktype);
-    if (!errcode)
-        rep_etypes2str(rep_etypestr, sizeof(rep_etypestr), reply);
-    else
-        rep_etypestr[0] = 0;
-
-    unparse_and_limit(ctx, cprinc, &cname);
-    logcname = (cname != NULL) ? cname : "<unknown client>";
-    unparse_and_limit(ctx, sprinc, &sname);
-    logsname = (sname != NULL) ? sname : "<unknown server>";
-    unparse_and_limit(ctx, altcprinc, &altcname);
-    logaltcname = (altcname != NULL) ? altcname : "<unknown>";
-
-    /* Differences: server-nomatch message logs 2nd ticket's client
-       name (useful), and doesn't log ktypestr (probably not
-       important).  */
-    if (errcode != KRB5KDC_ERR_SERVER_NOMATCH) {
-        krb5_klog_syslog(LOG_INFO, _("TGS_REQ (%s) %s: %s: authtime %d, %s%s "
-                                     "%s for %s%s%s"),
-                         ktypestr, fromstring, status, authtime, rep_etypestr,
-                         !errcode ? "," : "", logcname, logsname,
-                         errcode ? ", " : "", errcode ? emsg : "");
-        if (isflagset(c_flags, KRB5_KDB_FLAG_PROTOCOL_TRANSITION))
-            krb5_klog_syslog(LOG_INFO,
-                             _("... PROTOCOL-TRANSITION s4u-client=%s"),
-                             logaltcname);
-        else if (isflagset(c_flags, KRB5_KDB_FLAG_CONSTRAINED_DELEGATION))
-            krb5_klog_syslog(LOG_INFO,
-                             _("... CONSTRAINED-DELEGATION s4u-client=%s"),
-                             logaltcname);
-
-    } else
-        krb5_klog_syslog(LOG_INFO, _("TGS_REQ %s: %s: authtime %d, %s for %s, "
-                                     "2nd tkt client %s"),
-                         fromstring, status, authtime,
-                         logcname, logsname, logaltcname);
-
-    /* OpenSolaris: audit_krb5kdc_tgs_req(...)  or
-       audit_krb5kdc_tgs_req_2ndtktmm(...) */
-
-    krb5_free_unparsed_name(ctx, cname);
-    krb5_free_unparsed_name(ctx, sname);
-    krb5_free_unparsed_name(ctx, altcname);
-}
-
-void
-log_tgs_badtrans(krb5_context ctx, krb5_principal cprinc,
-                 krb5_principal sprinc, krb5_data *trcont,
-                 krb5_error_code errcode)
-{
-    unsigned int tlen;
-    char *tdots;
-    const char *emsg = NULL;
-    char *cname = NULL, *sname = NULL;
-    char *logcname = NULL, *logsname = NULL;
-
-    unparse_and_limit(ctx, cprinc, &cname);
-    logcname = (cname != NULL) ? cname : "<unknown client>";
-    unparse_and_limit(ctx, sprinc, &sname);
-    logsname = (sname != NULL) ? sname : "<unknown server>";
-
-    tlen = trcont->length;
-    tdots = tlen > 125 ? "..." : "";
-    tlen = tlen > 125 ? 125 : tlen;
-
-    if (errcode == KRB5KRB_AP_ERR_ILL_CR_TKT)
-        krb5_klog_syslog(LOG_INFO, _("bad realm transit path from '%s' "
-                                     "to '%s' via '%.*s%s'"),
-                         logcname, logsname, tlen,
-                         trcont->data, tdots);
-    else {
-        emsg = krb5_get_error_message(ctx, errcode);
-        krb5_klog_syslog(LOG_ERR, _("unexpected error checking transit "
-                                    "from '%s' to '%s' via '%.*s%s': %s"),
-                         logcname, logsname, tlen,
-                         trcont->data, tdots,
-                         emsg);
-        krb5_free_error_message(ctx, emsg);
-        emsg = NULL;
-    }
-    krb5_free_unparsed_name(ctx, cname);
-    krb5_free_unparsed_name(ctx, sname);
-}
-
-void
-log_tgs_alt_tgt(krb5_context context, krb5_principal p)
-{
-    char *sname;
-    if (krb5_unparse_name(context, p, &sname)) {
-        krb5_klog_syslog(LOG_INFO,
-                         _("TGS_REQ: issuing alternate <un-unparseable> TGT"));
-    } else {
-        limit_string(sname);
-        krb5_klog_syslog(LOG_INFO, _("TGS_REQ: issuing TGT %s"), sname);
-        free(sname);
-    }
-    /* OpenSolaris: audit_krb5kdc_tgs_req_alt_tgt(...) */
 }
 
 krb5_boolean

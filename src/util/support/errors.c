@@ -4,14 +4,9 @@
  * needs to be generated with error tables, after util/et, which builds after
  * this directory.
  */
-#include <stdarg.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "k5-err.h"
-
-#include "k5-thread.h"
 #include "k5-platform.h"
+#include "k5-err.h"
+#include "k5-thread.h"
 #include "supp-int.h"
 
 /*
@@ -40,39 +35,20 @@ krb5int_err_init (void)
 #define lock()          k5_mutex_lock(&krb5int_error_info_support_mutex)
 #define unlock()        k5_mutex_unlock(&krb5int_error_info_support_mutex)
 
-#undef k5_set_error
 void
 k5_set_error(struct errinfo *ep, long code, const char *fmt, ...)
 {
     va_list args;
 
     va_start(args, fmt);
-    k5_vset_error_fl(ep, code, NULL, 0, fmt, args);
-    va_end(args);
-}
-
-void
-k5_set_error_fl(struct errinfo *ep, long code, const char *file, int line,
-                const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    k5_vset_error_fl(ep, code, file, line, fmt, args);
+    k5_vset_error(ep, code, fmt, args);
     va_end(args);
 }
 
 void
 k5_vset_error(struct errinfo *ep, long code, const char *fmt, va_list args)
 {
-    k5_vset_error_fl(ep, code, NULL, 0, fmt, args);
-}
-
-void
-k5_vset_error_fl(struct errinfo *ep, long code, const char *file, int line,
-                 const char *fmt, va_list args)
-{
-    char *str, *slash;
+    char *str;
 
     k5_clear_error(ep);
     ep->code = code;
@@ -80,17 +56,6 @@ k5_vset_error_fl(struct errinfo *ep, long code, const char *file, int line,
     if (vasprintf(&str, fmt, args) < 0)
         return;
     ep->msg = str;
-
-    if (line) {
-        /* Try to add file and line suffix. */
-        slash = strrchr(file, '/');
-        if (slash)
-            file = slash + 1;
-        if (asprintf(&str, "%s (%s: %d)", ep->msg, file, line) > 0) {
-            free(ep->msg);
-            ep->msg = str;
-        }
-    }
 }
 
 static inline const char *
@@ -114,10 +79,8 @@ k5_get_error(struct errinfo *ep, long code)
     lock();
     if (fptr == NULL) {
         unlock();
-#ifdef HAVE_STRERROR_R
         if (strerror_r(code, buf, sizeof(buf)) == 0)
             return oom_check(strdup(buf));
-#endif
         return oom_check(strdup(strerror(code)));
     }
     r = fptr(code);

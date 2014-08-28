@@ -7,14 +7,12 @@
 /* #pragma ident	"@(#)ipropd_svc.c	1.2	04/02/20 SMI" */
 
 
-#include <stdio.h>
-#include <stdlib.h> /* getenv, exit */
+#include "k5-platform.h"
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/resource.h> /* rlimit */
 #include <syslog.h>
 
-#include "k5-platform.h"
 #include <kadm5/admin.h>
 #include <kadm5/kadm_rpc.h>
 #include <kadm5/server_internal.h>
@@ -190,7 +188,7 @@ iprop_get_updates_1_svc(kdb_last_t *arg, struct svc_req *rqstp)
 	goto out;
     }
 
-    kret = ulog_get_entries(handle->context, *arg, &ret);
+    kret = ulog_get_entries(handle->context, arg, &ret);
 
     if (ret.ret == UPDATE_OK) {
 	(void) snprintf(obuf, sizeof (obuf),

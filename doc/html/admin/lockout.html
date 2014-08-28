@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -17,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.12.1',
+        VERSION:     '1.13-alpha1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -81,7 +79,8 @@ issued.  It is also important to set the <strong>-allow_svr</strong> flag on a
 principal to protect its password from an off-line dictionary attack
 through a TGS request.  You can set these flags on a principal with
 <a class="reference internal" href="admin_commands/kadmin_local.html#kadmin-1"><em>kadmin</em></a> as follows:</p>
-<div class="highlight-python"><pre>kadmin: modprinc +requires_preauth -allow_svr PRINCNAME</pre>
+<div class="highlight-python"><div class="highlight"><pre>kadmin: modprinc +requires_preauth -allow_svr PRINCNAME
+</pre></div>
 </div>
 <p>Account lockout parameters are configured via <a class="reference internal" href="database.html#policies"><em>policy objects</em></a>.  There may be an existing policy associated with user
 principals (such as the &#8220;default&#8221; policy), or you may need to create a
@@ -97,9 +96,10 @@ a principal is locked out for</li>
 </ul>
 <p>Here is an example of setting these parameters on a new policy and
 associating it with a principal:</p>
-<div class="highlight-python"><pre>kadmin: addpol -maxfailure 10 -failurecountinterval 180
+<div class="highlight-python"><div class="highlight"><pre>kadmin: addpol -maxfailure 10 -failurecountinterval 180
     -lockoutduration 60 lockout_policy
-kadmin: modprinc -policy lockout_policy PRINCNAME</pre>
+kadmin: modprinc -policy lockout_policy PRINCNAME
+</pre></div>
 </div>
 </div>
 <div class="section" id="testing-account-lockout">
@@ -108,14 +108,15 @@ kadmin: modprinc -policy lockout_policy PRINCNAME</pre>
 principal (hopefully not one that might be in use) multiple times with
 the wrong password.  For instance, if <strong>maxfailure</strong> is set to 2, you
 might see:</p>
-<div class="highlight-python"><pre>$ kinit user
+<div class="highlight-python"><div class="highlight"><pre>$ kinit user
 Password for user@KRBTEST.COM:
 kinit: Password incorrect while getting initial credentials
 $ kinit user
 Password for user@KRBTEST.COM:
 kinit: Password incorrect while getting initial credentials
 $ kinit user
-kinit: Clients credentials have been revoked while getting initial credentials</pre>
+kinit: Clients credentials have been revoked while getting initial credentials
+</pre></div>
 </div>
 </div>
 <div class="section" id="account-lockout-principal-state">
@@ -131,17 +132,19 @@ lockout:</p>
 the account lockout system to function, but may be of administrative
 interest.  These fields can be observed with the <strong>getprinc</strong> kadmin
 command.  For example:</p>
-<div class="highlight-python"><pre>kadmin: getprinc user
+<div class="highlight-python"><div class="highlight"><pre>kadmin: getprinc user
 Principal: user@KRBTEST.COM
 ...
 Last successful authentication: [never]
 Last failed authentication: Mon Dec 03 12:30:33 EST 2012
 Failed password attempts: 2
-...</pre>
+...
+</pre></div>
 </div>
 <p>A principal which has been locked out can be administratively unlocked
 with the <strong>-unlock</strong> option to the <strong>modprinc</strong> kadmin command:</p>
-<div class="highlight-python"><pre>kadmin: modprinc -unlock PRINCNAME</pre>
+<div class="highlight-python"><div class="highlight"><pre>kadmin: modprinc -unlock PRINCNAME
+</pre></div>
 </div>
 <p>This command will reset the number of failed attempts to 0.</p>
 </div>
@@ -174,11 +177,12 @@ As of release 1.9, it is possible to turn off account lockout state
 tracking in order to improve performance, by setting the
 <strong>disable_last_success</strong> and <strong>disable_lockout</strong> variables in the
 database module subsection of <a class="reference internal" href="conf_files/kdc_conf.html#kdc-conf-5"><em>kdc.conf</em></a>.  For example:</p>
-<div class="highlight-python"><pre>[dbmodules]
+<div class="highlight-python"><div class="highlight"><pre>[dbmodules]
     DB = {
         disable_last_success = true
         disable_lockout = true
-    }</pre>
+    }
+</pre></div>
 </div>
 <p>Of the two variables, setting <strong>disable_last_success</strong> will usually
 have the largest positive impact on performance, and will still allow
@@ -226,6 +230,7 @@ kadmin.</p>
 <li class="toctree-l2"><a class="reference internal" href="otp.html">OTP Preauthentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="env_variables.html">Environment variables</a></li>
@@ -260,8 +265,8 @@ kadmin.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.12.1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2013, MIT.
+            <div class="right" ><i>Release: 1.13-alpha1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
             </div>
             <div class="left">
                 
