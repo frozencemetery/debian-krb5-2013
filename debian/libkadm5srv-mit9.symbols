@@ -2,8 +2,6 @@ libkadm5srv_mit.so.9 libkadm5srv-mit9 #MINVER#
  HIDDEN@HIDDEN 1.12~alpha1+dfsg
  _kadm5_check_handle@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  _kadm5_chpass_principal_util@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
- adb_policy_close@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
- adb_policy_init@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  hist_princ@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  kadm5_chpass_principal@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  kadm5_chpass_principal_3@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg

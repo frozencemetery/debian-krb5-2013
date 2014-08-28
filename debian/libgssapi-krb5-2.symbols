@@ -153,6 +153,7 @@ libgssapi_krb5.so.2 libgssapi-krb5-2 #MINVER#
  gss_wrap_iov_length@gssapi_krb5_2_MIT 1.7+dfsg
  gss_wrap_size_limit@gssapi_krb5_2_MIT 1.6.dfsg.2
  gssapi_krb5_2_MIT@gssapi_krb5_2_MIT 1.6.dfsg.2
+ gssint_g_seqstate_init@gssapi_krb5_2_MIT 1.13~alpha1+dfsg
  gsskrb5_extract_authtime_from_sec_context@gssapi_krb5_2_MIT 1.7+dfsg
  gsskrb5_extract_authz_data_from_sec_context@gssapi_krb5_2_MIT 1.7+dfsg
  gssspi_mech_invoke@gssapi_krb5_2_MIT 1.7+dfsg
