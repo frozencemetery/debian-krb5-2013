@@ -1,6 +1,20 @@
-krb5 (1.12.1+dfsg-8) UNRELEASED; urgency=medium
+krb5 (1.13~alpha1+dfsg-1) UNRELEASED; urgency=low
 
   [ Benjamin Kaduk ]
+  * New upstream prerelease:
+    - Add support for accessing KDCs via an https proxy using the MS-KKDCP
+      protocol.
+    - Add support for hierarchical incremental propagation.
+    - Add support for configuring GSS mechanisms using /etc/gss/mech.d/*.conf
+      files in addition to /etc/gss/mech .
+    - Add support to the LDAP KDB module for binding to the LDAP server
+      using SASL.
+    - Add client support for the Kerberos Cache Manager protocol, allowing
+      caches served by a Heimdal kcm daemon to be accessed using the KCM:
+      cache type.
+    - Add support for performing unlocked database dumps to the DB2 KDC
+      back end, allowing the KDC and kadmind to continue accessing the
+      database during lengthy database dumps.
   * Break old versions of libraries that consume libkrb5support0, which
     had its export symbol list change in 1.12 without the dependencies
     changing to reflect that.  Closes: #758288
