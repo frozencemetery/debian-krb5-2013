@@ -344,7 +344,7 @@ Description: MIT Kerberos runtime libraries - Crypto Library
  This package contains the runtime cryptography libraries used by
  applications and Kerberos clients.
 
-Package: libkdb5-7
+Package: libkdb5-8
 Section: libs
 Breaks:  libkadm5srv-mit8 (<< 1.11+dfsg~)
 Architecture: any
