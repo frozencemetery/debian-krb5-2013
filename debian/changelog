@@ -4,6 +4,7 @@ krb5 (1.12.1+dfsg-8) UNRELEASED; urgency=medium
   * Break old versions of libraries that consume libkrb5support0, which
     had its export symbol list change in 1.12 without the dependencies
     changing to reflect that.  Closes: #758288
+  * Fix the documentation build by explicitly mapping krb5.hin as a C file.
 
   [ Jelmer Vernooij ]
   * Provide -L and -I flags from pkg-config files. Closes: #750041
