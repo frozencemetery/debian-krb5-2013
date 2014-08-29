@@ -1,4 +1,4 @@
-From c7a584b575d163d5961ded7e52f7c4584a85f1c8 Mon Sep 17 00:00:00 2001
+From 5660eb0411c956285fc8b7bd959eac237a72d697 Mon Sep 17 00:00:00 2001
 From: Jelmer Vernooij <jelmer@debian.org>
 Date: Wed, 27 Aug 2014 16:40:29 -0400
 Subject: Fix pkg-config library/include paths
