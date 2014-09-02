@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-8) UNRELEASED; urgency=high
+krb5 (1.12.1+dfsg-8) unstable; urgency=high
 
   [ Benjamin Kaduk ]
   * Break old versions of libraries that consume libkrb5support0, which
@@ -10,7 +10,7 @@ krb5 (1.12.1+dfsg-8) UNRELEASED; urgency=high
   [ Jelmer Vernooij ]
   * Provide -L and -I flags from pkg-config files. Closes: #750041
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 27 Aug 2014 18:23:02 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Tue, 02 Sep 2014 16:57:47 -0400
 
 krb5 (1.12.1+dfsg-7) unstable; urgency=high
 
