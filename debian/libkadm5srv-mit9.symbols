@@ -79,7 +79,7 @@ libkadm5srv_mit.so.9 libkadm5srv-mit9 #MINVER#
  krb5_klog_reopen@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  krb5_klog_syslog@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  krb5_string_to_flags@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
- krb5_string_to_keysalts@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
+ krb5_string_to_keysalts@kadm5srv_mit_9_MIT 1.13~alpha1+dfsg
  master_db@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  master_princ@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg
  osa_free_princ_ent@kadm5srv_mit_9_MIT 1.12~alpha1+dfsg

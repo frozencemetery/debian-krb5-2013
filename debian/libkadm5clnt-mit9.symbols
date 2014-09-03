@@ -64,7 +64,7 @@ libkadm5clnt_mit.so.9 libkadm5clnt-mit9 #MINVER#
  krb5_klog_reopen@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
  krb5_klog_syslog@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
  krb5_string_to_flags@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
- krb5_string_to_keysalts@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
+ krb5_string_to_keysalts@kadm5clnt_mit_9_MIT 1.13~alpha1+dfsg
  xdr_chpass3_arg@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
  xdr_chpass_arg@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
  xdr_chrand3_arg@kadm5clnt_mit_9_MIT 1.12~alpha1+dfsg
