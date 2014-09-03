@@ -3,7 +3,11 @@ krb5 (1.13~alpha1+dfsg-1) UNRELEASED; urgency=low
   [ Benjamin Kaduk ]
   * New upstream prerelease:
     - Add support for accessing KDCs via an https proxy using the MS-KKDCP
-      protocol, using a plugin provided by the new krb5-k5tls package.
+      protocol, using a plugin provided by the new krb5-k5tls package, which
+      uses openssl for the TLS implementation.  The openssl-using code is
+      confined to a separate, runtime-loadable, plugin module, in a separate
+      package, to ameliorate concerns about GPL code that links libkrb5 running
+      into issues with the openssl license.
     - Add support for hierarchical incremental propagation.
     - Add support for configuring GSS mechanisms using /etc/gss/mech.d/*.conf
       files in addition to /etc/gss/mech .
