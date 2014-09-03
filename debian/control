@@ -176,7 +176,8 @@ Description: PKINIT plugin for MIT Kerberos
 
 Package: krb5-otp
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, libkrad0 (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, libkrad0 (= ${binary:Version}),
+ libkrb5-3 (>= 1.12~alpha1+dfsg-1~)
 Priority: extra
 Multi-Arch: same
 Description: OTP plugin for MIT Kerberos
@@ -194,7 +195,7 @@ Description: OTP plugin for MIT Kerberos
 
 Package: krb5-k5tls
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}, libkrb5-3 (>= 1.13~alpha1+dfsg~)
 Priority: extra
 Multi-Arch: same
 Description: TLS plugin for MIT Kerberos
