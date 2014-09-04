@@ -1,5 +1,6 @@
-krb5 (1.12.1+dfsg-9) UNRELEASED; urgency=high
+krb5 (1.12.1+dfsg-9) unstable; urgency=high
 
+  [ Jelmer Vernooij ]
   * Reintroduce changes to move krb5-config into krb5-multidev:
    + Provide -L and -I flags from krb5-config. Closes: #730837
    + Ship krb5-config.mit binary in krb5-multidev., Closes: #745322
@@ -7,7 +8,10 @@ krb5 (1.12.1+dfsg-9) UNRELEASED; urgency=high
   * Use -isystem for include paths, to prevent the compiler from warning
     about problems in them. Closes: #751760
 
- -- Jelmer Vernooij <jelmer@debian.org>  Sun, 06 Jul 2014 03:53:54 +0200
+  [ Sam Hartman ]
+  * Reintroduce patches and accept proposed patches
+
+ -- Sam Hartman <hartmans@debian.org>  Wed, 03 Sep 2014 23:06:12 -0400
 
 krb5 (1.12.1+dfsg-8) unstable; urgency=high
 
