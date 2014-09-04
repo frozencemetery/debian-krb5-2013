@@ -10,8 +10,10 @@ krb5 (1.12.1+dfsg-9) unstable; urgency=high
 
   [ Sam Hartman ]
   * Reintroduce patches and accept proposed patches
+  * Update lintian source overrides because some of the BCP 78 hits are
+    false positives. We need to investigate cmac.c.
 
- -- Sam Hartman <hartmans@debian.org>  Wed, 03 Sep 2014 23:06:12 -0400
+ -- Sam Hartman <hartmans@debian.org>  Wed, 03 Sep 2014 23:14:34 -0400
 
 krb5 (1.12.1+dfsg-8) unstable; urgency=high
 
