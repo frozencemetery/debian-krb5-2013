@@ -1,6 +1,6 @@
-From 6fb884dfd2da4d8b73e2d40f550e5f402af65c08 Mon Sep 17 00:00:00 2001
+From d9eec0afaade1e3547beec5a6d5e26c0666bec9e Mon Sep 17 00:00:00 2001
 From: Jelmer Vernooij <jelmer@debian.org>
-Date: Wed, 27 Aug 2014 16:40:29 -0400
+Date: Sun, 1 Jun 2014 20:33:00 +0100
 Subject: Fix pkg-config library/include paths
 
 Include library and include flags in pkg-config files, so they work when the
