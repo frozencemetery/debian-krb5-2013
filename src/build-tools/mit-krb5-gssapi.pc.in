@@ -7,5 +7,5 @@ Name: mit-krb5-gssapi
 Description: Kerberos implementation of the GSSAPI
 Version: @KRB5_VERSION@
 Requires.private: mit-krb5
-Cflags: -I${includedir}
+Cflags: -isystem ${includedir}
 Libs: -L${libdir} -lgssapi_krb5

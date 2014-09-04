@@ -9,6 +9,6 @@ Name: kdb
 Description: Kerberos database access libraries
 Version: @KRB5_VERSION@
 Requires.private: mit-krb5-gssapi mit-krb5 gssrpc
-Cflags: -I${includedir}
+Cflags: -isystem ${includedir}
 Libs: -L${libdir} -lkdb5
 Libs.private: ${KDB5_DB_LIB}
