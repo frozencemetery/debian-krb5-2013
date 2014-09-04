@@ -5,6 +5,9 @@ debian-local/0004-debian-osconf.hin-path-changes.patch
 debian-local/0005-debian-install-ldap-library-in-subdirectory.patch
 debian-local/0006-gssapi-never-unload-mechanisms.patch
 debian-local/0007-Add-substpdf-target.patch
+debian-local/0008-krb5-config-paths.patch
+debian-local/0012-Fix-pkg-config-paths.patch
+debian-local/0013-isystem-headers.patch
 upstream/0008-Move-OTP-sockets-to-KDC_RUN_DIR.patch
 upstream/0009-Avoid-duplicate-etc-krb5.conf-in-profile-path.patch
 0010-autoreconf.patch
