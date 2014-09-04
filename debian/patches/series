@@ -19,4 +19,5 @@ debian-local/0018-Quick-and-dirty-fix-to-building-O3.patch
 upstream/0019-Fix-LDAP-key-data-segmentation-CVE-2014-4345.patch
 0020-Treat-krb.hin-as-a-C-file-for-doxygen.patch
 debian-local/0021-Fix-pkg-config-library-include-paths.patch
-debian-local/0022-Use-isystem-for-include-paths.patch
+debian-local/0022-Fix-krb5-config-paths.patch
+debian-local/0023-Use-isystem-for-include-paths.patch

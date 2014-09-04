@@ -1,4 +1,4 @@
-From 23b40fca674aa67dabcce4fc4f6d8a135a777e66 Mon Sep 17 00:00:00 2001
+From d8520c1d1c218e3c766009abc728b207c0421232 Mon Sep 17 00:00:00 2001
 From: Jelmer Vernooij <jelmer@debian.org>
 Date: Wed, 3 Sep 2014 22:41:55 -0400
 Subject: Use -isystem for include paths
@@ -70,7 +70,7 @@ index 356501d..d39eeef 100644
  Libs: -L${libdir} -lkdb5
  Libs.private: ${KDB5_DB_LIB}
 diff --git a/src/build-tools/krb5-config.in b/src/build-tools/krb5-config.in
-index 637bad7..5a109b0 100755
+index a73654f..723d1eb 100755
 --- a/src/build-tools/krb5-config.in
 +++ b/src/build-tools/krb5-config.in
 @@ -201,7 +201,7 @@ fi
