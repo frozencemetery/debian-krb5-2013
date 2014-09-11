@@ -1,5 +1,19 @@
 krb5 (1.13~alpha1+dfsg-1) UNRELEASED; urgency=low
 
+
+  [ Jelmer Vernooij ]
+  * Reintroduce changes to move krb5-config into krb5-multidev:
+   + Provide -L and -I flags from krb5-config. Closes: #730837
+   + Ship krb5-config.mit binary in krb5-multidev., Closes: #745322
+   + Provide -L and -I flags from pkg-config files. Closes: #750041
+  * Use -isystem for include paths, to prevent the compiler from warning
+    about problems in them. Closes: #751760
+
+  [ Sam Hartman ]
+  * Reintroduce patches and accept proposed patches
+  * Update lintian source overrides because some of the BCP 78 hits are
+    false positives. We need to investigate cmac.c.
+
   [ Benjamin Kaduk ]
   * New upstream prerelease:
     - Add support for accessing KDCs via an https proxy using the MS-KKDCP
@@ -28,13 +42,11 @@ krb5 (1.13~alpha1+dfsg-1) UNRELEASED; urgency=low
       from /etc/krb5kdc to /run/krb5kdc/.
   * Break old versions of libraries that consume libkrb5support0, which
     had its export symbol list change in 1.12 without the dependencies
-    changing to reflect that.  Closes: #758288
+    changing to reflect that.  Closes: #758288, Closes: #760149
   * Fix the documentation build by explicitly mapping krb5.hin as a C file.
+    Closes: #759954
 
-  [ Jelmer Vernooij ]
-  * Provide -L and -I flags from pkg-config files. Closes: #750041
-
- -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 27 Aug 2014 18:23:02 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Tue, 02 Sep 2014 16:57:47 -0400
 
 krb5 (1.12.1+dfsg-7) unstable; urgency=high
 

@@ -7,5 +7,5 @@ Name: kadm-server
 Description: Kerberos administration server library
 Version: @KRB5_VERSION@
 Requires.private: kdb mit-krb5-gssapi
-Cflags: -I${includedir}
+Cflags: -isystem ${includedir}
 Libs: -L${libdir} -lkadm5srv_mit

@@ -7,6 +7,6 @@ vendor=MIT
 Name: gssrpc
 Description: GSSAPI RPC implementation
 Version: @KRB5_VERSION@
-Cflags: -I${includedir}
+Cflags: -isystem ${includedir}
 Libs: -L${libdir} -lgssrpc
 Requires.private: mit-krb5-gssapi
