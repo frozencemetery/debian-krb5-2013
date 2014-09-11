@@ -7,3 +7,5 @@ debian-local/0006-Add-substpdf-target.patch
 debian-local/0007-Quick-and-dirty-fix-to-building-O3.patch
 debian-local/0008-Fix-pkg-config-library-include-paths.patch
 0009-Treat-krb.hin-as-a-C-file-for-doxygen.patch
+debian-local/0010-Use-isystem-for-include-paths.patch
+debian-local/0011-Fix-krb5-config-paths.patch
