@@ -7,10 +7,15 @@ krb5 (1.13~alpha1+dfsg-1) UNRELEASED; urgency=low
       uses openssl for the TLS implementation.  The openssl-using code is
       confined to a separate, runtime-loadable, plugin module, in a separate
       package, to ameliorate concerns about GPL code that links libkrb5 running
-      into issues with the openssl license.
+      into issues with the openssl license.  The Kerberos license is both
+    GPL and OpenSSL compatible.  There might be an issue if an application
+    was GPL licensed and someone used the OpenSSL plugin with that
+    application.  Even that is probably fine provided that no one
+    distributes a combination that tends to encourage such usage.  There's
+    an existing krb5-pkinit plugin that also links to OpenSSL, but at time
+    of integration into Debian no GPLed applications in the archive called
+    APIs that would cause that plugin to be loaded.
     - Add support for hierarchical incremental propagation.
-    - Add support for configuring GSS mechanisms using /etc/gss/mech.d/*.conf
-      files in addition to /etc/gss/mech .
     - Add support to the LDAP KDB module for binding to the LDAP server
       using SASL.
     - Add client support for the Kerberos Cache Manager protocol, allowing
