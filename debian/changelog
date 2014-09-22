@@ -1,3 +1,9 @@
+krb5 (1.12.1+dfsg-10) UNRELEASED; urgency=medium
+
+  * Import upstream's patch for CVE-2014-5351, Closes: #762479
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 22 Sep 2014 14:47:19 -0400
+
 krb5 (1.12.1+dfsg-9) unstable; urgency=high
 
   [ Jelmer Vernooij ]
