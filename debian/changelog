@@ -1,3 +1,11 @@
+krb5 (1.12.1+dfsg-11) unstable; urgency=medium
+
+  * Provide systemd service units for krb5-kdc, Partially affects: #734161
+  * Provide systemd overrides to start  slapd first when krb5-kdc-ldap is
+    installed, Thanks Michael Biebl, Closes: #758992
+
+ -- Sam Hartman <hartmans@debian.org>  Mon, 20 Oct 2014 16:02:14 -0400
+
 krb5 (1.12.1+dfsg-10) unstable; urgency=medium
 
   * Import upstream's patch for CVE-2014-5351, Closes: #762479
