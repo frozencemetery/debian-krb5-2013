@@ -1,0 +1,11 @@
+[Unit]
+Description=Kerberos 5 Admin Server
+
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/kadmind -nofork $DAEMON_ARGS
+EnvironmentFile=/etc/default/krb5-admin-server
+
+[Install]
+WantedBy=multi-user.target
