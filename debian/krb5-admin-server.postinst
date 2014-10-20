@@ -20,7 +20,7 @@ if [ "configure" = "$1" ] || [ "reconfigure" = "$1" ] ; then
 # debconf.  Otherwise, changes will be overwritten.
 
 EOF
-        db_get krb5-admin-server/kadmind
+        db_get krb5-admin-server/kadmind ||true
         RUN_KADMIND="$RET"
 	if dpkg --compare-versions "$2" le-nl 1.12.1+dfsg-11; then
 	    if [ "x$RUN_KADMIND" = "xfalse" ]; then
