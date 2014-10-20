@@ -127,7 +127,7 @@ install: build-arch
 	install -m644 src/util/ac_check_krb5.m4 \
 		debian/libkrb5-dev/usr/share/aclocal
 
-	dh_install --sourcedir=debian/tmp --fail-missing $(EXCLUDE)
+	dh_install --fail-missing $(EXCLUDE)
 	set -e ; find debian/krb5-multidev/usr/lib/$(DEB_HOST_MULTIARCH)/mit-krb5 -type l -name \*.so -print |\
 		while read linkname; do \
 		ln -s -f ../`readlink $$linkname` \
