@@ -4,7 +4,7 @@ krb5 (1.12.1+dfsg-11) UNRELEASED; urgency=medium
   * Provide systemd overrides to start  slapd first when krb5-kdc-ldap is
     installed, Thanks Michael Biebl, Closes: #758992
   * Provide kadmind service unit, Closes: #734161
-  * Drop support for run_kadmind in favor of update-rc.d disable
+  * Drop support for RUN_KADMIND in favor of update-rc.d disable
   * In krb5_newrealm, use service rather than calling init scripts directly
 
  -- Sam Hartman <hartmans@debian.org>  Mon, 20 Oct 2014 16:51:09 -0400
