@@ -186,7 +186,8 @@ binary-arch: build-arch install
 	dh_installchangelogs  -Xdoc/CHANGES
 	dh_installdocs
 	dh_installdebconf
-	dh_installinit -- defaults 18 18
+	DH_OPTIONS= dh_installinit -pkrb5-kdc --error-handler=init_error -- defaults 18 18 
+		DH_OPTIONS= dh_installinit -pkrb5-admin-server -- defaults 18 18 
 	dh_systemd_enable
 	dh_lintian
 	set -e ; for pkg in $(LIB_PACKAGES) ; do \
