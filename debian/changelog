@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-11) UNRELEASED; urgency=medium
+krb5 (1.12.1+dfsg-11) unstable; urgency=medium
 
   * Provide systemd service units for krb5-kdc, Partially affects: #734161
   * Provide systemd overrides to start  slapd first when krb5-kdc-ldap is
