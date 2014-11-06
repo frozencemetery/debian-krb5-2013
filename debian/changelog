@@ -3,6 +3,7 @@ krb5 (1.12.1+dfsg-13) UNRELEASED; urgency=medium
   * Remove the ExecReload line added in 1.12.1+dfsg-12; it is not
     a regression from the SysV init script and therefore not suitable
     for jessie post-freeze
+  * Apply upstream patch to fix build on FreeBSD 10.1, Closes: #768379
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Thu, 06 Nov 2014 17:55:31 -0500
 
