@@ -1,3 +1,10 @@
+krb5 (1.12.1+dfsg-12) UNRELEASED; urgency=medium
+
+  * Fix typo in krb5-kdc EnvironmentFile name, Closes: #768344
+  * Add an ExecReload line to krb5-kdc.service to help with log rotation
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Thu, 06 Nov 2014 15:27:05 -0500
+
 krb5 (1.12.1+dfsg-11) unstable; urgency=medium
 
   * Provide systemd service units for krb5-kdc, Partially affects: #734161
