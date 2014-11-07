@@ -1,3 +1,11 @@
+krb5 (1.12.1+dfsg-14) UNRELEASED; urgency=medium
+
+  * The upstream patch in 1.12.1+dfsg-13 was incomplete; pull in
+    another upstream patch upon which it depended, to fix the
+    kfreebsd build, Closes: #768379
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 07 Nov 2014 13:15:19 -0500
+
 krb5 (1.12.1+dfsg-13) unstable; urgency=medium
 
   * Remove the ExecReload line added in 1.12.1+dfsg-12; it is not
