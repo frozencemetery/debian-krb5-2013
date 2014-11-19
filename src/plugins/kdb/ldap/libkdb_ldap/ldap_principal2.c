@@ -412,7 +412,7 @@ krb5_encode_krbsecretkey(krb5_key_data *key_data, int n_key_data,
     int i, j, last;
     krb5_error_code err = 0;
 
-    if (n_key_data <= 0)
+    if (n_key_data < 0)
         return NULL;
 
     /* Find the number of key versions */
@@ -425,6 +425,8 @@ krb5_encode_krbsecretkey(krb5_key_data *key_data, int n_key_data,
         err = ENOMEM;
         goto cleanup;
     }
+    if (n_key_data == 0)
+        return ret;
     for (i = 0, last = 0, j = 0, currkvno = key_data[0].key_data_kvno; i < n_key_data; i++) {
         krb5_data *code;
         if (i == n_key_data - 1 || key_data[i + 1].key_data_kvno != currkvno) {
@@ -453,9 +455,8 @@ cleanup:
 
     if (err != 0) {
         if (ret != NULL) {
-            for (i = 0; i <= num_versions; i++)
-                if (ret[i] != NULL)
-                    free (ret[i]);
+            for (i = 0; ret[i] != NULL; i++)
+                free (ret[i]);
             free (ret);
             ret = NULL;
         }
@@ -1028,9 +1029,19 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
         bersecretkey = krb5_encode_krbsecretkey (entry->key_data,
                                                  entry->n_key_data, mkvno);
 
-        if ((st=krb5_add_ber_mem_ldap_mod(&mods, "krbprincipalkey",
-                                          LDAP_MOD_REPLACE | LDAP_MOD_BVALUES, bersecretkey)) != 0)
+        if (bersecretkey == NULL) {
+            st = ENOMEM;
             goto cleanup;
+        }
+        /* An empty list of bervals is only accepted for modify operations,
+         * not add operations. */
+        if (bersecretkey[0] != NULL || !create_standalone_prinicipal) {
+            st = krb5_add_ber_mem_ldap_mod(&mods, "krbprincipalkey",
+                                           LDAP_MOD_REPLACE | LDAP_MOD_BVALUES,
+                                           bersecretkey);
+            if (st != 0)
+                goto cleanup;
+        }
 
         if (!(entry->mask & KADM5_PRINCIPAL)) {
             memset(strval, 0, sizeof(strval));
