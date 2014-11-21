@@ -1,9 +1,9 @@
-krb5 (1.12.1+dfsg-15) UNRELEASED; urgency=medium
+krb5 (1.12.1+dfsg-15) unstable; urgency=medium
 
   * Also apply slapd-before-kdc.conf to krb5-admin-server.service.d,
     Closes: #769710
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Thu, 20 Nov 2014 12:52:55 -0500
+ -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 21 Nov 2014 12:36:08 -0500
 
 krb5 (1.12.1+dfsg-14) unstable; urgency=medium
 
