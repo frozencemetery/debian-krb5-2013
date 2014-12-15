@@ -1,3 +1,10 @@
+krb5 (1.12.1+dfsg-16) UNRELEASED; urgency=medium
+
+  * Import upstream patches for CVE-2014-5353 and CVE-2014-5354,
+    Closes: #773226, Closes: #773228
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 15 Dec 2014 16:18:26 -0500
+
 krb5 (1.12.1+dfsg-15) unstable; urgency=medium
 
   * Also apply slapd-before-kdc.conf to krb5-admin-server.service.d,
