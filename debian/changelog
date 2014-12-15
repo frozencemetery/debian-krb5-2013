@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-16) UNRELEASED; urgency=medium
+krb5 (1.12.1+dfsg-16) unstable; urgency=medium
 
   * Import upstream patches for CVE-2014-5353 and CVE-2014-5354,
     Closes: #773226, Closes: #773228
