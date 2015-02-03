@@ -26,3 +26,4 @@ upstream/0025-Fix-build-on-systems-without-RTM_OLD.patch
 upstream/0026-Remove-rtm_type_name.patch
 upstream/0027-Fix-LDAP-misused-policy-name-crash-CVE-2014-5353.patch
 0028-Support-keyless-principals-in-LDAP-CVE-2014-5354.patch
+upstream/0029-MITKRB5-SA-2015-0001.patch
