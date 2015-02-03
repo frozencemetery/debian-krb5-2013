@@ -1,3 +1,14 @@
+krb5 (1.12.1+dfsg-17) unstable; urgency=high
+
+  * MITKRB5-SA-2015-001
+    - CVE-2014-5352: gss_process_context_token() incorrectly frees context
+    - CVE-2014-9421: kadmind doubly frees partial deserialization results
+    - CVE-2014-9422: kadmind incorrectly validates server principal name  
+      - CVE-2014-9423: libgssrpc server applications leak uninitialized bytes
+
+
+ -- Sam Hartman <hartmans@debian.org>  Tue, 03 Feb 2015 10:29:35 -0500
+
 krb5 (1.12.1+dfsg-16) unstable; urgency=medium
 
   * Import upstream patches for CVE-2014-5353 and CVE-2014-5354,
