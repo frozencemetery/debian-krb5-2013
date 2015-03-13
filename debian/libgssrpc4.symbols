@@ -18,6 +18,7 @@ libgssrpc.so.4 libgssrpc4 #MINVER#
  gssrpc_authunix_create@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_authunix_create_default@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_bindresvport@gssrpc_4_MIT 1.6.dfsg.2
+ gssrpc_bindresvport_sa@gssrpc_4_MIT 1.13.1+dfsg
  gssrpc_callrpc@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_clnt_broadcast@gssrpc_4_MIT 1.6.dfsg.2
  gssrpc_clnt_create@gssrpc_4_MIT 1.9+dfsg
