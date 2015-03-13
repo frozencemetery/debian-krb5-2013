@@ -25,7 +25,7 @@ This will update the upstream branch and create an upstream tag.
 
 2) Use git archive to generate a tarball with dfsg modifications.
 
-3) git dpm new-upstream that tarball.
+3) git dpm record-new-upstream that tarball.
 
 4) git dpm checkout-patched&&git rebase upstream_tag
 
