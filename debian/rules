@@ -127,7 +127,7 @@ install: build-arch
 	install -m644 src/util/ac_check_krb5.m4 \
 		debian/libkrb5-dev/usr/share/aclocal
 
-	dh_install --sourcedir=debian/tmp --fail-missing $(EXCLUDE)
+	dh_install --fail-missing $(EXCLUDE)
 	set -e ; find debian/krb5-multidev/usr/lib/$(DEB_HOST_MULTIARCH)/mit-krb5 -type l -name \*.so -print |\
 		while read linkname; do \
 		ln -s -f ../`readlink $$linkname` \
@@ -186,7 +186,9 @@ binary-arch: build-arch install
 	dh_installchangelogs  -Xdoc/CHANGES
 	dh_installdocs
 	dh_installdebconf
-	dh_installinit -- defaults 18 18
+	DH_OPTIONS= dh_installinit -pkrb5-kdc --error-handler=init_error -- defaults 18 18 
+		DH_OPTIONS= dh_installinit -pkrb5-admin-server -- defaults 18 18 
+	dh_systemd_enable
 	dh_lintian
 	set -e ; for pkg in $(LIB_PACKAGES) ; do \
 		DH_OPTIONS="" dh_strip -p$$pkg --dbg-package=libkrb5-dbg; \
