@@ -348,7 +348,7 @@ Description: MIT Kerberos runtime libraries - Crypto Library
 
 Package: libkdb5-8
 Section: libs
-Breaks:  libkadm5srv-mit8 (<< 1.11+dfsg~), krb5-kdc (== 1.13~alpha1+dfsg-1)
+Breaks:  libkadm5srv-mit8 (<< 1.11+dfsg~), krb5-kdc (= 1.13~alpha1+dfsg-1)
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Suggests: krb5-doc, krb5-user
