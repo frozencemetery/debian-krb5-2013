@@ -6,7 +6,7 @@
 Copyright and Other Notices
 ---------------------------
 
-Copyright (C) 1985-2014 by the Massachusetts Institute of Technology
+Copyright (C) 1985-2015 by the Massachusetts Institute of Technology
 and its contributors.  All rights reserved.
 
 Please see the file named NOTICE for additional notices.
@@ -73,8 +73,52 @@ from using single-DES cryptosystems.  Among these is a configuration
 variable that enables "weak" enctypes, which defaults to "false"
 beginning with krb5-1.8.
 
-Major changes in 1.13
----------------------
+
+Major changes in 1.13.1 (2015-02-11)
+------------------------------------
+
+This is a bug fix release.
+
+* Fix multiple vulnerabilities in the LDAP KDC back end.
+  [CVE-2014-5354] [CVE-2014-5353]
+
+* Fix multiple kadmind vulnerabilities, some of which are based in the
+  gssrpc library. [CVE-2014-5352 CVE-2014-5352 CVE-2014-9421
+  CVE-2014-9422 CVE-2014-9423]
+
+
+krb5-1.13.1 changes by ticket ID
+--------------------------------
+
+7880    Fix typo in doc for krb5_get_init_creds_keytab()
+7962    remote kadmin client doesn't parse "-norandkey"
+8011    PKINIT PKCS12 prompt length constraint limits certificate path
+        length
+8024    Use gssalloc_malloc for GSS error tokens
+8028    Report output ccache errors getting initial creds
+8029    Fix cursor leak in krb5_verify_init_creds
+8034    Fix input race condition in t_skew.py
+8035    Update example enctypes in kdc_conf.rst
+8038    Kadmind/kadmin.local issues after migration from version
+        1.12.2 to 1.13
+8041    kadmind with ldap backend crashes when putting keyless entries
+        [CVE-2014-5354]
+8049    Fix LDAP tests when sasl.h not found
+8051    Fix LDAP misused policy name crash [CVE-2014-5353]
+8053    Fix OTP tests with pyrad 2.x
+8055    Fix gss_process_context_token() [CVE-2014-5352]
+8056    Fix kadm5/gssrpc XDR double free [CVE-2014-9421]
+8057    Fix kadmind server validation [CVE-2014-9422]
+8058    Fix gssrpc data leakage [CVE-2014-9423]
+8059    Check for null *iter_p in profile_iterator()
+8060    kinit -C loops chasing realm referrals against MIT KDC
+8061    Export function gss_add_cred_with_password
+8066    Bump DAL major version for iterate change
+8072    Avoid uninitialized data in t_prf.c
+
+
+Major changes in 1.13 (2014-10-15)
+----------------------------------
 
 Administrator experience:
 
@@ -88,7 +132,14 @@ Administrator experience:
 * Add support for configuring GSS mechanisms using
   /etc/gss/mech.d/*.conf files in addition to /etc/gss/mech.
 
-* Add support to the LDAP KDB module for binding to the LDAP server using SASL.
+* Add support to the LDAP KDB module for binding to the LDAP server
+  using SASL.
+
+* The KDC listens for TCP connections by default.
+
+* Fix a minor key disclosure vulnerability where using the "keepold"
+  option to the kadmin randkey operation could return the old keys.
+  [CVE-2014-5351]
 
 User experience:
 
@@ -113,6 +164,7 @@ krb5-1.13 changes by ticket ID
 884     having "-" in key:salt separator list prevents salttype
         defaulting from working
 1794    don't use mktemp
+3498    race opening/creating replay cache.
 5958    kadmin salttype "no salt" means really means "default/normal
         salt"
 6034    rework gic_opt_ext to be more portable
@@ -120,9 +172,11 @@ krb5-1.13 changes by ticket ID
         than "ignore salttype"
 6413    pkinit thread safety
 6550    old_stash_bendian is a keytab
+6731    KDC should listen to TCP by default
 7232    Confusing error message for key version mismatch
 7704    Anonymous kadmin does not work
 7728    ksu assumes the invoking user's using a FILE: ccache
+7761    Document that newer AFS supports stronger crypto
 7795    Allow ":port" suffixes in sn2princ hostnames
 7800    krb5-1.11/1.12: kadm5_init_with_* interface
 7816    Don't produce context deletion token in krb5 mech
@@ -159,6 +213,7 @@ krb5-1.13 changes by ticket ID
 7918    LDAP key data decoder ignores salt type if salt value is empty
 7923    x-deltat.y is not compatible with bison 3
 7925    05cbef80d53 breaks /etc/gss/mech
+7927    Better document how to verify PGP signature
 7929    HTTP proxy support
 7933    pkinit_win2k_require_binding behavior does not match
         documentation
@@ -183,6 +238,30 @@ krb5-1.13 changes by ticket ID
 7986    Copy config entries to the ksu target ccache
 7987    Fix GSS krb5 GSS_C_DELEG_FLAG ret_flags result
 7988    Make krb5_cc_new_unique create DIR: directories
+7990    Fix HP-UX build support
+7992    Fix test syntax in configure.in
+7993    Autodetect OpenSSL CMS for LibreSSL compatibility
+7994    randkey does not update principal's master key version
+7995    kadmin change_password -keepold does not work with master key
+        migration
+7996    Simplify and improve ksu cred verification
+7997    kadm5_randkey_principal interop with Solaris KDC
+7998    gssapi.dll tries to get initial creds even when some are
+        present
+8000    gssapi.dll fails to detect TGTs in the MSLSA cache when UAC is
+        enabled
+8001    Allow logger.c to work with redirected stderr
+8003    Export gssrpc_bindresvport_sa
+8004    Map .hin files to the C language for doxygen
+8005    Initialize iterflags in update_princ_encryption
+8006    Update NOTICE for 1.13
+8007    In ksu, handle typeless default_ccache_name values
+8008    Document clock skew tolerance for ticket times
+8015    Fix ksu crash in cases where it obtains the TGT
+8016    Restore providing password TGTs for the ksu target
+8017    gss_acquire_cred_impersonate_name crashes with acceptor-only
+        impersonator creds
+8018    Return only new keys in randkey [CVE-2014-5351]
 
 Acknowledgements
 ----------------
@@ -350,6 +429,7 @@ reports, suggestions, and valuable resources:
     Joel Johnson
     Anders Kaseorg
     W. Trevor King
+    Patrik Kis
     Mikkel Kruse
     Reinhard Kugler
     Tomas Kuthan
@@ -361,6 +441,7 @@ reports, suggestions, and valuable resources:
     Jon Looney
     Nuno Lopes
     Ryan Lynch
+    Andrei Maslennikov
     Nathaniel McCallum
     Greg McClement
     Cameron Meadors
@@ -375,6 +456,7 @@ reports, suggestions, and valuable resources:
     Edward Murrell
     Nikos Nikoleris
     Felipe Ortega
+    Michael Osipov
     Andrej Ota
     Dmitri Pal
     Javier Palacios
@@ -383,11 +465,13 @@ reports, suggestions, and valuable resources:
     Zoran Pericic
     W. Michael Petullo
     Mark Phalan
+    Brett Randall
     Jonathan Reams
     Robert Relyea
     Martin Rex
     Jason Rogers
     Nate Rosenblum
+    Solly Ross
     Mike Roszkowski
     Guillaume Rousse
     Andreas Schneider

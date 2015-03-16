@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.13-alpha1',
+        VERSION:     '1.13.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -184,9 +184,15 @@ is 4, which represents the most current format.  Smaller values
 can be used for compatibility with very old implementations of
 Kerberos which interact with credential caches on the same host.</dd>
 <dt><strong>clockskew</strong></dt>
-<dd>Sets the maximum allowable amount of clockskew in seconds that the
+<dd><p class="first">Sets the maximum allowable amount of clockskew in seconds that the
 library will tolerate before assuming that a Kerberos message is
-invalid.  The default value is 300 seconds, or five minutes.</dd>
+invalid.  The default value is 300 seconds, or five minutes.</p>
+<p class="last">The clockskew setting is also used when evaluating ticket start
+and expiration times.  For example, tickets that have reached
+their expiration time can still be used (and renewed if they are
+renewable tickets) if they have been expired for a shorter
+duration than the <strong>clockskew</strong> setting.</p>
+</dd>
 <dt><strong>default_ccache_name</strong></dt>
 <dd>This relation specifies the name of the default credential cache.
 The default is <a class="reference internal" href="../../mitK5defaults.html#paths"><em>DEFCCNAME</em></a>.  This relation is subject to parameter
@@ -1251,8 +1257,8 @@ Valid parameters are:</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13-alpha1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
+            <div class="right" ><i>Release: 1.13.1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">
                 

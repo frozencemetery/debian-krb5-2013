@@ -15,7 +15,7 @@
 
 \title{Kerberos User Guide}
 \date{ }
-\release{1.13-alpha1}
+\release{1.13.1}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -933,6 +933,11 @@ with the validated ticket.
 requests renewal of the ticket-granting ticket.  Note that an
 expired ticket cannot be renewed, even if the ticket is still
 within its renewable life.
+
+Note that renewable tickets that have expired as reported by
+{\hyperref[user/user_commands/klist:klist-1]{\emph{klist}}} may sometimes be renewed using this option,
+because the KDC applies a grace period to account for client-KDC
+clock skew.  See \emph{krb5.conf(5)} \textbf{clockskew} setting.
 
 \item[{\textbf{-k} {[}\textbf{-i} \textbar{} \textbf{-t} \emph{keytab\_file}{]}}] \leavevmode
 requests a ticket, obtained from a key in the local host's keytab.

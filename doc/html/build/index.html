@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13-alpha1',
+        VERSION:     '1.13.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -86,15 +86,20 @@ tree.</p>
 <h2>Obtaining the software<a class="headerlink" href="#obtaining-the-software" title="Permalink to this headline">¶</a></h2>
 <p>The source code can be obtained from MIT Kerberos Distribution page,
 at <a class="reference external" href="http://web.mit.edu/kerberos/dist/index.html">http://web.mit.edu/kerberos/dist/index.html</a>.
-The MIT Kerberos distribution comes in an archive file, generally named
-krb5-VERSION.tar, where <em>VERSION</em> is a placeholder for the major and minor
-versions of MIT Kerberos.  (For example, MIT Kerberos 1.9
-has major version &#8220;1&#8221; and minor version &#8220;9&#8221;.)</p>
-<p>The krb5-VERSION.tar contains a compressed tar file consisting of the
-sources for all of Kerberos (generally krb5-VERSION.tar.gz) and
-a PGP signature file for this source tree (generally
-krb5-VERSION.tar.gz.asc).  MIT highly recommends that you verify
-the integrity of the source code using this signature.</p>
+The MIT Kerberos distribution comes in an archive file, generally
+named krb5-VERSION-signed.tar, where <em>VERSION</em> is a placeholder for
+the major and minor versions of MIT Kerberos.  (For example, MIT
+Kerberos 1.9 has major version &#8220;1&#8221; and minor version &#8220;9&#8221;.)</p>
+<p>The krb5-VERSION-signed.tar contains a compressed tar file consisting
+of the sources for all of Kerberos (generally named
+krb5-VERSION.tar.gz) and a PGP signature file for this source tree
+(generally named krb5-VERSION.tar.gz.asc).  MIT highly recommends that
+you verify the integrity of the source code using this signature,
+e.g., by running:</p>
+<div class="highlight-python"><div class="highlight"><pre>tar xf krb5-VERSION-signed.tar
+gpg --verify krb5-VERSION.tar.gz.asc
+</pre></div>
+</div>
 <p>Unpack krb5-VERSION.tar.gz in some directory. In this section we will assume
 that you have chosen the top directory of the distribution the directory
 <tt class="docutils literal"><span class="pre">/u1/krb5-VERSION</span></tt>.</p>
@@ -167,8 +172,8 @@ distribution information.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13-alpha1</i><br />
-                &copy; <a href="../copyright.html">Copyright</a> 1985-2014, MIT.
+            <div class="right" ><i>Release: 1.13.1</i><br />
+                &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">
                 

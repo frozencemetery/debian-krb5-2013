@@ -344,6 +344,20 @@ check_1_6_dummy(kadm5_principal_ent_t entry, long mask,
     *passptr = NULL;
 }
 
+/* Return the number of keys with the newest kvno.  Assumes that all key data
+ * with the newest kvno are at the front of the key data array. */
+static int
+count_new_keys(int n_key_data, krb5_key_data *key_data)
+{
+    int n;
+
+    for (n = 1; n < n_key_data; n++) {
+        if (key_data[n - 1].key_data_kvno != key_data[n].key_data_kvno)
+            return n;
+    }
+    return n_key_data;
+}
+
 kadm5_ret_t
 kadm5_create_principal(void *server_handle,
                        kadm5_principal_ent_t entry, long mask,
@@ -1593,10 +1607,11 @@ kadm5_randkey_principal_3(void *server_handle,
     osa_princ_ent_rec           adb;
     krb5_int32                  now;
     kadm5_policy_ent_rec        pol;
-    int                         ret, last_pwd;
+    int                         ret, last_pwd, n_new_keys;
     krb5_boolean                have_pol = FALSE;
     kadm5_server_handle_t       handle = server_handle;
     krb5_keyblock               *act_mkey;
+    krb5_kvno                   act_kvno;
     int                         new_n_ks_tuple = 0;
     krb5_key_salt_tuple         *new_ks_tuple = NULL;
 
@@ -1626,12 +1641,16 @@ kadm5_randkey_principal_3(void *server_handle,
         new_n_ks_tuple = 1;
     }
 
-    ret = kdb_get_active_mkey(handle, NULL, &act_mkey);
+    ret = kdb_get_active_mkey(handle, &act_kvno, &act_mkey);
     if (ret)
         goto done;
 
     ret = krb5_dbe_crk(handle->context, act_mkey, new_ks_tuple, new_n_ks_tuple,
                        keepold, kdb);
+    if (ret)
+        goto done;
+
+    ret = krb5_dbe_update_mkvno(handle->context, kdb, act_kvno);
     if (ret)
         goto done;
 
@@ -1681,8 +1700,9 @@ kadm5_randkey_principal_3(void *server_handle,
     kdb->fail_auth_count = 0;
 
     if (keyblocks) {
-        ret = decrypt_key_data(handle->context,
-                               kdb->n_key_data, kdb->key_data,
+        /* Return only the new keys added by krb5_dbe_crk. */
+        n_new_keys = count_new_keys(kdb->n_key_data, kdb->key_data);
+        ret = decrypt_key_data(handle->context, n_new_keys, kdb->key_data,
                                keyblocks, n_keys);
         if (ret)
             goto done;

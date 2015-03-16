@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.13-alpha1',
+        VERSION:     '1.13.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -143,9 +143,14 @@ requested.</dd>
 ticket is within its requested time range, the cache is replaced
 with the validated ticket.</dd>
 <dt><strong>-R</strong></dt>
-<dd>requests renewal of the ticket-granting ticket.  Note that an
+<dd><p class="first">requests renewal of the ticket-granting ticket.  Note that an
 expired ticket cannot be renewed, even if the ticket is still
-within its renewable life.</dd>
+within its renewable life.</p>
+<p class="last">Note that renewable tickets that have expired as reported by
+<a class="reference internal" href="klist.html#klist-1"><em>klist</em></a> may sometimes be renewed using this option,
+because the KDC applies a grace period to account for client-KDC
+clock skew.  See <a class="reference internal" href="../../admin/conf_files/krb5_conf.html#krb5-conf-5"><em>krb5.conf</em></a> <strong>clockskew</strong> setting.</p>
+</dd>
 <dt><strong>-k</strong> [<strong>-i</strong> | <strong>-t</strong> <em>keytab_file</em>]</dt>
 <dd>requests a ticket, obtained from a key in the local host&#8217;s keytab.
 The location of the keytab may be specified with the <strong>-t</strong>
@@ -321,8 +326,8 @@ in the collection.</dd>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13-alpha1</i><br />
-                &copy; <a href="../../copyright.html">Copyright</a> 1985-2014, MIT.
+            <div class="right" ><i>Release: 1.13.1</i><br />
+                &copy; <a href="../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">
                 
