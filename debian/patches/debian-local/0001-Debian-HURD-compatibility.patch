@@ -1,4 +1,4 @@
-From 2fbc0f9889c4525bdfee0d59598db986123aad4e Mon Sep 17 00:00:00 2001
+From 353fabe622d7bcabcbb33eea6287d9bc2fed917e Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:05:13 -0500
 Subject: Debian: HURD compatibility
@@ -17,7 +17,7 @@ Patch-Category: debian-local
  7 files changed, 26 insertions(+)
 
 diff --git a/src/clients/ksu/ksu.h b/src/clients/ksu/ksu.h
-index 5ba5ceb..fc0dce3 100644
+index ee8e9d6..695305f 100644
 --- a/src/clients/ksu/ksu.h
 +++ b/src/clients/ksu/ksu.h
 @@ -56,6 +56,10 @@

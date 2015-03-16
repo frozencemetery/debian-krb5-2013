@@ -1,4 +1,4 @@
-From d01ebd1b7cdb7684702846756a5682bcabf1319e Mon Sep 17 00:00:00 2001
+From ccb5951cd5b05ff34a3d3eee1c580ff1ec97248c Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:20:11 -0500
 Subject: debian: osconf.hin path changes
@@ -9,7 +9,7 @@ Patch-Category: debian-local
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/include/osconf.hin b/src/include/osconf.hin
-index 62aceea..97a6e8d 100644
+index 6f28bc3..f290430 100644
 --- a/src/include/osconf.hin
 +++ b/src/include/osconf.hin
 @@ -59,7 +59,7 @@

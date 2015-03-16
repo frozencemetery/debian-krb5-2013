@@ -406,14 +406,14 @@ krb5_encode_krbsecretkey(krb5_key_data *key_data_in, int n_key_data,
     int num_versions = 1;
     int i, j, last;
     krb5_error_code err = 0;
-    krb5_key_data *key_data;
+    krb5_key_data *key_data = NULL;
 
     if (n_key_data < 0)
         return NULL;
 
     /* Make a shallow copy of the key data so we can alter it. */
     key_data = k5calloc(n_key_data, sizeof(*key_data), &err);
-    if (key_data_in == NULL)
+    if (key_data == NULL)
         goto cleanup;
     memcpy(key_data, key_data_in, n_key_data * sizeof(*key_data));
 

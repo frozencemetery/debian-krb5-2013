@@ -1,4 +1,4 @@
-From 4d4ee1fd7d1ed133a9e701310e5238d96ff0219a Mon Sep 17 00:00:00 2001
+From f6b1cd0db480d55276eec1279cf7967749b1faef Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:19:53 -0500
 Subject: debian: suppress multi-arch paths in krb5-config

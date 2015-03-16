@@ -252,13 +252,11 @@ The following tags may be specified in a [realms] subsection:
 **kdc_tcp_ports**
     (Whitespace- or comma-separated list.)  Lists the ports on which
     the Kerberos server should listen for TCP connections, as a
-    comma-separated list of integers.  If this relation is not
-    specified, the compiled-in default is not to listen for TCP
-    connections at all.
-
-    If you wish to change this (note that the current implementation
-    has little protection against denial-of-service attacks), the
-    standard port number assigned for Kerberos TCP traffic is port 88.
+    comma-separated list of integers.  To disable listening on TCP,
+    set this relation to the empty string with ``kdc_tcp_ports = ""``.
+    If this relation is not specified, the default is to listen on TCP
+    port 88 (the standard port).  Prior to release 1.13, the default
+    was not to listen for TCP connections at all.
 
 **master_key_name**
     (String.)  Specifies the name of the principal associated with the
@@ -798,8 +796,8 @@ Here's an example of a kdc.conf file::
             kadmind_port = 749
             max_life = 12h 0m 0s
             max_renewable_life = 7d 0h 0m 0s
-            master_key_type = des3-hmac-sha1
-            supported_enctypes = des3-hmac-sha1:normal des-cbc-crc:normal des-cbc-crc:v4
+            master_key_type = aes256-cts-hmac-sha1-96
+            supported_enctypes = aes256-cts-hmac-sha1-96:normal aes128-cts-hmac-sha1-96:normal
             database_module = openldap_ldapconf
         }
 

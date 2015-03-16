@@ -318,6 +318,9 @@
 /* Define to 1 if you have the `openlog' function. */
 #undef HAVE_OPENLOG
 
+/* Define if OpenSSL supports cms. */
+#undef HAVE_OPENSSL_CMS
+
 /* Define to 1 if you have the <paths.h> header file. */
 #undef HAVE_PATHS_H
 

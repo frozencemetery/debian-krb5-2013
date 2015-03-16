@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.13-alpha1',
+        VERSION:     '1.13.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -73,7 +73,8 @@
 <dl class="docutils">
 <dt>Releases:</dt>
 <dd><ul class="first last simple">
-<li>Latest stable: <a class="reference external" href="http://web.mit.edu/kerberos/krb5-1.12/">http://web.mit.edu/kerberos/krb5-1.12/</a></li>
+<li>Latest stable: <a class="reference external" href="http://web.mit.edu/kerberos/krb5-1.13/">http://web.mit.edu/kerberos/krb5-1.13/</a></li>
+<li>Supported: <a class="reference external" href="http://web.mit.edu/kerberos/krb5-1.12/">http://web.mit.edu/kerberos/krb5-1.12/</a></li>
 <li>Supported: <a class="reference external" href="http://web.mit.edu/kerberos/krb5-1.11/">http://web.mit.edu/kerberos/krb5-1.11/</a></li>
 <li>Release cycle: 9 &#8211; 12 months</li>
 </ul>
@@ -129,6 +130,7 @@ permitted by KDC policy.</li>
 <p><cite>Heimdal</cite></p>
 <ul class="simple">
 <li>Support for reading Heimdal database starting from release 1.8</li>
+<li>Support for KCM credential cache starting from release 1.13</li>
 </ul>
 </div>
 <div class="section" id="feature-list">
@@ -199,6 +201,35 @@ permitted by KDC policy.</li>
 </ul>
 </dd>
 </dl>
+<p>Release 1.13</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add support for accessing KDCs via an HTTPS proxy server using
+the <a class="reference external" href="http://msdn.microsoft.com/en-us/library/hh553774.aspx">MS-KKDCP</a>
+protocol.</li>
+<li>Add support for <a class="reference external" href="http://k5wiki.kerberos.org/wiki/Projects/Hierarchical_iprop">hierarchical incremental propagation</a>,
+where slaves can act as intermediates between an upstream master
+and other downstream slaves.</li>
+<li>Add support for configuring GSS mechanisms using
+<tt class="docutils literal"><span class="pre">/etc/gss/mech.d/*.conf</span></tt> files in addition to
+<tt class="docutils literal"><span class="pre">/etc/gss/mech</span></tt>.</li>
+<li>Add support to the LDAP KDB module for <a class="reference external" href="http://k5wiki.kerberos.org/wiki/Projects/LDAP_SASL_support">binding to the LDAP
+server using SASL</a>.</li>
+<li>The KDC listens for TCP connections by default.</li>
+<li>Fix a minor key disclosure vulnerability where using the
+&#8220;keepold&#8221; option to the kadmin randkey operation could return the
+old keys. <a class="reference external" href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-5351">[CVE-2014-5351]</a></li>
+<li>Add client support for the Kerberos Cache Manager protocol. If
+the host is running a Heimdal kcm daemon, caches served by the
+daemon can be accessed with the KCM: cache type.</li>
+<li>When built on OS X 10.7 and higher, use &#8220;KCM:&#8221; as the default
+cachetype, unless overridden by command-line options or
+krb5-config values.</li>
+<li>Add support for doing unlocked database dumps for the DB2 KDC
+back end, which would allow the KDC and kadmind to continue
+accessing the database during lengthy database dumps.</li>
+</ul>
+</div></blockquote>
 <p><cite>Pre-authentication mechanisms</cite></p>
 <ul class="simple">
 <li>PW-SALT                                         <span class="target" id="index-11"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc4120.html#section-5.2.7.3"><strong>RFC 4120</strong></a></li>
@@ -270,8 +301,8 @@ permitted by KDC policy.</li>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13-alpha1</i><br />
-                &copy; <a href="copyright.html">Copyright</a> 1985-2014, MIT.
+            <div class="right" ><i>Release: 1.13.1</i><br />
+                &copy; <a href="copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">
                 

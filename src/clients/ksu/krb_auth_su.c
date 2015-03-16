@@ -31,27 +31,20 @@
 
 void plain_dump_principal ();
 
-/*
- * Try no preauthentication first; then try the encrypted timestamp
- */
-krb5_preauthtype * preauth_ptr = NULL;
-
-
-
 krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
                              target_user, cc, path_passwd, target_uid)
     krb5_context context;
     krb5_principal client_pname;
     char *hostname;
-    opt_info *options;
+    krb5_get_init_creds_opt *options;
     char *target_user;
     uid_t target_uid;
     krb5_ccache cc;
     int *path_passwd;
 {
-    krb5_principal client, server;
+    krb5_principal client;
     krb5_verify_init_creds_opt vfy_opts;
-    krb5_creds tgt, tgtq, in_creds, * out_creds;
+    krb5_creds tgt, tgtq;
     krb5_error_code retval =0;
     int got_it = 0;
     krb5_boolean zero_password;
@@ -59,45 +52,11 @@ krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
     *path_passwd = 0;
     memset(&tgtq, 0, sizeof(tgtq));
     memset(&tgt, 0, sizeof(tgt));
-    memset(&in_creds, 0, sizeof(krb5_creds));
-
 
     if ((retval= krb5_copy_principal(context,  client_pname, &client))){
         com_err(prog_name, retval, _("while copying client principal"));
         return (FALSE) ;
     }
-
-    if (auth_debug) {
-        dump_principal(context, "krb5_auth_check: Client principal name",
-                       client);
-    }
-
-    if ((retval = krb5_sname_to_principal(context, hostname, NULL,
-                                          KRB5_NT_SRV_HST, &server))){
-        com_err(prog_name, retval,
-                _("while creating server %s principal name"), hostname);
-        krb5_free_principal(context, client);
-        return (FALSE) ;
-    }
-
-    if (auth_debug) {
-        dump_principal(context, "krb5_auth_check: Server principal name",
-                       server);
-    }
-
-
-
-    /* check if ticket is already in the cache, if it is
-       then use it.
-    */
-    if( krb5_fast_auth(context, client, server, target_user, cc) == TRUE){
-        if (auth_debug ){
-            fprintf (stderr,"Authenticated via fast_auth \n");
-        }
-        return TRUE;
-    }
-
-    /* check to see if the local tgt is in the cache */
 
     if ((retval= krb5_copy_principal(context,  client, &tgtq.client))){
         com_err(prog_name, retval, _("while copying client principal"));
@@ -109,7 +68,6 @@ krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
                               &tgtq.server))){
         com_err(prog_name, retval, _("while creating tgt for local realm"));
         krb5_free_principal(context, client);
-        krb5_free_principal(context, server);
         return (FALSE) ;
     }
 
@@ -144,9 +102,9 @@ krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
         fprintf(stderr, _("         in remotely using an unsecure "
                           "(non-encrypted) channel. \n"));
 
-        /*get the ticket granting ticket, via passwd(promt for passwd)*/
-        if (krb5_get_tkt_via_passwd (context, &cc, client, tgtq.server,
-                                     options, & zero_password) == FALSE){
+        /*get the ticket granting ticket, via passwd(prompt for passwd)*/
+        if (ksu_get_tgt_via_passwd(context, client, options, &zero_password,
+                                   &tgt) == FALSE) {
             krb5_seteuid(0);
 
             return FALSE;
@@ -167,33 +125,9 @@ krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
 
     }
 
-    if ((retval= krb5_copy_principal(context, client, &in_creds.client))){
-        com_err(prog_name, retval, _("while copying client principal"));
-        return (FALSE) ;
-    }
-
-    if ((retval= krb5_copy_principal(context, server, &in_creds.server))){
-        com_err(prog_name, retval, _("while copying client principal"));
-        return (FALSE) ;
-    }
-
-    if ((retval = krb5_get_credentials(context, 0, cc, &in_creds,
-                                       &out_creds))){
-        com_err(prog_name, retval, _("while getting credentials from kdc"));
-        return (FALSE);
-    }
-
-
-    if (auth_debug){
-        fprintf(stderr,"krb5_auth_check: got ticket for end server \n");
-        dump_principal(context, "out_creds->server", out_creds->server );
-    }
-
-
     krb5_verify_init_creds_opt_init(&vfy_opts);
     krb5_verify_init_creds_opt_set_ap_req_nofail( &vfy_opts, 1);
-    retval = krb5_verify_init_creds(context, out_creds, server, NULL /*keytab*/,
-                                    NULL /*output ccache*/,
+    retval = krb5_verify_init_creds(context, &tgt, NULL, NULL, NULL,
                                     &vfy_opts);
     if (retval) {
         com_err(prog_name, retval, _("while verifying ticket for server"));
@@ -203,105 +137,36 @@ krb5_boolean krb5_auth_check(context, client_pname, hostname, options,
     return (TRUE);
 }
 
-/* krb5_fast_auth checks if ticket for the end server is already in
-   the cache, if it is, we don't need a tgt */
-
-krb5_boolean krb5_fast_auth(context, client, server, target_user, cc)
+krb5_boolean ksu_get_tgt_via_passwd(context, client, options, zero_password,
+                                    creds_out)
     krb5_context context;
     krb5_principal client;
-    krb5_principal server;
-    char *target_user;
-    krb5_ccache cc;
-{
-
-    krb5_creds tgt, tgtq;
-    krb5_verify_init_creds_opt vfy_opts;
-    krb5_error_code retval;
-
-    memset(&tgtq, 0, sizeof(tgtq));
-    memset(&tgt, 0, sizeof(tgt));
-
-    if ((retval= krb5_copy_principal(context, client, &tgtq.client))){
-        com_err(prog_name, retval, _("while copying client principal"));
-        return (FALSE) ;
-    }
-
-    if ((retval= krb5_copy_principal(context, server, &tgtq.server))){
-        com_err(prog_name, retval, _("while copying client principal"));
-        return (FALSE) ;
-    }
-
-    if ((retval = krb5_cc_retrieve_cred(context, cc,
-                                        KRB5_TC_MATCH_SRV_NAMEONLY | KRB5_TC_SUPPORTED_KTYPES,
-                                        &tgtq, &tgt))){
-        if (auth_debug)
-            com_err(prog_name, retval, _("while Retrieving credentials"));
-        return (FALSE) ;
-
-    }
-    krb5_verify_init_creds_opt_init(&vfy_opts);
-    krb5_verify_init_creds_opt_set_ap_req_nofail( &vfy_opts, 1);
-    retval = krb5_verify_init_creds(context, &tgt, server, NULL /*keytab*/,
-                                    NULL /*output ccache*/,
-                                    &vfy_opts);
-    if (retval){
-        com_err(prog_name, retval, _("while verifying ticket for server"));
-        return (FALSE);
-    }
-
-    return TRUE;
-}
-
-
-
-krb5_boolean krb5_get_tkt_via_passwd (context, ccache, client, server,
-                                      options, zero_password)
-    krb5_context context;
-    krb5_ccache *ccache;
-    krb5_principal client;
-    krb5_principal server;
-    opt_info *options;
+    krb5_get_init_creds_opt *options;
     krb5_boolean *zero_password;
+    krb5_creds *creds_out;
 {
     krb5_error_code code;
-    krb5_creds my_creds;
+    krb5_creds creds;
     krb5_timestamp now;
     unsigned int pwsize;
     char password[255], *client_name, prompt[255];
     int result;
 
     *zero_password = FALSE;
+    if (creds_out != NULL)
+        memset(creds_out, 0, sizeof(*creds_out));
 
     if ((code = krb5_unparse_name(context, client, &client_name))) {
         com_err (prog_name, code, _("when unparsing name"));
         return (FALSE);
     }
 
-    memset(&my_creds, 0, sizeof(my_creds));
-
-    if ((code = krb5_copy_principal(context, client, &my_creds.client))){
-        com_err (prog_name, code, _("while copying principal"));
-        return (FALSE);
-    }
-
-    if ((code = krb5_copy_principal(context, server, &my_creds.server))){
-        com_err (prog_name, code, _("while copying principal"));
-        return (FALSE);
-    }
+    memset(&creds, 0, sizeof(creds));
 
     if ((code = krb5_timeofday(context, &now))) {
         com_err(prog_name, code, _("while getting time of day"));
         return (FALSE);
     }
-
-    my_creds.times.starttime = 0;       /* start timer when request
-                                           gets to KDC */
-
-    my_creds.times.endtime = now + options->lifetime;
-    if (options->opt & KDC_OPT_RENEWABLE) {
-        my_creds.times.renew_till = now + options->rlife;
-    } else
-        my_creds.times.renew_till = 0;
 
     result = snprintf(prompt, sizeof(prompt), _("Kerberos password for %s: "),
                       client_name);
@@ -329,9 +194,8 @@ krb5_boolean krb5_get_tkt_via_passwd (context, ccache, client, server,
         return (FALSE);
     }
 
-    code = krb5_get_in_tkt_with_password(context, options->opt,
-                                         0, NULL, preauth_ptr,
-                                         password, *ccache, &my_creds, 0);
+    code = krb5_get_init_creds_password(context, &creds, client, password,
+                                        NULL, NULL, 0, NULL, options);
     memset(password, 0, sizeof(password));
 
 
@@ -342,6 +206,10 @@ krb5_boolean krb5_get_tkt_via_passwd (context, ccache, client, server,
             com_err(prog_name, code, _("while getting initial credentials"));
         return (FALSE);
     }
+    if (creds_out != NULL)
+        *creds_out = creds;
+    else
+        krb5_free_cred_contents(context, &creds);
     return (TRUE);
 }
 

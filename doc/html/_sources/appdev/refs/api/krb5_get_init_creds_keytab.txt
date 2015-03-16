@@ -20,7 +20,7 @@ krb5_get_init_creds_keytab -  Get initial credentials using a key table.
 
 	          **[in]** **start_time** - Time when ticket becomes valid (0 for now)
 
-	          **[in]** **in_tkt_service** - Service name of initial credentials (or NLUL)
+	          **[in]** **in_tkt_service** - Service name of initial credentials (or NULL)
 
 	          **[in]** **k5_gic_options** - Initial credential options
 
