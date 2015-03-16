@@ -1,4 +1,4 @@
-krb5 (1.13.1+dfsg-1) UNRELEASED; urgency=low
+krb5 (1.13.1+dfsg-1) experimental; urgency=low
 
   * New upstream release:
     - Make the KDC default to listening on TCP (as well as UDP)
@@ -10,7 +10,7 @@ krb5 (1.13.1+dfsg-1) UNRELEASED; urgency=low
     - Allow the logger to work with redirected stderr
     - Remove length limit on PKINIT PKCS#12 prompts
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Fri, 13 Mar 2015 14:56:22 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 16 Mar 2015 14:23:06 -0400
 
 krb5 (1.12.1+dfsg-18) unstable; urgency=high
 
