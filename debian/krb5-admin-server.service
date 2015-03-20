@@ -6,9 +6,9 @@ Description=Kerberos 5 Admin Server
 Type=simple
 ExecStart=/usr/sbin/kadmind -nofork $DAEMON_ARGS
 EnvironmentFile=-/etc/default/krb5-admin-server
-InaccessibleDirectories=/etc/ssh /etc/ssl/private  /root
+InaccessibleDirectories=-/etc/ssh -/etc/ssl/private  /root
 ReadOnlyDirectories=/
-ReadWriteDirectories=/var/tmp /tmp /var/lib/krb5kdc /var/run /run
+ReadWriteDirectories=-/var/tmp /tmp /var/lib/krb5kdc -/var/run /run
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 
 [Install]
