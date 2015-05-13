@@ -1,6 +1,7 @@
 krb5 (1.12.1+dfsg-20) UNRELEASED; urgency=medium
 
   * Import upstream patch for CVE-2015-2694, Closes: #783557
+  * Bump Standards-Version to 3.9.6 (no changes needed)
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 13 May 2015 13:59:05 -0400
 
