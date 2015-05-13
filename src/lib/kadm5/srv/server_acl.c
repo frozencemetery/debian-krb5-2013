@@ -349,6 +349,10 @@ kadm5int_acl_parse_restrictions(s, rpp)
                     }
                 }
             }
+            if (code) {
+                krb5_klog_syslog(LOG_ERR, _("%s: invalid restrictions: %s"),
+                                 acl_acl_file, s);
+            }
         }
     }
     if (sp)
@@ -610,8 +614,8 @@ kadm5int_acl_find_entry(kcontext, principal, dest_princ)
     wildstate_t         state;
 
     DPRINT(DEBUG_CALLS, acl_debug_level, ("* kadm5int_acl_find_entry()\n"));
-    memset(&state, 0, sizeof state);
     for (entry=acl_list_head; entry; entry = entry->ae_next) {
+        memset(&state, 0, sizeof(state));
         if (entry->ae_name_bad)
             continue;
         if (!strcmp(entry->ae_name, "*")) {

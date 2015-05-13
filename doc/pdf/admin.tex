@@ -15,7 +15,7 @@
 
 \title{Kerberos Administration Guide}
 \date{ }
-\release{1.13.1}
+\release{1.13.2}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -3316,8 +3316,8 @@ in which \code{*number} matches the corresponding wildcard in
 \begin{description}
 \item[{\{+\textbar{}-\}\emph{flagname}}] \leavevmode
 flag is forced to the indicated value.  The permissible flags
-are the same as the + and - flags for the kadmin
-{\hyperref[admin/admin_commands/kadmin_local:add-principal]{\emph{add\_principal}}} and {\hyperref[admin/admin_commands/kadmin_local:modify-principal]{\emph{modify\_principal}}} commands.
+are the same as those for the \textbf{default\_principal\_flags}
+variable in {\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}.
 
 \item[{\emph{-clearpolicy}}] \leavevmode
 policy is forced to be empty.
