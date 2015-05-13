@@ -8,5 +8,3 @@ debian-local/0007-Quick-and-dirty-fix-to-building-O3.patch
 debian-local/0008-Fix-pkg-config-library-include-paths.patch
 debian-local/0009-Use-isystem-for-include-paths.patch
 debian-local/0010-Fix-krb5-config-paths.patch
-0011-Support-keyless-principals-in-LDAP-CVE-2014-5354.patch
-upstream/0012-Fix-krb5_read_message-handling-CVE-2014-5355.patch

@@ -438,8 +438,6 @@ krb5_encode_krbsecretkey(krb5_key_data *key_data_in, int n_key_data,
         err = ENOMEM;
         goto cleanup;
     }
-    if (n_key_data == 0)
-        return ret;
     for (i = 0, last = 0, j = 0, currkvno = key_data[0].key_data_kvno; i < n_key_data; i++) {
         krb5_data *code;
         if (i == n_key_data - 1 || key_data[i + 1].key_data_kvno != currkvno) {

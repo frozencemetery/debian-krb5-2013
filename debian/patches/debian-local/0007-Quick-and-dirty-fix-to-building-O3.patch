@@ -1,4 +1,4 @@
-From 4c5ca451c4980927e032a5c98c6437f4edffa558 Mon Sep 17 00:00:00 2001
+From 2c48ebcd8b4dcce06ec782737225222175fef386 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Fri, 1 Aug 2014 17:47:59 -0400
 Subject: Quick and dirty fix to building -O3
