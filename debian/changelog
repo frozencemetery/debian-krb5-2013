@@ -8,6 +8,8 @@ krb5 (1.13.2+dfsg-1) UNRELEASED; urgency=medium
     - Fix LDAP ticket policies on big-endian LP64 systems
     - Fix memory leak in DB2 iteration
     - Prevent requires_preauth bypass (CVE-2015-2694), Closes: #783557
+  * Add python to build-depends-indep, since we call it manually during
+    the documentation build, Closes: #746395
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 13 May 2015 18:21:41 -0400
 
