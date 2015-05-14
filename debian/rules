@@ -84,6 +84,7 @@ build-indep: build-indep-stamp
 
 build-stamp: configure-stamp
 	cd build && $(MAKE) $(NUMJOBS) all
+	cd build/plugins/authdata/greet_client && $(MAKE) $(NUMJOBS) all
 	touch build-stamp
 
 build-indep-stamp: build-stamp
@@ -113,6 +114,7 @@ install: build-arch
 	dh_installdirs
 
 	cd build && $(MAKE) install DESTDIR=`pwd`/../debian/tmp
+	cd build/plugins/authdata/greet_client && $(MAKE) install DESTDIR=`pwd`/../../../../debian/tmp
 	install -d $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/krb5 $(CURDIR)/debian/tmp/etc/insserv/overrides
 	install -m644 debian/krb5-kdc-ldap.insserv-override debian/tmp/etc/insserv/overrides/krb5-kdc
 	install -m644 $(CURDIR)/debian/README.mech.d $(CURDIR)/debian/libgssapi-krb5-2/etc/gss/mech.d/README
@@ -188,7 +190,6 @@ binary-arch: build-arch install
 	dh_installdebconf
 	DH_OPTIONS= dh_installinit -pkrb5-kdc --error-handler=init_error -- defaults 18 18 
 		DH_OPTIONS= dh_installinit -pkrb5-admin-server -- defaults 18 18 
-	dh_systemd_enable
 	dh_lintian
 	set -e ; for pkg in $(LIB_PACKAGES) ; do \
 		DH_OPTIONS="" dh_strip -p$$pkg --dbg-package=libkrb5-dbg; \
