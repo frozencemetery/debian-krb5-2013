@@ -2,6 +2,7 @@ krb5 (1.13.2+dfsg-2build2) UNRELEASED; urgency=low
 
   * Build for precise.
   * Remove everything in build system around systemd
+  * Hack build-depends-indep into Build-depends (workaround)
 
  -- Robbie Harwood (work) <rharwood@redhat.com>  Thu, 14 May 2015 15:53:32 -0400
 
