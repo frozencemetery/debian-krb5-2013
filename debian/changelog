@@ -1,3 +1,9 @@
+krb5 (1.13.2+dfsg-2build3) precise; urgency=medium
+
+  * Fix dependencies
+
+ -- Robbie Harwood (work) <rharwood@redhat.com>  Thu, 14 May 2015 16:29:12 -0400
+
 krb5 (1.13.2+dfsg-2build2) precise; urgency=low
 
   * Build for precise.
