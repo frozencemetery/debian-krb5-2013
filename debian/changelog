@@ -1,3 +1,16 @@
+krb5 (1.13.2+dfsg-1) UNRELEASED; urgency=medium
+
+  * New upstream release:
+    - Fix importing GSS composite export names
+    - Fix kadm5.acl wildcard matching when early lines have partial matches
+    - Disable principal renames for LDAP; they do not work properly and are
+      hard to fix
+    - Fix LDAP ticket policies on big-endian LP64 systems
+    - Fix memory leak in DB2 iteration
+    - Prevent requires_preauth bypass (CVE-2015-2694), Closes: #783557
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 13 May 2015 18:21:41 -0400
+
 krb5 (1.13.1+dfsg-1) experimental; urgency=low
 
   * New upstream release:
