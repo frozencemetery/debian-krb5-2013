@@ -188,7 +188,6 @@ binary-arch: build-arch install
 	dh_installdebconf
 	DH_OPTIONS= dh_installinit -pkrb5-kdc --error-handler=init_error -- defaults 18 18 
 		DH_OPTIONS= dh_installinit -pkrb5-admin-server -- defaults 18 18 
-	dh_systemd_enable
 	dh_lintian
 	set -e ; for pkg in $(LIB_PACKAGES) ; do \
 		DH_OPTIONS="" dh_strip -p$$pkg --dbg-package=libkrb5-dbg; \
