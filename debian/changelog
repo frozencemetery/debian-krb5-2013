@@ -1,4 +1,4 @@
-krb5 (1.13.2+dfsg-1) UNRELEASED; urgency=medium
+krb5 (1.13.2+dfsg-1) experimental; urgency=medium
 
   * New upstream release:
     - Fix importing GSS composite export names
@@ -11,7 +11,7 @@ krb5 (1.13.2+dfsg-1) UNRELEASED; urgency=medium
   * Add python to build-depends-indep, since we call it manually during
     the documentation build, Closes: #746395
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 13 May 2015 18:21:41 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Thu, 14 May 2015 13:38:58 -0400
 
 krb5 (1.13.1+dfsg-1) experimental; urgency=low
 
