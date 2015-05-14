@@ -1,3 +1,9 @@
+krb5 (1.13.2+dfsg-2build1) UNRELEASED; urgency=low
+
+  * Build for precise.
+
+ -- Robbie Harwood (work) <rharwood@redhat.com>  Thu, 14 May 2015 15:48:38 -0400
+
 krb5 (1.13.2+dfsg-1) experimental; urgency=medium
 
   * New upstream release:
