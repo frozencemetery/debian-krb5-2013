@@ -1,3 +1,9 @@
+krb5 (1.13.2+dfsg-2) unstable; urgency=medium
+
+  * No-change rebuild to target unstable
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Thu, 25 Jun 2015 17:10:03 -0400
+
 krb5 (1.13.2+dfsg-1) experimental; urgency=medium
 
   * New upstream release:
