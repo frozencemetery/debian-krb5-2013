@@ -27,6 +27,13 @@ krb5 (1.13.1+dfsg-1) experimental; urgency=low
 
  -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 16 Mar 2015 14:23:06 -0400
 
+krb5 (1.12.1+dfsg-20) unstable; urgency=high
+
+  * Import upstream patch for CVE-2015-2694, Closes: #783557
+  * Bump Standards-Version to 3.9.6 (no changes needed)
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 13 May 2015 14:40:36 -0400
+
 krb5 (1.12.1+dfsg-19) unstable; urgency=medium
 
   * mark systemd unit directories as optional, Closes: #780831
