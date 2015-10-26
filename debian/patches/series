@@ -8,3 +8,6 @@ debian-local/0007-Quick-and-dirty-fix-to-building-O3.patch
 debian-local/0008-Fix-pkg-config-library-include-paths.patch
 debian-local/0009-Use-isystem-for-include-paths.patch
 debian-local/0010-Fix-krb5-config-paths.patch
+upstream/0011-Fix-SPNEGO-context-aliasing-bugs-CVE-2015-2695.patch
+upstream/0012-Fix-IAKERB-context-aliasing-bugs-CVE-2015-2696.patch
+upstream/0013-Fix-build_principal-memory-bug-CVE-2015-2697.patch
