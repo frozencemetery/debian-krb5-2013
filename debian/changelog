@@ -1,3 +1,15 @@
+krb5 (1.12.1+dfsg-20) jessie-security; urgency=high
+
+  * Import upstream patches for three CVEs:
+    - CVE-2015-2695: SPNEGO context aliasing during establishment,
+      Closes: #803083
+    - CVE-2015-2696: IAKERB context aliasing during establishment,
+      Closes: #803084
+    - CVE-2015-2697: unsafe string handling in TGS processing,
+      Closes: #803088
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 26 Oct 2015 15:59:31 -0400
+
 krb5 (1.12.1+dfsg-19) unstable; urgency=medium
 
   * mark systemd unit directories as optional, Closes: #780831
