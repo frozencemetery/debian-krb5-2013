@@ -1,11 +1,11 @@
-krb5 (1.13.2+dfsg-3) UNRELEASED; urgency=high
+krb5 (1.13.2+dfsg-3) unstable; urgency=high
 
   * Import upstream patches for three CVEs:
     - CVE-2015-2695: SPNEGO context aliasing during establishment
     - CVE-2015-2696: IAKERB context aliasing during establishment
     - CVE-2015-2697: unsafe string handling in TGS processing
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 26 Oct 2015 13:53:13 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 26 Oct 2015 14:03:52 -0400
 
 krb5 (1.13.2+dfsg-2) unstable; urgency=medium
 
