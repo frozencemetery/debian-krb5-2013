@@ -1,4 +1,4 @@
-krb5 (1.12.1+dfsg-20) jessie-security; urgency=high
+krb5 (1.12.1+dfsg-19+deb8u1) UNRELEASED; urgency=high
 
   * Import upstream patches for three CVEs:
     - CVE-2015-2695: SPNEGO context aliasing during establishment,
