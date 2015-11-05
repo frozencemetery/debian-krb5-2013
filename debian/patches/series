@@ -11,3 +11,6 @@ debian-local/0010-Fix-krb5-config-paths.patch
 upstream/0011-Fix-SPNEGO-context-aliasing-bugs-CVE-2015-2695.patch
 upstream/0012-Fix-IAKERB-context-aliasing-bugs-CVE-2015-2696.patch
 upstream/0013-Fix-build_principal-memory-bug-CVE-2015-2697.patch
+upstream/0014-Fix-two-IAKERB-comments.patch
+upstream/0015-Fix-IAKERB-context-export-import-CVE-2015-2698.patch
+upstream/0016-Fix-SPNEGO-context-import.patch
