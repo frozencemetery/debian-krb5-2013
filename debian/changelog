@@ -1,4 +1,4 @@
-krb5 (1.13.2+dfsg-4) UNRELEASED; urgency=high
+krb5 (1.13.2+dfsg-4) unstable; urgency=high
 
   * Import upstream patches fixing regressions in the previous upload:
     - CVE-2015-2698: the patch for CVE-2015-2696 caused memory corruption
@@ -9,7 +9,7 @@ krb5 (1.13.2+dfsg-4) UNRELEASED; urgency=high
       exported context tokens would be tagged with the underlying
       context's mechanism.
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 04 Nov 2015 21:43:25 -0500
+ -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 04 Nov 2015 22:47:22 -0500
 
 krb5 (1.13.2+dfsg-3) unstable; urgency=high
 
