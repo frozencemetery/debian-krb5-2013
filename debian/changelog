@@ -1,3 +1,16 @@
+krb5 (1.13.2+dfsg-4) UNRELEASED; urgency=high
+
+  * Import upstream patches fixing regressions in the previous upload:
+    - CVE-2015-2698: the patch for CVE-2015-2696 caused memory corruption
+      for applications calling gss_export_sec_context() on contexts
+      established using the IAKERB mechanism.
+    - Supply gss_import_sec_context implementations for SPNEGO and IAKERB,
+      which were not implemented due to the erroneous belief that the
+      exported context tokens would be tagged with the underlying
+      context's mechanism.
+
+ -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 04 Nov 2015 21:43:25 -0500
+
 krb5 (1.13.2+dfsg-3) unstable; urgency=high
 
   * Import upstream patches for three CVEs:
