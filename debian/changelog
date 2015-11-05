@@ -1,14 +1,19 @@
-krb5 (1.12.1+dfsg-19+deb8u1) UNRELEASED; urgency=high
+krb5 (1.12.1+dfsg-19+deb8u1) jessie-security; urgency=high
 
-  * Import upstream patches for three CVEs:
+  * Import upstream patches for four CVEs:
     - CVE-2015-2695: SPNEGO context aliasing during establishment,
       Closes: #803083
     - CVE-2015-2696: IAKERB context aliasing during establishment,
       Closes: #803084
     - CVE-2015-2697: unsafe string handling in TGS processing,
       Closes: #803088
+    - CVE-2015-2698: regression (memory corruption) in patch for CVE-2015-2696
+  * In addition to CVE-2015-2698, the upstream patches for CVE-2015-2695
+    and CVE-2015-2696 introduced regressions preventing the use of
+    gss_import_sec_context() with contexts established using IAKERB
+    or SPNEGO; the fixes for those regressions are included here.
 
- -- Benjamin Kaduk <kaduk@mit.edu>  Mon, 26 Oct 2015 15:59:31 -0400
+ -- Benjamin Kaduk <kaduk@mit.edu>  Wed, 04 Nov 2015 22:05:10 -0500
 
 krb5 (1.12.1+dfsg-19) unstable; urgency=medium
 
