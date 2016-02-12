@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -315,6 +315,7 @@
 <li class="toctree-l1"><a class="reference internal" href="krb5_pac_parse.html">krb5_pac_parse -  Unparse an encoded PAC into a new handle.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_pac_sign.html">krb5_pac_sign -  Sign a PAC.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_pac_verify.html">krb5_pac_verify -  Verify a PAC.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krb5_prepend_error_message.html">krb5_prepend_error_message -  Add a prefix to the message for an error code.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_principal2salt.html">krb5_principal2salt -  Convert a principal name into the default salt for that principal.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_rd_cred.html">krb5_rd_cred -  Read and validate a KRB-CRED message.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_rd_error.html">krb5_rd_error -  Decode a KRB-ERROR message.</a></li>
@@ -346,7 +347,10 @@
 <li class="toctree-l1"><a class="reference internal" href="krb5_verify_init_creds.html">krb5_verify_init_creds -  Verify initial credentials against a keytab.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_verify_init_creds_opt_init.html">krb5_verify_init_creds_opt_init -  Initialize a credential verification options structure.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_verify_init_creds_opt_set_ap_req_nofail.html">krb5_verify_init_creds_opt_set_ap_req_nofail -  Set whether credential verification is required.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krb5_vprepend_error_message.html">krb5_vprepend_error_message -  Add a prefix to the message for an error code using a va_list.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_vset_error_message.html">krb5_vset_error_message -  Set an extended error message for an error code using a va_list.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krb5_vwrap_error_message.html">krb5_vwrap_error_message -  Add a prefix to a different error code&#8217;s message using a va_list.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krb5_wrap_error_message.html">krb5_wrap_error_message -  Add a prefix to a different error code&#8217;s message.</a></li>
 </ul>
 </div>
 </div>
@@ -360,6 +364,7 @@
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_crypto_length_iov.html">krb5_c_crypto_length_iov -  Fill in lengths for header, trailer and padding in a IOV array.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_decrypt.html">krb5_c_decrypt -  Decrypt data using a key (operates on keyblock).</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_decrypt_iov.html">krb5_c_decrypt_iov -  Decrypt data in place supporting AEAD (operates on keyblock).</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krb5_c_derive_prfplus.html">krb5_c_derive_prfplus -  Derive a key using some input data (via RFC 6113 PRF+).</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_encrypt.html">krb5_c_encrypt -  Encrypt data using a key (operates on keyblock).</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_encrypt_iov.html">krb5_c_encrypt_iov -  Encrypt data in place supporting AEAD (operates on keyblock).</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_encrypt_length.html">krb5_c_encrypt_length -  Compute encrypted data length.</a></li>
@@ -376,6 +381,7 @@
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_make_random_key.html">krb5_c_make_random_key -  Generate an enctype-specific random encryption key.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_padding_length.html">krb5_c_padding_length -  Return a number of padding octets.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_prf.html">krb5_c_prf -  Generate enctype-specific pseudo-random bytes.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="krb5_c_prfplus.html">krb5_c_prfplus -  Generate pseudo-random bytes using RFC 6113 PRF+.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_prf_length.html">krb5_c_prf_length -  Get the output length of pseudo-random functions for an encryption type.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_random_add_entropy.html">krb5_c_random_add_entropy -  Add entropy to the pseudo-random number generator.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="krb5_c_random_make_octets.html">krb5_c_random_make_octets -  Generate pseudo-random bytes.</a></li>
@@ -524,7 +530,7 @@
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

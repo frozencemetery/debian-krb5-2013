@@ -66,7 +66,7 @@ static krb5_error_code resolve_target_cache(krb5_context ksu_context,
 void usage (){
     fprintf(stderr,
             _("Usage: %s [target user] [-n principal] [-c source cachename] "
-              "[-k] [-D] [-r time] [-pf] [-l lifetime] [-zZ] [-q] "
+              "[-k] [-r time] [-pf] [-l lifetime] [-zZ] [-q] "
               "[-e command [args... ] ] [-a [args... ] ]\n"), prog_name);
 }
 
@@ -376,11 +376,6 @@ main (argc, argv)
         exit(1);
     }
 
-    if (((retval = krb5_cc_set_flags(ksu_context,  cc_source, 0x0)) != 0)
-        && (retval != KRB5_FCC_NOFILE)) {
-        com_err(prog_name, retval, _("while opening ccache"));
-        exit(1);
-    }
     if ((retval = get_best_princ_for_target(ksu_context, source_uid,
                                             target_uid, source_user,
                                             target_user, cc_source,
@@ -815,12 +810,7 @@ get_configured_defccname(krb5_context context, char **target_out)
 
     *target_out = NULL;
 
-    if (unsetenv(KRB5_ENV_CCNAME) != 0) {
-        retval = errno;
-        com_err(prog_name, retval, _("while clearing the value of %s"),
-                KRB5_ENV_CCNAME);
-        return retval;
-    }
+    unsetenv(KRB5_ENV_CCNAME);
 
     /* Make sure we don't have a cached value for a different uid. */
     retval = krb5_cc_set_default_name(context, NULL);

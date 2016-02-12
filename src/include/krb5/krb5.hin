@@ -643,6 +643,48 @@ krb5_error_code KRB5_CALLCONV
 krb5_c_prf_length(krb5_context context, krb5_enctype enctype, size_t *len);
 
 /**
+ * Generate pseudo-random bytes using RFC 6113 PRF+.
+ *
+ * @param [in]  context         Library context
+ * @param [in]  k               KDC contribution key
+ * @param [in]  input           Input data
+ * @param [out] output          Pseudo-random output buffer
+ *
+ * This function fills @a output with PRF+(k, input) as defined in RFC 6113
+ * section 5.1.  The caller must preinitialize @a output and allocate the
+ * desired amount of space.  The length of the pseudo-random output will match
+ * the length of @a output.
+ *
+ * @note RFC 4402 defines a different PRF+ operation.  This function does not
+ * implement that operation.
+ *
+ * @return 0 on success, @c E2BIG if output->length is too large for PRF+ to
+ * generate, @c ENOMEM on allocation failure, or an error code from
+ * krb5_c_prf()
+ */
+krb5_error_code KRB5_CALLCONV
+krb5_c_prfplus(krb5_context context, const krb5_keyblock *k,
+               const krb5_data *input, krb5_data *output);
+
+/**
+ * Derive a key using some input data (via RFC 6113 PRF+).
+ *
+ * @param [in]  context         Library context
+ * @param [in]  k               KDC contribution key
+ * @param [in]  input           Input string
+ * @param [in]  enctype         Output key enctype (or @c ENCTYPE_NULL)
+ * @param [out] out             Derived keyblock
+ *
+ * This function uses PRF+ as defined in RFC 6113 to derive a key from another
+ * key and an input string.  If @a enctype is @c ENCTYPE_NULL, the output key
+ * will have the same enctype as the input key.
+ */
+krb5_error_code KRB5_CALLCONV
+krb5_c_derive_prfplus(krb5_context context, const krb5_keyblock *k,
+                      const krb5_data *input, krb5_enctype enctype,
+                      krb5_keyblock **out);
+
+/**
  * Compute the KRB-FX-CF2 combination of two keys and pepper strings.
  *
  * @param [in]  context         Library context
@@ -662,8 +704,8 @@ krb5_c_prf_length(krb5_context context, krb5_enctype enctype, size_t *len);
  */
 krb5_error_code KRB5_CALLCONV
 krb5_c_fx_cf2_simple(krb5_context context,
-                     krb5_keyblock *k1, const char *pepper1,
-                     krb5_keyblock *k2, const char *pepper2,
+                     const krb5_keyblock *k1, const char *pepper1,
+                     const krb5_keyblock *k2, const char *pepper2,
                      krb5_keyblock **out);
 
 /**
@@ -964,6 +1006,9 @@ krb5_c_keyed_checksum_types(krb5_context context, krb5_enctype enctype,
 #define KRB5_KEYUSAGE_ENC_CHALLENGE_CLIENT 54
 #define KRB5_KEYUSAGE_ENC_CHALLENGE_KDC 55
 #define KRB5_KEYUSAGE_AS_REQ 56
+#define KRB5_KEYUSAGE_CAMMAC 64
+
+#define KRB5_KEYUSAGE_PA_FX_COOKIE 513  /**< Used for encrypted FAST cookies */
 /** @} */ /* end of KRB5_KEYUSAGE group */
 
 /**
@@ -1828,10 +1873,12 @@ krb5_verify_checksum(krb5_context context, krb5_cksumtype ctype,
 #define KRB5_AUTHDATA_INITIAL_VERIFIED_CAS      9
 #define KRB5_AUTHDATA_OSF_DCE   64
 #define KRB5_AUTHDATA_SESAME    65
+#define KRB5_AUTHDATA_CAMMAC    96
 #define KRB5_AUTHDATA_WIN2K_PAC 128
 #define KRB5_AUTHDATA_ETYPE_NEGOTIATION 129     /**< RFC 4537 */
 #define KRB5_AUTHDATA_SIGNTICKET        512     /**< formerly 142 in krb5 1.8 */
 #define KRB5_AUTHDATA_FX_ARMOR 71
+#define KRB5_AUTHDATA_AUTH_INDICATOR 97
 /** @} */ /* end of KRB5_AUTHDATA group */
 
 /* password change constants */
@@ -2230,7 +2277,7 @@ typedef struct _krb5_cccol_cursor *krb5_cccol_cursor;
 
 /* Flags for krb5_cc_set_flags and similar. */
 /** Open and close the file for each cache operation. */
-#define KRB5_TC_OPENCLOSE          0x00000001
+#define KRB5_TC_OPENCLOSE          0x00000001 /**< @deprecated has no effect */
 #define KRB5_TC_NOTICKET           0x00000002
 
 /**
@@ -4990,9 +5037,9 @@ krb5_sname_match(krb5_context context, krb5_const_principal matching,
  * @retval 0 Success; otherwise - Kerberos error codes
  */
 krb5_error_code KRB5_CALLCONV
-krb5_change_password(krb5_context context, krb5_creds *creds, char *newpw,
-                     int *result_code, krb5_data *result_code_string,
-                     krb5_data *result_string);
+krb5_change_password(krb5_context context, krb5_creds *creds,
+                     const char *newpw, int *result_code,
+                     krb5_data *result_code_string, krb5_data *result_string);
 
 /**
  * Set a password for a principal using specified credentials.
@@ -5025,7 +5072,7 @@ krb5_change_password(krb5_context context, krb5_creds *creds, char *newpw,
  * Kerberos error codes.
  */
 krb5_error_code KRB5_CALLCONV
-krb5_set_password(krb5_context context, krb5_creds *creds, char *newpw,
+krb5_set_password(krb5_context context, krb5_creds *creds, const char *newpw,
                   krb5_principal change_password_for, int *result_code,
                   krb5_data *result_code_string, krb5_data *result_string);
 
@@ -5061,7 +5108,8 @@ krb5_set_password(krb5_context context, krb5_creds *creds, char *newpw,
  */
 krb5_error_code KRB5_CALLCONV
 krb5_set_password_using_ccache(krb5_context context, krb5_ccache ccache,
-                               char *newpw, krb5_principal change_password_for,
+                               const char *newpw,
+                               krb5_principal change_password_for,
                                int *result_code, krb5_data *result_code_string,
                                krb5_data *result_string);
 
@@ -7782,6 +7830,85 @@ krb5_vset_error_message(krb5_context  ctx, krb5_error_code code,
                         const char *fmt, va_list args)
 #if !defined(__cplusplus) && (__GNUC__ > 2)
     __attribute__((__format__(__printf__, 3, 0)))
+#endif
+    ;
+
+/**
+ * Add a prefix to the message for an error code.
+ *
+ * @param [in] ctx              Library context
+ * @param [in] code             Error code
+ * @param [in] fmt              Format string for error message prefix
+ * @param [in] ...              printf(3) style parameters
+ *
+ * Format a message and prepend it to the current message for @a code.  The
+ * prefix will be separated from the old message with a colon and space.
+ */
+void KRB5_CALLCONV_C
+krb5_prepend_error_message(krb5_context ctx, krb5_error_code code,
+                           const char *fmt, ...)
+#if !defined(__cplusplus) && (__GNUC__ > 2)
+    __attribute__((__format__(__printf__, 3, 4)))
+#endif
+    ;
+
+/**
+ * Add a prefix to the message for an error code using a va_list.
+ *
+ * @param [in] ctx              Library context
+ * @param [in] code             Error code
+ * @param [in] fmt              Format string for error message prefix
+ * @param [in] args             List of vprintf(3) style arguments
+ *
+ * This function is similar to krb5_prepend_error_message(), but uses a
+ * va_list instead of variadic arguments.
+ */
+void KRB5_CALLCONV
+krb5_vprepend_error_message(krb5_context  ctx, krb5_error_code code,
+                        const char *fmt, va_list args)
+#if !defined(__cplusplus) && (__GNUC__ > 2)
+    __attribute__((__format__(__printf__, 3, 0)))
+#endif
+    ;
+
+/**
+ * Add a prefix to a different error code's message.
+ *
+ * @param [in] ctx              Library context
+ * @param [in] old_code         Previous error code
+ * @param [in] code             Error code
+ * @param [in] fmt              Format string for error message prefix
+ * @param [in] ...              printf(3) style parameters
+ *
+ * Format a message and prepend it to the message for @a old_code.  The prefix
+ * will be separated from the old message with a colon and space.  Set the
+ * resulting message as the extended error message for @a code.
+ */
+void KRB5_CALLCONV_C
+krb5_wrap_error_message(krb5_context ctx, krb5_error_code old_code,
+                        krb5_error_code code, const char *fmt, ...)
+#if !defined(__cplusplus) && (__GNUC__ > 2)
+    __attribute__((__format__(__printf__, 4, 5)))
+#endif
+    ;
+
+/**
+ * Add a prefix to a different error code's message using a va_list.
+ *
+ * @param [in] ctx              Library context
+ * @param [in] old_code         Previous error code
+ * @param [in] code             Error code
+ * @param [in] fmt              Format string for error message prefix
+ * @param [in] args             List of vprintf(3) style arguments
+ *
+ * This function is similar to krb5_wrap_error_message(), but uses a
+ * va_list instead of variadic arguments.
+ */
+void KRB5_CALLCONV
+krb5_vwrap_error_message(krb5_context ctx, krb5_error_code old_code,
+                         krb5_error_code code, const char *fmt, va_list args)
+#if !defined(__cplusplus) && (__GNUC__ > 2)
+    __attribute__((__format__(__printf__, 4, 0)))
 #endif
     ;
 

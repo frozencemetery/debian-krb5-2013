@@ -22,6 +22,43 @@ AC_SUBST(KRB5_VERSION)
 
 AC_REQUIRE_CPP
 
+AC_CHECK_HEADER([stdint.h], [],
+  [AC_MSG_ERROR([stdint.h is required])])
+
+AC_CACHE_CHECK([whether integers are two's complement],
+  [krb5_cv_ints_twos_compl],
+  [AC_COMPILE_IFELSE(
+    [AC_LANG_BOOL_COMPILE_TRY(
+[#include <limits.h>
+],
+	[/* Basic two's complement check */
+	  ~(-1) == 0 && ~(-1L) == 0L &&
+	  /* Check that values with sign bit 1 and value bits 0 are valid */
+	  -(INT_MIN + 1) == INT_MAX && -(LONG_MIN + 1) == LONG_MAX &&
+	  /* Check that unsigned-to-signed conversions preserve bit patterns */
+	  (int)((unsigned int)INT_MAX + 1) == INT_MIN &&
+	  (long)((unsigned long)LONG_MAX + 1) == LONG_MIN])],
+    [krb5_cv_ints_twos_compl=yes],
+    [krb5_cv_ints_twos_compl=no])])
+
+if test "$krb5_cv_ints_twos_compl" = "no"; then
+  AC_MSG_ERROR([integers are not two's complement])
+fi
+
+AC_CACHE_CHECK([whether CHAR_BIT is 8],
+  [krb5_cv_char_bit_8],
+  [AC_PREPROC_IFELSE([AC_LANG_SOURCE(
+[[#include <limits.h>
+#if CHAR_BIT != 8
+  #error CHAR_BIT != 8
+#endif
+]])],
+    [krb5_cv_char_bit_8=yes], [krb5_cv_char_bit_8=no])])
+
+if test "$krb5_cv_char_bit_8" = "no"; then
+  AC_MSG_ERROR([CHAR_BIT is not 8])
+fi
+
 AC_CACHE_CHECK(if va_copy is available, krb5_cv_va_copy,
 [AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include <stdarg.h>
@@ -720,11 +757,15 @@ AC_CHECK_TYPE(time_t, long)
 AC_MSG_CHECKING([for replay cache directory])
 AC_CACHE_VAL(krb5_cv_sys_rcdir,
 [
-for t_dir in /var/tmp /usr/tmp /var/usr/tmp /tmp ; do
-	test -d $t_dir || continue
-	krb5_cv_sys_rcdir=$t_dir
-	break
-done])
+if test $cross_compiling = yes; then
+	krb5_cv_sys_rcdir=/var/tmp
+else
+	for t_dir in /var/tmp /usr/tmp /var/usr/tmp /tmp ; do
+		test -d $t_dir || continue
+		krb5_cv_sys_rcdir=$t_dir
+		break
+	done
+fi])
 AC_MSG_RESULT($krb5_cv_sys_rcdir)
 KRB5_RCTMPDIR=$krb5_cv_sys_rcdir
 AC_SUBST(KRB5_RCTMPDIR)
@@ -1076,7 +1117,8 @@ AC_CHECK_PROG(PYTHON,python,python)
 HAVE_PYTHON=no
 if test x"$PYTHON" != x; then
 	# k5test.py requires python 2.4 (for the subprocess module).
-    	vercheck="import sys;sys.exit((sys.hexversion < 0x2040000) and 1 or 0)"
+	# Some code needs python 2.5 (for syntax like conditional expressions).
+	vercheck="import sys;sys.exit((sys.hexversion < 0x2050000) and 1 or 0)"
 	if python -c "$vercheck"; then
 		HAVE_PYTHON=yes
 	fi
@@ -1412,11 +1454,12 @@ dnl	ccapi ccapi/lib ccapi/lib/unix ccapi/server ccapi/server/unix ccapi/test
 	plugins/kdb/db2/libdb2/recno
 	plugins/kdb/db2/libdb2/test
 	plugins/kdb/hdb
+	plugins/kdb/test
 	plugins/preauth/cksum_body
 	plugins/preauth/otp
 	plugins/preauth/securid_sam2
+	plugins/preauth/test
 	plugins/preauth/wpse
-	plugins/authdata/greet
 	plugins/authdata/greet_client
 	plugins/authdata/greet_server
 	plugins/tls/k5tls

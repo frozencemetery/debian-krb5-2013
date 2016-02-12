@@ -396,6 +396,24 @@ asn1_decode_sequence_of_keys(krb5_data *in, krb5_key_data **out,
     return 0;
 }
 
+/*
+ * Free a NULL-terminated struct berval *array[] and all its contents.
+ * Does not set array to NULL after freeing it.
+ */
+static void
+free_berdata(struct berval **array)
+{
+    int i;
+
+    if (array != NULL) {
+        for (i = 0; array[i] != NULL; i++) {
+            if (array[i]->bv_val != NULL)
+                free(array[i]->bv_val);
+            free(array[i]);
+        }
+        free(array);
+    }
+}
 
 /* Decoding ASN.1 encoded key */
 static struct berval **
@@ -466,12 +484,8 @@ cleanup:
 
     free(key_data);
     if (err != 0) {
-        if (ret != NULL) {
-            for (i = 0; ret[i] != NULL; i++)
-                free (ret[i]);
-            free (ret);
-            ret = NULL;
-        }
+        free_berdata(ret);
+        ret = NULL;
     }
 
     return ret;
@@ -512,7 +526,7 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
     char                        *filtuser=NULL;
     struct berval               **bersecretkey=NULL;
     LDAPMod                     **mods=NULL;
-    krb5_boolean                create_standalone_prinicipal=FALSE;
+    krb5_boolean                create_standalone=FALSE;
     krb5_boolean                krb_identity_exists=FALSE, establish_links=FALSE;
     char                        *standalone_principal_dn=NULL;
     krb5_tl_data                *tl_data=NULL;
@@ -646,10 +660,10 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
             /*
              * if principal_dn is null then there is code further down to
              * deal with setting standalone_principal_dn.  Also note that
-             * this will set create_standalone_prinicipal true for
+             * this will set create_standalone true for
              * non-mix-in entries which is okay if loading from a dump.
              */
-            create_standalone_prinicipal = TRUE;
+            create_standalone = TRUE;
             standalone_principal_dn = strdup(principal_dn);
             CHECK_NULL(standalone_principal_dn);
         }
@@ -670,9 +684,8 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
                 if (st == KRB5_KDB_NOENTRY || st == KRB5_KDB_CONSTRAINT_VIOLATION) {
                     int ost = st;
                     st = EINVAL;
-                    snprintf(errbuf, sizeof(errbuf), _("'%s' not found: "),
-                             xargs.containerdn);
-                    prepend_err_str(context, errbuf, st, ost);
+                    k5_prependmsg(context, ost, st, _("'%s' not found"),
+                                  xargs.containerdn);
                 }
                 goto cleanup;
             }
@@ -694,9 +707,9 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
         CHECK_NULL(standalone_principal_dn);
         /*
          * free subtree when you are done using the subtree
-         * set the boolean create_standalone_prinicipal to TRUE
+         * set the boolean create_standalone to TRUE
          */
-        create_standalone_prinicipal = TRUE;
+        create_standalone = TRUE;
         free(subtree);
         subtree = NULL;
     }
@@ -1042,7 +1055,7 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
         }
         /* An empty list of bervals is only accepted for modify operations,
          * not add operations. */
-        if (bersecretkey[0] != NULL || !create_standalone_prinicipal) {
+        if (bersecretkey[0] != NULL || !create_standalone) {
             st = krb5_add_ber_mem_ldap_mod(&mods, "krbprincipalkey",
                                            LDAP_MOD_REPLACE | LDAP_MOD_BVALUES,
                                            bersecretkey);
@@ -1132,11 +1145,7 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
                                              LDAP_MOD_REPLACE |
                                              LDAP_MOD_BVALUES, ber_tl_data);
             }
-            for (j = 0; ber_tl_data[j] != NULL; j++) {
-                free(ber_tl_data[j]->bv_val);
-                free(ber_tl_data[j]);
-            }
-            free(ber_tl_data);
+            free_berdata(ber_tl_data);
             if (st != 0)
                 goto cleanup;
         }
@@ -1197,7 +1206,7 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
     if (mods == NULL)
         goto cleanup;
 
-    if (create_standalone_prinicipal == TRUE) {
+    if (create_standalone == TRUE) {
         memset(strval, 0, sizeof(strval));
         strval[0] = "krbprincipal";
         strval[1] = "krbprincipalaux";
@@ -1333,8 +1342,7 @@ krb5_read_tkt_policy(krb5_context context, krb5_ldap_context *ldap_context,
     if (policy != NULL) {
         st = krb5_ldap_read_policy(context, policy, &tktpoldnparam, &omask);
         if (st && st != KRB5_KDB_NOENTRY) {
-            prepend_err_str(context, _("Error reading ticket policy. "), st,
-                            st);
+            k5_prependmsg(context, st, _("Error reading ticket policy"));
             goto cleanup;
         }
 

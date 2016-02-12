@@ -34,7 +34,7 @@
  * Declarations for kdcpreauth plugin module implementors.
  *
  * The kdcpreauth interface has a single supported major version, which is 1.
- * Major version 1 has a current minor version of 2.  kdcpreauth modules should
+ * Major version 1 has a current minor version of 3.  kdcpreauth modules should
  * define a function named kdcpreauth_<modulename>_initvt, matching the
  * signature:
  *
@@ -180,6 +180,46 @@ typedef struct krb5_kdcpreauth_callbacks_st {
                                      krb5_kdcpreauth_rock rock);
 
     /* End of version 2 kdcpreauth callbacks. */
+
+    /*
+     * Get the decrypted client long-term key chosen according to the request
+     * enctype list, or NULL if no matching key was found.  The returned
+     * pointer is an alias and should not be freed.  If invoked from
+     * return_padata, the result will be the same as the encrypting_key
+     * parameter if it is not NULL, and will therefore reflect the modified
+     * reply key if a return_padata handler has replaced the reply key.
+     */
+    const krb5_keyblock *(*client_keyblock)(krb5_context context,
+                                            krb5_kdcpreauth_rock rock);
+
+    /* Assert an authentication indicator in the AS-REP authdata.  Duplicate
+     * indicators will be ignored. */
+    krb5_error_code (*add_auth_indicator)(krb5_context context,
+                                          krb5_kdcpreauth_rock rock,
+                                          const char *indicator);
+
+    /*
+     * Read a data value for pa_type from the request cookie, placing it in
+     * *out.  The value placed there is an alias and must not be freed.
+     * Returns true if a value for pa_type was retrieved, false if not.
+     */
+    krb5_boolean (*get_cookie)(krb5_context context, krb5_kdcpreauth_rock rock,
+                               krb5_preauthtype pa_type, krb5_data *out);
+
+    /*
+     * Set a data value for pa_type to be sent in a secure cookie in the next
+     * error response.  If pa_type is already present, the value is ignored.
+     * If the preauth mechanism has different preauth types for requests and
+     * responses, use the request type.  Secure cookies are encrypted in a key
+     * known only to the KDCs, but can be replayed within a short time window
+     * for requests using the same client principal.
+     */
+    krb5_error_code (*set_cookie)(krb5_context context,
+                                  krb5_kdcpreauth_rock rock,
+                                  krb5_preauthtype pa_type,
+                                  const krb5_data *data);
+
+    /* End of version 3 kdcpreauth callbacks. */
 
 } *krb5_kdcpreauth_callbacks;
 

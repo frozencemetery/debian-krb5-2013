@@ -1,4 +1,4 @@
-                   Kerberos Version 5, Release 1.13
+                   Kerberos Version 5, Release 1.14
 
                             Release Notes
                         The MIT Kerberos Team
@@ -73,230 +73,204 @@ from using single-DES cryptosystems.  Among these is a configuration
 variable that enables "weak" enctypes, which defaults to "false"
 beginning with krb5-1.8.
 
-
-Major changes in 1.13.2 (2015-05-08)
-------------------------------------
-
-This is a bug fix release.
-
-* Fix a minor vulnerability in krb5_read_message, which is primarily
-  used in the BSD-derived kcmd suite of applications.  [CVE-2014-5355]
-
-* Fix a bypass of requires_preauth in KDCs that have PKINIT enabled.
-  [CVE-2015-2694]
-
-* Fix some issues with the LDAP KDC database back end.
-
-* Fix an iteration-related memory leak in the DB2 KDC database back
-  end.
-
-* Fix issues with some less-used kadm5.acl functionality.
-
-* Improve documentation.
-
-krb5-1.13.2 changes by ticket ID
---------------------------------
-
-8050    Fix krb5_read_message handling [CVE-2014-5355]
-8149    Add formats section to documentation
-8153    Import names immediately with COMPOSITE_EXPORT
-8154    kadmind ACL back-references can affect later lines
-8155    kadm5.acl flag restrictions don't use documented syntax
-8160    requires_preauth bypass in PKINIT-enabled KDC [CVE-2015-2694]
-8162    Disable principal renames for LDAP
-8166    Fix LDAP ticket policies on big-endian LP64
-8168    Fix memory leak in DB2 iteration
-8170    Fix minor documentation errors
-
-
-Major changes in 1.13.1 (2015-02-11)
-------------------------------------
-
-This is a bug fix release.
-
-* Fix multiple vulnerabilities in the LDAP KDC back end.
-  [CVE-2014-5354] [CVE-2014-5353]
-
-* Fix multiple kadmind vulnerabilities, some of which are based in the
-  gssrpc library. [CVE-2014-5352 CVE-2014-5352 CVE-2014-9421
-  CVE-2014-9422 CVE-2014-9423]
-
-
-krb5-1.13.1 changes by ticket ID
---------------------------------
-
-7880    Fix typo in doc for krb5_get_init_creds_keytab()
-7962    remote kadmin client doesn't parse "-norandkey"
-8011    PKINIT PKCS12 prompt length constraint limits certificate path
-        length
-8024    Use gssalloc_malloc for GSS error tokens
-8028    Report output ccache errors getting initial creds
-8029    Fix cursor leak in krb5_verify_init_creds
-8034    Fix input race condition in t_skew.py
-8035    Update example enctypes in kdc_conf.rst
-8038    Kadmind/kadmin.local issues after migration from version
-        1.12.2 to 1.13
-8041    kadmind with ldap backend crashes when putting keyless entries
-        [CVE-2014-5354]
-8049    Fix LDAP tests when sasl.h not found
-8051    Fix LDAP misused policy name crash [CVE-2014-5353]
-8053    Fix OTP tests with pyrad 2.x
-8055    Fix gss_process_context_token() [CVE-2014-5352]
-8056    Fix kadm5/gssrpc XDR double free [CVE-2014-9421]
-8057    Fix kadmind server validation [CVE-2014-9422]
-8058    Fix gssrpc data leakage [CVE-2014-9423]
-8059    Check for null *iter_p in profile_iterator()
-8060    kinit -C loops chasing realm referrals against MIT KDC
-8061    Export function gss_add_cred_with_password
-8066    Bump DAL major version for iterate change
-8072    Avoid uninitialized data in t_prf.c
-
-
-Major changes in 1.13 (2014-10-15)
+Major changes in 1.14 (2015-11-20)
 ----------------------------------
 
 Administrator experience:
 
-* Add support for accessing KDCs via an HTTPS proxy server using the
-  MS-KKDCP protocol.
+* Add a new kdb5_util tabdump command to provide reporting-friendly
+  tabular dump formats (tab-separated or CSV) for the KDC database.
+  Unlike the normal dump format, each output table has a fixed number
+  of fields.  Some tables include human-readable forms of data that
+  are opaque in ordinary dump files.  This format is also suitable for
+  importing into relational databases for complex queries.
 
-* Add support for hierarchical incremental propagation, where slaves
-  can act as intermediates between an upstream master and other
-  downstream slaves.
+* Add support to kadmin and kadmin.local for specifying a single
+  command line following any global options, where the command
+  arguments are split by the shell--for example, "kadmin getprinc
+  principalname".  Commands issued this way do not prompt for
+  confirmation or display warning messages, and exit with non-zero
+  status if the operation fails.
 
-* Add support for configuring GSS mechanisms using
-  /etc/gss/mech.d/*.conf files in addition to /etc/gss/mech.
+* Accept the same principal flag names in kadmin as we do for the
+  default_principal_flags kdc.conf variable, and vice versa.  Also
+  accept flag specifiers in the form that kadmin prints, as well as
+  hexadecimal numbers.
 
-* Add support to the LDAP KDB module for binding to the LDAP server
-  using SASL.
+* Remove the triple-DES and RC4 encryption types from the default
+  value of supported_enctypes, which determines the default key and
+  salt types for new password-derived keys.  By default, keys will
+  only created only for AES128 and AES256.  This mitigates some types
+  of password guessing attacks.
 
-* The KDC listens for TCP connections by default.
+* Add support for directory names in the KRB5_CONFIG and
+  KRB5_KDC_PROFILE environment variables.
 
-* Fix a minor key disclosure vulnerability where using the "keepold"
-  option to the kadmin randkey operation could return the old keys.
-  [CVE-2014-5351]
+* Add support for authentication indicators, which are ticket
+  annotations to indicate the strength of the initial authentication.
+  Add support for the "require_auth" string attribute, which can be
+  set on server principal entries to require an indicator when
+  authenticating to the server.
 
-User experience:
+* Add support for key version numbers larger than 255 in keytab files,
+  and for version numbers up to 65535 in KDC databases.
 
-* Add client support for the Kerberos Cache Manager protocol. If the
-  host is running a Heimdal kcm daemon, caches served by the daemon
-  can be accessed with the KCM: cache type.
+* Transmit only one ETYPE-INFO and/or ETYPE-INFO2 entry from the KDC
+  during pre-authentication, corresponding to the client's most
+  preferred encryption type.
 
-* When built on OS X 10.7 and higher, use "KCM:" as the default cache
-  type, unless overridden by command-line options or krb5-config
-  values.
+* Add support for server name identification (SNI) when proxying KDC
+  requests over HTTPS.
+
+* Add support for the err_fmt profile parameter, which can be used to
+  generate custom-formatted error messages.
+
+Code quality:
+
+* Fix memory aliasing issues in SPNEGO and IAKERB mechanisms that
+  could cause server crashes. [CVE-2015-2695] [CVE-2015-2696]
+  [CVE-2015-2698]
+
+* Fix build_principal memory bug that could cause a KDC
+  crash. [CVE-2015-2697]
+
+Developer experience:
+
+* Change gss_acquire_cred_with_password() to acquire credentials into
+  a private memory credential cache.  Applications can use
+  gss_store_cred() to make the resulting credentials visible to other
+  processes.
+
+* Change gss_acquire_cred() and SPNEGO not to acquire credentials for
+  IAKERB or for non-standard variants of the krb5 mechanism OID unless
+  explicitly requested.  (SPNEGO will still accept the Microsoft
+  variant of the krb5 mechanism OID during negotiation.)
+
+* Change gss_accept_sec_context() not to accept tokens for IAKERB or
+  for non-standard variants of the krb5 mechanism OID unless an
+  acceptor credential is acquired for those mechanisms.
+
+* Change gss_acquire_cred() to immediately resolve credentials if the
+  time_rec parameter is not NULL, so that a correct expiration time
+  can be returned.  Normally credential resolution is delayed until
+  the target name is known.
+
+* Add krb5_prepend_error_message() and krb5_wrap_error_message() APIs,
+  which can be used by plugin modules or applications to add prefixes
+  to existing detailed error messages.
+
+* Add krb5_c_prfplus() and krb5_c_derive_prfplus() APIs, which
+  implement the RFC 6113 PRF+ operation and key derivation using PRF+.
+
+* Add support for pre-authentication mechanisms which use multiple
+  round trips, using the the KDC_ERR_MORE_PREAUTH_DATA_REQUIRED error
+  code.  Add get_cookie() and set_cookie() callbacks to the kdcpreauth
+  interface; these callbacks can be used to save marshalled state
+  information in an encrypted cookie for the next request.
+
+* Add a client_key() callback to the kdcpreauth interface to retrieve
+  the chosen client key, corresponding to the ETYPE-INFO2 entry sent
+  by the KDC.
+
+* Add an add_auth_indicator() callback to the kdcpreauth interface,
+  allowing pre-authentication modules to assert authentication
+  indicators.
+
+* Add support for the GSS_KRB5_CRED_NO_CI_FLAGS_X cred option to
+  suppress sending the confidentiality and integrity flags in GSS
+  initiator tokens unless they are requested by the caller.  These
+  flags control the negotiated SASL security layer for the Microsoft
+  GSS-SPNEGO SASL mechanism.
+
+* Make the FILE credential cache implementation less prone to
+  corruption issues in multi-threaded programs, especially on
+  platforms with support for open file description locks.
 
 Performance:
 
-* Add support for doing unlocked database dumps for the DB2 KDC back
-  end, which would allow the KDC and kadmind to continue accessing the
-  database during lengthy database dumps.
+* On slave KDCs, poll the master KDC immediately after processing a
+  full resync, and do not require two full resyncs after the master
+  KDC's log file is reset.
+
+User experience:
+
+* Make gss_accept_sec_context() accept tickets near their expiration
+  but within clock skew tolerances, rather than rejecting them
+  immediately after the server's view of the ticket expiration time.
 
 
-krb5-1.13 changes by ticket ID
+krb5-1.14 changes by ticket ID
 ------------------------------
 
-884     having "-" in key:salt separator list prevents salttype
-        defaulting from working
-1794    don't use mktemp
-3498    race opening/creating replay cache.
-5958    kadmin salttype "no salt" means really means "default/normal
-        salt"
-6034    rework gic_opt_ext to be more portable
-6042    krb5_string_to_keysalts should default to normal salt rather
-        than "ignore salttype"
-6413    pkinit thread safety
-6550    old_stash_bendian is a keytab
-6731    KDC should listen to TCP by default
-7232    Confusing error message for key version mismatch
-7704    Anonymous kadmin does not work
-7728    ksu assumes the invoking user's using a FILE: ccache
-7761    Document that newer AFS supports stronger crypto
-7795    Allow ":port" suffixes in sn2princ hostnames
-7800    krb5-1.11/1.12: kadm5_init_with_* interface
-7816    Don't produce context deletion token in krb5 mech
-7819    Add rcache feature to gss_acquire_cred_from
-7838    Fix gss_pseudo_random leak on zero length output
-7840    Remove krb5-send-pr
-7850    Remove kdb5_util load iprop safety net
-7855    Add hierarchical iprop support
-7857    Web Documentation: Missing reference to 1.12
-7859    Move OTP sockets to KDC_RUN_DIR
-7861    iprop can deadlock on master KDC
-7868    krb5_get_init_creds_password ignores preauth options when
-        changing password
-7869    In kdb5_util dump, only lock DB for iprop dumps
-7879    Rewrite GSS sequence state tracking code
-7882    Load mechglue config files from /etc/gss/mech.d
-7883    Try compatible keys in rd_req_dec "any" path
-7884    profile writes may not be immediately detected within same
-        process
-7886    Don't check kpasswd reply address
-7889    PKINIT use of OpenSSL OID table is not thread-safe or
-        application-friendly
-7891    Don't free cred handle used in kadm5 server handle
-7892    mismatch between client keytab default principal for kinit and
-        GSS-API
-7901    Update sample configs to include master_kdc
-7906    Don't remove ccache creds before storing them
-7907    Allow GSS mechs to force mechlistMIC in SPNEGO
-7908    Fix unlikely memory error in krb5_rd_cred
-7910    KDC does not log client principal if TGS header ticket
-        verification fails
-7913    Use case insensitive DNS SAN matching in PKINIT
-7915    Improve pointer hygiene around gss_display_name
-7918    LDAP key data decoder ignores salt type if salt value is empty
-7923    x-deltat.y is not compatible with bison 3
-7925    05cbef80d53 breaks /etc/gss/mech
-7927    Better document how to verify PGP signature
-7929    HTTP proxy support
-7933    pkinit_win2k_require_binding behavior does not match
-        documentation
-7934    Remove PKINIT longhorn compatibility option
-7935    Add a family-independent bindresvport_sa function
-7939    kadm5.acl docs wrongly imply that list permission can have a
-        target
-7944    Add SASL support to LDAP KDB module
-7947    Load plugins with RTLD_NODELETE if possible
-7961    Define _GNU_SOURCE as part of build
-7964    Add KCM credential cache type (client only)
-7968    Improve error message for PRNG seeding failure
-7974    Don't equate IAKERB and krb5 in SPNEGO initiator
-7975    Negotiating NTLM with SPNEGO against Windows Server 2003
-        doesn't work
-7977    Enable unlocked KDB iteration
-7978    Support kdb5_util dump -rev again
-7979    Add kiprop/<master-hostname> during KDB creation
-7981    Minor memory leak in GSS-API mechanism initialization
-7983    In ksu, without the -e flag, also check .k5users
-7984    Make ksu respect the default_ccache_name setting
-7986    Copy config entries to the ksu target ccache
-7987    Fix GSS krb5 GSS_C_DELEG_FLAG ret_flags result
-7988    Make krb5_cc_new_unique create DIR: directories
-7990    Fix HP-UX build support
-7992    Fix test syntax in configure.in
-7993    Autodetect OpenSSL CMS for LibreSSL compatibility
-7994    randkey does not update principal's master key version
-7995    kadmin change_password -keepold does not work with master key
-        migration
-7996    Simplify and improve ksu cred verification
-7997    kadm5_randkey_principal interop with Solaris KDC
-7998    gssapi.dll tries to get initial creds even when some are
-        present
-8000    gssapi.dll fails to detect TGTs in the MSLSA cache when UAC is
-        enabled
-8001    Allow logger.c to work with redirected stderr
-8003    Export gssrpc_bindresvport_sa
-8004    Map .hin files to the C language for doxygen
-8005    Initialize iterflags in update_princ_encryption
-8006    Update NOTICE for 1.13
-8007    In ksu, handle typeless default_ccache_name values
-8008    Document clock skew tolerance for ticket times
-8015    Fix ksu crash in cases where it obtains the TGT
-8016    Restore providing password TGTs for the ksu target
-8017    gss_acquire_cred_impersonate_name crashes with acceptor-only
-        impersonator creds
-8018    Return only new keys in randkey [CVE-2014-5351]
+6938    krb5 and ldap signed traffic
+7532    Improve support for large kvnos
+7790    Make cross-realm S4U2Self work
+7804    Can't write to file ccache with OPENCLOSE unset
+7903    Remove des3 and arcfour from supported_enctypes
+7991    kadmin should have a script-friendly mode
+8002    Fix KCM ccache per-type cursor
+8021    SPNEGO clients should not try IAKERB by default
+8022    klist -s only looks for TGTs
+8023    Use OFD locks where available
+8025    krb5 gss_inquire_context doesn't work with partially established context
+8026    Use stdio reads, O_APPEND writes in FILE ccache
+8027    Client RPC timeout during kadmin listprincs command
+8030    Add support for directories in profile paths
+8046    Add new error message wrapping APIs
+8047    Add err_fmt profile parameter
+8048    Remove ksu -D flag documentation
+8052    Include file ccache name in error messages
+8062    Fix const correctness on krb5_c_fx_cf2_simple()
+8063    Support KDC_ERR_MORE_PREAUTH_DATA_REQUIRED
+8123    Check timestamp in PKINIT kdcpreauth module
+8124    Use preauth timestamp in PKINIT clpreauth module
+8139    SIGNTICKET creation and verification doesn't always use the right key
+8152    gss_acquire_cred_with_password() ignores expired creds
+8157    Authentication indicator support
+8161    kpropd -t (runonce) doesn't work for full dumps
+8163    python test issues
+8164    Avoid unnecessary iprop full resyncs after resets
+8171    kadm5_hook does not have rename method
+8198    Support SNI in MS-KKDCP client
+8199    Only include one key in etype-info
+8200    Add client_keyblock kdcpreauth callback
+8213    Policy extensions in 1.11 break iprop dump compatibility
+8215    Unify KDB principal flag specifiers
+8217    Limit use of deprecated krb5 mech OIDs
+8219    Conditionalize iprop stderr output in kadmind
+8221    Fail during configure if stdint.h missing
+8224    Add KDC_ERR_PREAUTH_EXPIRED support
+8225    Improve krb5_cccol_have_content() error messages
+8227    Allow missing authenticator checksum with GSSAPI
+8228    Add krb5_c_prfplus() and krb5_c_derive_prfplus()
+8233    Add secure cookie support
+8234    Add etype-info2 to MORE_PREAUTH_DATA_REQUIRED
+8235    Resolve krb5 GSS creds if time_rec is requested
+8236    Update SPNEGO hintName value to current spec
+8242    Improve PKINIT OpenSSL error reporting
+8243    Add tabular dump capability to kdb5_util
+8244    SPNEGO and IAKERB context aliasing bugs [CVE-2015-2695][CVE-2015-2696]
+8245    kerberos.ldif file has malformed entries
+8246    Fix error mappings for IOV MIC mechglue funcs
+8251    Fix kadmin with e2fsprogs libss
+8252    Fix build_principal memory bug [CVE-2015-2697]
+8253    Fix minor utf8-to-ucs2s read overrun bug
+8254    use appropriate default for krb5_cv_sys_rcdir when cross-compiling
+8255    Define error status GSS_S_BAD_MIC
+8256    Fix typo in GSS_S_UNAUTHORIZED error message
+8257    Fix gss_inquire_names_for_mech() on MS krb5 mech
+8258    Correct GSS major code for non-default QOP values
+8259    Check output params on GSS OID set functions
+8260    Fix gss_store_cred() minor code on acceptor cred
+8262    Set plugin_base_dir for kadmin tests
+8264    kdb_check test target uses installed message catalog
+8266    Installed krb5.conf files can affect test suite
+8267    unsetenv() returns void
+8268    krb5 gss_accept_sec_context() does not allow clock skew
+8269    Accept new passwords as const char pointers
+8271    Zap secure cookie contents when freeing
+8273    Fix IAKERB context export/import [CVE-2015-2698]
+
 
 Acknowledgements
 ----------------
@@ -398,12 +372,14 @@ reports, suggestions, and valuable resources:
     David Bantz
     Alex Baule
     David Benjamin
+    Thomas Bernard
     Adam Bernstein
     Arlene Berry
     Jeff Blaine
     Radoslav Bodo
     Sumit Bose
     Emmanuel Bouillon
+    Philip Brown
     Michael Calmer
     Andrea Campi
     Julien Chaffraix
@@ -416,6 +392,7 @@ reports, suggestions, and valuable resources:
     Kevin Coffman
     Simon Cooper
     Sylvain Cortes
+    Ian Crowther
     Arran Cudbard-Bell
     Jeff D'Angelo
     Nalin Dahyabhai
@@ -437,6 +414,8 @@ reports, suggestions, and valuable resources:
     Ronni Feldt
     Bill Fellows
     JC Ferguson
+    Remi Ferrand
+    Paul Fertser
     William Fiveash
     Ákos Frohner
     Sebastian Galiano
@@ -505,6 +484,7 @@ reports, suggestions, and valuable resources:
     Mark Phalan
     Brett Randall
     Jonathan Reams
+    Jonathan Reed
     Robert Relyea
     Martin Rex
     Jason Rogers
@@ -539,6 +519,7 @@ reports, suggestions, and valuable resources:
     Ross Wilper
     Augustin Wolf
     David Woodhouse
+    Tsu-Phong Wu
     Xu Qiang
     Neng Xue
     Nickolai Zeldovich

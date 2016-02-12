@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -323,6 +323,158 @@ principal processed to be listed, with an indication as to whether it
 needed updating or not.  The <strong>-n</strong> option performs a dry run, only
 showing the actions which would have been taken.</p>
 </div>
+<div class="section" id="tabdump">
+<h3>tabdump<a class="headerlink" href="#tabdump" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><strong>tabdump</strong> [<strong>-H</strong>] [<strong>-c</strong>] [<strong>-e</strong>] [<strong>-n</strong>] [<strong>-o</strong> <em>outfile</em>]
+<em>dumptype</em></div></blockquote>
+<p>Dump selected fields of the database in a tabular format suitable for
+reporting (e.g., using traditional Unix text processing tools) or
+importing into relational databases.  The data format is tab-separated
+(default), or optionally comma-separated (CSV), with a fixed number of
+columns.  The output begins with a header line containing field names,
+unless suppression is requested using the <strong>-H</strong> option.</p>
+<p>The <em>dumptype</em> parameter specifies the name of an output table (see
+below).</p>
+<p>Options:</p>
+<dl class="docutils">
+<dt><strong>-H</strong></dt>
+<dd>suppress writing the field names in a header line</dd>
+<dt><strong>-c</strong></dt>
+<dd>use comma separated values (CSV) format, with minimal quoting,
+instead of the default tab-separated (unquoted, unescaped) format</dd>
+<dt><strong>-e</strong></dt>
+<dd>write empty hexadecimal string fields as empty fields instead of
+as &#8220;-1&#8221;.</dd>
+<dt><strong>-n</strong></dt>
+<dd>produce numeric output for fields that normally have symbolic
+output, such as enctypes and flag names.  Also requests output of
+time stamps as decimal POSIX time_t values.</dd>
+<dt><strong>-o</strong> <em>outfile</em></dt>
+<dd>write the dump to the specified output file instead of to standard
+output</dd>
+</dl>
+<p>Dump types:</p>
+<dl class="docutils">
+<dt><strong>keydata</strong></dt>
+<dd><p class="first">principal encryption key information, including actual key data
+(which is still encrypted in the master key)</p>
+<dl class="last docutils">
+<dt><strong>name</strong></dt>
+<dd>principal name</dd>
+<dt><strong>keyindex</strong></dt>
+<dd>index of this key in the principal&#8217;s key list</dd>
+<dt><strong>kvno</strong></dt>
+<dd>key version number</dd>
+<dt><strong>enctype</strong></dt>
+<dd>encryption type</dd>
+<dt><strong>key</strong></dt>
+<dd>key data as a hexadecimal string</dd>
+<dt><strong>salttype</strong></dt>
+<dd>salt type</dd>
+<dt><strong>salt</strong></dt>
+<dd>salt data as a hexadecimal string</dd>
+</dl>
+</dd>
+<dt><strong>keyinfo</strong></dt>
+<dd>principal encryption key information (as in <strong>keydata</strong> above),
+excluding actual key data</dd>
+<dt><strong>princ_flags</strong></dt>
+<dd><p class="first">principal boolean attributes.  Flag names print as hexadecimal
+numbers if the <strong>-n</strong> option is specified, and all flag positions
+are printed regardless of whether or not they are set.  If <strong>-n</strong>
+is not specified, print all known flag names for each principal,
+but only print hexadecimal flag names if the corresponding flag is
+set.</p>
+<dl class="last docutils">
+<dt><strong>name</strong></dt>
+<dd>principal name</dd>
+<dt><strong>flag</strong></dt>
+<dd>flag name</dd>
+<dt><strong>value</strong></dt>
+<dd>boolean value (0 for clear, or 1 for set)</dd>
+</dl>
+</dd>
+<dt><strong>princ_lockout</strong></dt>
+<dd><p class="first">state information used for tracking repeated password failures</p>
+<dl class="last docutils">
+<dt><strong>name</strong></dt>
+<dd>principal name</dd>
+<dt><strong>last_success</strong></dt>
+<dd>time stamp of most recent successful authentication</dd>
+<dt><strong>last_failed</strong></dt>
+<dd>time stamp of most recent failed authentication</dd>
+<dt><strong>fail_count</strong></dt>
+<dd>count of failed attempts</dd>
+</dl>
+</dd>
+<dt><strong>princ_meta</strong></dt>
+<dd><p class="first">principal metadata</p>
+<dl class="last docutils">
+<dt><strong>name</strong></dt>
+<dd>principal name</dd>
+<dt><strong>modby</strong></dt>
+<dd>name of last principal to modify this principal</dd>
+<dt><strong>modtime</strong></dt>
+<dd>timestamp of last modification</dd>
+<dt><strong>lastpwd</strong></dt>
+<dd>timestamp of last password change</dd>
+<dt><strong>policy</strong></dt>
+<dd>policy object name</dd>
+<dt><strong>mkvno</strong></dt>
+<dd>key version number of the master key that encrypts this
+principal&#8217;s key data</dd>
+<dt><strong>hist_kvno</strong></dt>
+<dd>key version number of the history key that encrypts the key
+history data for this principal</dd>
+</dl>
+</dd>
+<dt><strong>princ_stringattrs</strong></dt>
+<dd><p class="first">string attributes (key/value pairs)</p>
+<dl class="last docutils">
+<dt><strong>name</strong></dt>
+<dd>principal name</dd>
+<dt><strong>key</strong></dt>
+<dd>attribute name</dd>
+<dt><strong>value</strong></dt>
+<dd>attribute value</dd>
+</dl>
+</dd>
+<dt><strong>princ_tktpolicy</strong></dt>
+<dd><p class="first">per-principal ticket policy data, including maximum ticket
+lifetimes</p>
+<dl class="last docutils">
+<dt><strong>name</strong></dt>
+<dd>principal name</dd>
+<dt><strong>expiration</strong></dt>
+<dd>principal expiration date</dd>
+<dt><strong>pw_expiration</strong></dt>
+<dd>password expiration date</dd>
+<dt><strong>max_life</strong></dt>
+<dd>maximum ticket lifetime</dd>
+<dt><strong>max_renew_life</strong></dt>
+<dd>maximum renewable ticket lifetime</dd>
+</dl>
+</dd>
+</dl>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ kdb5_util tabdump -o keyinfo.txt keyinfo
+$ cat keyinfo.txt
+name        keyindex        kvno    enctype salttype        salt
+foo@EXAMPLE.COM     0       1       aes128-cts-hmac-sha1-96 normal  -1
+bar@EXAMPLE.COM     0       1       aes128-cts-hmac-sha1-96 normal  -1
+bar@EXAMPLE.COM     1       1       des-cbc-crc     normal  -1
+$ sqlite3
+sqlite&gt; .mode tabs
+sqlite&gt; .import keyinfo.txt keyinfo
+sqlite&gt; select * from keyinfo where enctype like &#39;des-cbc-%&#39;;
+bar@EXAMPLE.COM     1       1       des-cbc-crc     normal  -1
+sqlite&gt; .quit
+$ awk -F&#39;\t&#39; &#39;$4 ~ /des-cbc-/ { print }&#39; keyinfo.txt
+bar@EXAMPLE.COM     1       1       des-cbc-crc     normal  -1
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="see-also">
 <h2>SEE ALSO<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
@@ -354,6 +506,7 @@ showing the actions which would have been taken.</p>
 <li><a class="reference internal" href="#list-mkeys">list_mkeys</a></li>
 <li><a class="reference internal" href="#purge-mkeys">purge_mkeys</a></li>
 <li><a class="reference internal" href="#update-princ-encryption">update_princ_encryption</a></li>
+<li><a class="reference internal" href="#tabdump">tabdump</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#see-also">SEE ALSO</a></li>
@@ -380,6 +533,7 @@ showing the actions which would have been taken.</p>
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auth_indicator.html">Authentication indicators</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Administration  programs</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="kadmin_local.html">kadmin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kadmind.html">kadmind</a></li>
@@ -428,7 +582,7 @@ showing the actions which would have been taken.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

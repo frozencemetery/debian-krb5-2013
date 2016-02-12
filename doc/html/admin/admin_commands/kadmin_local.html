@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -74,7 +74,8 @@
 [<strong>-q</strong> <em>query</em>]
 [[<strong>-c</strong> <em>cache_name</em>]|[<strong>-k</strong> [<strong>-t</strong> <em>keytab</em>]]|<strong>-n</strong>]
 [<strong>-w</strong> <em>password</em>]
-[<strong>-s</strong> <em>admin_server</em>[:<em>port</em>]]</p>
+[<strong>-s</strong> <em>admin_server</em>[:<em>port</em>]]
+[command args...]</p>
 <p><strong>kadmin.local</strong>
 [<strong>-r</strong> <em>realm</em>]
 [<strong>-p</strong> <em>principal</em>]
@@ -82,7 +83,8 @@
 [<strong>-d</strong> <em>dbname</em>]
 [<strong>-e</strong> <em>enc</em>:<em>salt</em> ...]
 [<strong>-m</strong>]
-[<strong>-x</strong> <em>db_args</em>]</p>
+[<strong>-x</strong> <em>db_args</em>]
+[command args...]</p>
 </div>
 <div class="section" id="description">
 <span id="kadmin-synopsis-end"></span><h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
@@ -154,8 +156,7 @@ own temporary ccache.</dd>
 care, as it may expose the password to other users on the system
 via the process list.</dd>
 <dt><strong>-q</strong> <em>query</em></dt>
-<dd>Perform the specified query and then exit.  This can be useful for
-writing scripts.</dd>
+<dd>Perform the specified query and then exit.</dd>
 <dt><strong>-d</strong> <em>dbname</em></dt>
 <dd>Specifies the name of the KDC database.  This option does not
 apply to the LDAP database module.</dd>
@@ -176,9 +177,26 @@ values.</dd>
 <dd>Specifies the database specific arguments.  See the next section
 for supported options.</dd>
 </dl>
+<p id="kadmin-options-end">Starting with release 1.14, if any command-line arguments remain after
+the options, they will be treated as a single query to be executed.
+This mode of operation is intended for scripts and behaves differently
+from the interactive mode in several respects:</p>
+<ul class="simple">
+<li>Query arguments are split by the shell, not by kadmin.</li>
+<li>Informational and warning messages are suppressed.  Error messages
+and query output (e.g. for <strong>get_principal</strong>) will still be
+displayed.</li>
+<li>Confirmation prompts are disabled (as if <strong>-force</strong> was given).
+Password prompts will still be issued as required.</li>
+<li>The exit status will be non-zero if the query fails.</li>
+</ul>
+<p>The <strong>-q</strong> option does not carry these behavior differences; the query
+will be processed as if it was entered interactively.  The <strong>-q</strong>
+option cannot be used in combination with a query in the remaining
+arguments.</p>
 </div>
 <div class="section" id="database-options">
-<span id="dboptions"></span><span id="kadmin-options-end"></span><h2>DATABASE OPTIONS<a class="headerlink" href="#database-options" title="Permalink to this headline">¶</a></h2>
+<span id="dboptions"></span><h2>DATABASE OPTIONS<a class="headerlink" href="#database-options" title="Permalink to this headline">¶</a></h2>
 <p>Database options can be used to override database-specific defaults.
 Supported options for the DB2 module are:</p>
 <blockquote>
@@ -544,6 +562,11 @@ supply per-principal configuration to the KDC and some KDC plugin
 modules.  The following string attribute names are recognized by the
 KDC:</p>
 <dl class="docutils">
+<dt><strong>require_auth</strong></dt>
+<dd>Specifies an authentication indicator which is required to
+authenticate to the principal as a service.  Multiple indicators
+can be specified, separated by spaces; in this case any of the
+specified indicators will be accepted.  (New in release 1.14.)</dd>
 <dt><strong>session_enctypes</strong></dt>
 <dd>Specifies the encryption types supported for session keys when the
 principal is authenticated to as a server.  See
@@ -873,6 +896,7 @@ interface to the OpenVision Kerberos administration program.</p>
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auth_indicator.html">Authentication indicators</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Administration  programs</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="">kadmin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kadmind.html">kadmind</a></li>
@@ -921,7 +945,7 @@ interface to the OpenVision Kerberos administration program.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

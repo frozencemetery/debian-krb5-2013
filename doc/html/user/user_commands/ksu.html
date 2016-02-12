@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -72,7 +72,6 @@
 [ <strong>-n</strong> <em>target_principal_name</em> ]
 [ <strong>-c</strong> <em>source_cache_name</em> ]
 [ <strong>-k</strong> ]
-[ <strong>-D</strong> ]
 [ <strong>-r</strong> time ]
 [ <strong>-pf</strong> ]
 [ <strong>-l</strong> <em>lifetime</em> ]
@@ -272,8 +271,6 @@ the resulting cache does not already exist.  For example:</p>
 <dd>Do not delete the target cache upon termination of the target
 shell or a command (<strong>-e</strong> command).  Without <strong>-k</strong>, ksu deletes
 the target cache.</dd>
-<dt><strong>-D</strong></dt>
-<dd>Turn on debug mode.</dd>
 <dt><strong>-z</strong></dt>
 <dd>Restrict the copy of tickets from the source cache to the target
 cache to only the tickets where client == the target principal
@@ -486,7 +483,7 @@ file must be in an appropriate location.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

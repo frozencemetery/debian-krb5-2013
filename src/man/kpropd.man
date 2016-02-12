@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "KPROPD" "8" " " "1.13.2" "MIT Kerberos"
+.TH "KPROPD" "8" " " "1.14" "MIT Kerberos"
 .SH NAME
 kpropd \- Kerberos V5 slave KDC update server
 .
@@ -41,6 +41,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 [\fB\-p\fP \fIkdb5_util_prog\fP]
 [\fB\-P\fP \fIport\fP]
 [\fB\-d\fP]
+[\fB\-t\fP]
 .SH DESCRIPTION
 .sp
 The \fIkpropd\fP command runs on the slave KDC server.  It listens for
@@ -116,6 +117,12 @@ Turn on debug mode.  In this mode, kpropd will not detach
 itself from the current job and run in the background.  Instead,
 it will run in the foreground and print out debugging messages
 during the database propagation.
+.TP
+.B \fB\-t\fP
+In standalone mode without incremental propagation, exit after one
+dump file is received.  In incremental propagation mode, exit as
+soon as the database is up to date, or if the master returns an
+error.
 .TP
 .B \fB\-P\fP
 Allow for an alternate port number for kpropd to listen on.  This

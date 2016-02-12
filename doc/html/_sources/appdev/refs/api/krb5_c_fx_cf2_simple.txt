@@ -3,7 +3,7 @@ krb5_c_fx_cf2_simple -  Compute the KRB-FX-CF2 combination of two keys and peppe
 
 ..
 
-.. c:function:: krb5_error_code krb5_c_fx_cf2_simple(krb5_context context, krb5_keyblock * k1, const char * pepper1, krb5_keyblock * k2, const char * pepper2, krb5_keyblock ** out)
+.. c:function:: krb5_error_code krb5_c_fx_cf2_simple(krb5_context context, const krb5_keyblock * k1, const char * pepper1, const krb5_keyblock * k2, const char * pepper2, krb5_keyblock ** out)
 
 ..
 

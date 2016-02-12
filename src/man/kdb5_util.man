@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "KDB5_UTIL" "8" " " "1.13.2" "MIT Kerberos"
+.TH "KDB5_UTIL" "8" " " "1.14" "MIT Kerberos"
 .SH NAME
 kdb5_util \- Kerberos database maintenance utility
 .
@@ -338,6 +338,206 @@ before starting to make changes.  The \fB\-v\fP option causes each
 principal processed to be listed, with an indication as to whether it
 needed updating or not.  The \fB\-n\fP option performs a dry run, only
 showing the actions which would have been taken.
+.SS tabdump
+.INDENT 0.0
+.INDENT 3.5
+\fBtabdump\fP [\fB\-H\fP] [\fB\-c\fP] [\fB\-e\fP] [\fB\-n\fP] [\fB\-o\fP \fIoutfile\fP]
+\fIdumptype\fP
+.UNINDENT
+.UNINDENT
+.sp
+Dump selected fields of the database in a tabular format suitable for
+reporting (e.g., using traditional Unix text processing tools) or
+importing into relational databases.  The data format is tab\-separated
+(default), or optionally comma\-separated (CSV), with a fixed number of
+columns.  The output begins with a header line containing field names,
+unless suppression is requested using the \fB\-H\fP option.
+.sp
+The \fIdumptype\fP parameter specifies the name of an output table (see
+below).
+.sp
+Options:
+.INDENT 0.0
+.TP
+.B \fB\-H\fP
+suppress writing the field names in a header line
+.TP
+.B \fB\-c\fP
+use comma separated values (CSV) format, with minimal quoting,
+instead of the default tab\-separated (unquoted, unescaped) format
+.TP
+.B \fB\-e\fP
+write empty hexadecimal string fields as empty fields instead of
+as "\-1".
+.TP
+.B \fB\-n\fP
+produce numeric output for fields that normally have symbolic
+output, such as enctypes and flag names.  Also requests output of
+time stamps as decimal POSIX time_t values.
+.TP
+.B \fB\-o\fP \fIoutfile\fP
+write the dump to the specified output file instead of to standard
+output
+.UNINDENT
+.sp
+Dump types:
+.INDENT 0.0
+.TP
+.B \fBkeydata\fP
+principal encryption key information, including actual key data
+(which is still encrypted in the master key)
+.INDENT 7.0
+.TP
+.B \fBname\fP
+principal name
+.TP
+.B \fBkeyindex\fP
+index of this key in the principal\(aqs key list
+.TP
+.B \fBkvno\fP
+key version number
+.TP
+.B \fBenctype\fP
+encryption type
+.TP
+.B \fBkey\fP
+key data as a hexadecimal string
+.TP
+.B \fBsalttype\fP
+salt type
+.TP
+.B \fBsalt\fP
+salt data as a hexadecimal string
+.UNINDENT
+.TP
+.B \fBkeyinfo\fP
+principal encryption key information (as in \fBkeydata\fP above),
+excluding actual key data
+.TP
+.B \fBprinc_flags\fP
+principal boolean attributes.  Flag names print as hexadecimal
+numbers if the \fB\-n\fP option is specified, and all flag positions
+are printed regardless of whether or not they are set.  If \fB\-n\fP
+is not specified, print all known flag names for each principal,
+but only print hexadecimal flag names if the corresponding flag is
+set.
+.INDENT 7.0
+.TP
+.B \fBname\fP
+principal name
+.TP
+.B \fBflag\fP
+flag name
+.TP
+.B \fBvalue\fP
+boolean value (0 for clear, or 1 for set)
+.UNINDENT
+.TP
+.B \fBprinc_lockout\fP
+state information used for tracking repeated password failures
+.INDENT 7.0
+.TP
+.B \fBname\fP
+principal name
+.TP
+.B \fBlast_success\fP
+time stamp of most recent successful authentication
+.TP
+.B \fBlast_failed\fP
+time stamp of most recent failed authentication
+.TP
+.B \fBfail_count\fP
+count of failed attempts
+.UNINDENT
+.TP
+.B \fBprinc_meta\fP
+principal metadata
+.INDENT 7.0
+.TP
+.B \fBname\fP
+principal name
+.TP
+.B \fBmodby\fP
+name of last principal to modify this principal
+.TP
+.B \fBmodtime\fP
+timestamp of last modification
+.TP
+.B \fBlastpwd\fP
+timestamp of last password change
+.TP
+.B \fBpolicy\fP
+policy object name
+.TP
+.B \fBmkvno\fP
+key version number of the master key that encrypts this
+principal\(aqs key data
+.TP
+.B \fBhist_kvno\fP
+key version number of the history key that encrypts the key
+history data for this principal
+.UNINDENT
+.TP
+.B \fBprinc_stringattrs\fP
+string attributes (key/value pairs)
+.INDENT 7.0
+.TP
+.B \fBname\fP
+principal name
+.TP
+.B \fBkey\fP
+attribute name
+.TP
+.B \fBvalue\fP
+attribute value
+.UNINDENT
+.TP
+.B \fBprinc_tktpolicy\fP
+per\-principal ticket policy data, including maximum ticket
+lifetimes
+.INDENT 7.0
+.TP
+.B \fBname\fP
+principal name
+.TP
+.B \fBexpiration\fP
+principal expiration date
+.TP
+.B \fBpw_expiration\fP
+password expiration date
+.TP
+.B \fBmax_life\fP
+maximum ticket lifetime
+.TP
+.B \fBmax_renew_life\fP
+maximum renewable ticket lifetime
+.UNINDENT
+.UNINDENT
+.sp
+Examples:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ kdb5_util tabdump \-o keyinfo.txt keyinfo
+$ cat keyinfo.txt
+name        keyindex        kvno    enctype salttype        salt
+foo@EXAMPLE.COM     0       1       aes128\-cts\-hmac\-sha1\-96 normal  \-1
+bar@EXAMPLE.COM     0       1       aes128\-cts\-hmac\-sha1\-96 normal  \-1
+bar@EXAMPLE.COM     1       1       des\-cbc\-crc     normal  \-1
+$ sqlite3
+sqlite> .mode tabs
+sqlite> .import keyinfo.txt keyinfo
+sqlite> select * from keyinfo where enctype like \(aqdes\-cbc\-%\(aq;
+bar@EXAMPLE.COM     1       1       des\-cbc\-crc     normal  \-1
+sqlite> .quit
+$ awk \-F\(aq\et\(aq \(aq$4 ~ /des\-cbc\-/ { print }\(aq keyinfo.txt
+bar@EXAMPLE.COM     1       1       des\-cbc\-crc     normal  \-1
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
 .SH SEE ALSO
 .sp
 \fIkadmin(1)\fP

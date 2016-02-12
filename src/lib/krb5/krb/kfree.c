@@ -366,6 +366,20 @@ krb5_free_last_req(krb5_context context, krb5_last_req_entry **val)
     free(val);
 }
 
+void
+k5_zapfree_pa_data(krb5_pa_data **val)
+{
+    krb5_pa_data **pa;
+
+    if (val == NULL)
+        return;
+    for (pa = val; *pa != NULL; pa++) {
+        zapfree((*pa)->contents, (*pa)->length);
+        zapfree(*pa, sizeof(**pa));
+    }
+    free(val);
+}
+
 void KRB5_CALLCONV
 krb5_free_pa_data(krb5_context context, krb5_pa_data **val)
 {
@@ -692,6 +706,16 @@ krb5_free_fast_armored_req(krb5_context context, krb5_fast_armored_req *val)
     free(val);
 }
 
+void
+k5_free_data_ptr_list(krb5_data **list)
+{
+    int i;
+
+    for (i = 0; list != NULL && list[i] != NULL; i++)
+        krb5_free_data(NULL, list[i]);
+    free(list);
+}
+
 void KRB5_CALLCONV
 krb5int_free_data_list(krb5_context context, krb5_data *data)
 {
@@ -829,5 +853,39 @@ k5_free_kkdcp_message(krb5_context context, krb5_kkdcp_message *val)
         return;
     free(val->target_domain.data);
     free(val->kerb_message.data);
+    free(val);
+}
+
+static void
+free_vmac(krb5_context context, krb5_verifier_mac *val)
+{
+    if (val == NULL)
+        return;
+    krb5_free_principal(context, val->princ);
+    krb5_free_checksum_contents(context, &val->checksum);
+}
+
+void
+k5_free_cammac(krb5_context context, krb5_cammac *val)
+{
+    krb5_verifier_mac **vp;
+
+    if (val == NULL)
+        return;
+    krb5_free_authdata(context, val->elements);
+    free_vmac(context, val->kdc_verifier);
+    free_vmac(context, val->svc_verifier);
+    for (vp = val->other_verifiers; vp != NULL && *vp != NULL; vp++)
+        free_vmac(context, *vp);
+    free(val->other_verifiers);
+    free(val);
+}
+
+void
+k5_free_secure_cookie(krb5_context context, krb5_secure_cookie *val)
+{
+    if (val == NULL)
+        return;
+    k5_zapfree_pa_data(val->data);
     free(val);
 }

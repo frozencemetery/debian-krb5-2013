@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "KDC.CONF" "5" " " "1.13.2" "MIT Kerberos"
+.TH "KDC.CONF" "5" " " "1.14" "MIT Kerberos"
 .SH NAME
 kdc.conf \- Kerberos V5 KDC configuration file
 .
@@ -657,6 +657,11 @@ server.  The default is 3 retries (4 tries).
 If this tag is \fBtrue\fP, the principal without the realm will be
 passed to the RADIUS server.  Otherwise, the realm will be
 included.  The default value is \fBtrue\fP\&.
+.TP
+.B \fBindicator\fP
+This tag specifies an authentication indicator to be included in
+the ticket if this token type is used to authenticate.  This
+option may be specified multiple times.  (New in release 1.14.)
 .UNINDENT
 .sp
 In the following example, requests are sent to a remote server via UDP:
@@ -789,6 +794,11 @@ this option is not recommended.
 .B \fBpkinit_identity\fP
 Specifies the location of the KDC\(aqs X.509 identity information.
 This option is required if pkinit is to be supported by the KDC.
+.TP
+.B \fBpkinit_indicator\fP
+Specifies an authentication indicator to include in the ticket if
+pkinit is used to authenticate.  This option may be specified
+multiple times.  (New in release 1.14.)
 .TP
 .B \fBpkinit_kdc_ocsp\fP
 Specifies the location of the KDC\(aqs OCSP.

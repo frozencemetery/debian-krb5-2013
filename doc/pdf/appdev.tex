@@ -15,7 +15,7 @@
 
 \title{Kerberos Application Developer Guide}
 \date{ }
-\release{1.13.2}
+\release{1.14}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -1572,7 +1572,7 @@ Fills in \emph{cache} with a \emph{cache} handle that corresponds to the name in
 \label{appdev/refs/api/krb5_change_password:krb5-change-password-change-a-password-for-an-existing-kerberos-account}\label{appdev/refs/api/krb5_change_password::doc}\index{krb5\_change\_password (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{appdev/refs/api/krb5_change_password:c.krb5_change_password}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_change\_password}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_creds:c.krb5_creds]{krb5\_creds}} *\emph{ creds}, char *\emph{ newpw}, int *\emph{ result\_code}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_code\_string}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_string}}{}
+\phantomsection\label{appdev/refs/api/krb5_change_password:c.krb5_change_password}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_change\_password}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_creds:c.krb5_creds]{krb5\_creds}} *\emph{ creds}, const char *\emph{ newpw}, int *\emph{ result\_code}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_code\_string}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_string}}{}
 \end{fulllineitems}
 
 \begin{quote}\begin{description}
@@ -3617,7 +3617,7 @@ If \emph{lrealm} is NULL, clear the default realm setting.
 \label{appdev/refs/api/krb5_set_password:krb5-set-password-set-a-password-for-a-principal-using-specified-credentials}\label{appdev/refs/api/krb5_set_password::doc}\index{krb5\_set\_password (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{appdev/refs/api/krb5_set_password:c.krb5_set_password}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_set\_password}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_creds:c.krb5_creds]{krb5\_creds}} *\emph{ creds}, char *\emph{ newpw}, {\hyperref[appdev/refs/types/krb5_principal:c.krb5_principal]{krb5\_principal}}\emph{ change\_password\_for}, int *\emph{ result\_code}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_code\_string}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_string}}{}
+\phantomsection\label{appdev/refs/api/krb5_set_password:c.krb5_set_password}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_set\_password}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_creds:c.krb5_creds]{krb5\_creds}} *\emph{ creds}, const char *\emph{ newpw}, {\hyperref[appdev/refs/types/krb5_principal:c.krb5_principal]{krb5\_principal}}\emph{ change\_password\_for}, int *\emph{ result\_code}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_code\_string}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_string}}{}
 \end{fulllineitems}
 
 \begin{quote}\begin{description}
@@ -3665,7 +3665,7 @@ If \emph{change\_password\_for} is NULL, the change is performed on the current 
 \label{appdev/refs/api/krb5_set_password_using_ccache:krb5-set-password-using-ccache-set-a-password-for-a-principal-using-cached-credentials}\label{appdev/refs/api/krb5_set_password_using_ccache::doc}\index{krb5\_set\_password\_using\_ccache (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{appdev/refs/api/krb5_set_password_using_ccache:c.krb5_set_password_using_ccache}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_set\_password\_using\_ccache}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_ccache:c.krb5_ccache]{krb5\_ccache}}\emph{ ccache}, char *\emph{ newpw}, {\hyperref[appdev/refs/types/krb5_principal:c.krb5_principal]{krb5\_principal}}\emph{ change\_password\_for}, int *\emph{ result\_code}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_code\_string}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_string}}{}
+\phantomsection\label{appdev/refs/api/krb5_set_password_using_ccache:c.krb5_set_password_using_ccache}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_set\_password\_using\_ccache}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_ccache:c.krb5_ccache]{krb5\_ccache}}\emph{ ccache}, const char *\emph{ newpw}, {\hyperref[appdev/refs/types/krb5_principal:c.krb5_principal]{krb5\_principal}}\emph{ change\_password\_for}, int *\emph{ result\_code}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_code\_string}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ result\_string}}{}
 \end{fulllineitems}
 
 \begin{quote}\begin{description}
@@ -8475,6 +8475,26 @@ A checksum mismatch can occur if the PAC was copied from a cross-realm TGT by an
 \end{notice}
 
 
+\subsubsection{krb5\_prepend\_error\_message -  Add a prefix to the message for an error code.}
+\label{appdev/refs/api/krb5_prepend_error_message:krb5-prepend-error-message-add-a-prefix-to-the-message-for-an-error-code}\label{appdev/refs/api/krb5_prepend_error_message::doc}\index{krb5\_prepend\_error\_message (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/api/krb5_prepend_error_message:c.krb5_prepend_error_message}\pysiglinewithargsret{void \bfcode{krb5\_prepend\_error\_message}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ ctx}, {\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}}\emph{ code}, const char *\emph{ fmt}, ...}{}
+\end{fulllineitems}
+
+\begin{quote}\begin{description}
+\item[{param}] \leavevmode
+\textbf{{[}in{]}} \textbf{ctx} - Library context
+
+\textbf{{[}in{]}} \textbf{code} - Error code
+
+\textbf{{[}in{]}} \textbf{fmt} - Format string for error message prefix
+
+\end{description}\end{quote}
+
+Format a message and prepend it to the current message for \emph{code} . The prefix will be separated from the old message with a colon and space.
+
+
 \subsubsection{krb5\_principal2salt -  Convert a principal name into the default salt for that principal.}
 \label{appdev/refs/api/krb5_principal2salt:krb5-principal2salt-convert-a-principal-name-into-the-default-salt-for-that-principal}\label{appdev/refs/api/krb5_principal2salt::doc}\index{krb5\_principal2salt (C function)}
 
@@ -9461,6 +9481,28 @@ This function determines how {\hyperref[appdev/refs/api/krb5_verify_init_creds:c
 If this function is not used, the behavior of {\hyperref[appdev/refs/api/krb5_verify_init_creds:c.krb5_verify_init_creds]{\code{krb5\_verify\_init\_creds()}}} is determined through configuration.
 
 
+\subsubsection{krb5\_vprepend\_error\_message -  Add a prefix to the message for an error code using a va\_list.}
+\label{appdev/refs/api/krb5_vprepend_error_message::doc}\label{appdev/refs/api/krb5_vprepend_error_message:krb5-vprepend-error-message-add-a-prefix-to-the-message-for-an-error-code-using-a-va-list}\index{krb5\_vprepend\_error\_message (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/api/krb5_vprepend_error_message:c.krb5_vprepend_error_message}\pysiglinewithargsret{void \bfcode{krb5\_vprepend\_error\_message}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ ctx}, {\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}}\emph{ code}, const char *\emph{ fmt}, va\_list\emph{ args}}{}
+\end{fulllineitems}
+
+\begin{quote}\begin{description}
+\item[{param}] \leavevmode
+\textbf{{[}in{]}} \textbf{ctx} - Library context
+
+\textbf{{[}in{]}} \textbf{code} - Error code
+
+\textbf{{[}in{]}} \textbf{fmt} - Format string for error message prefix
+
+\textbf{{[}in{]}} \textbf{args} - List of vprintf(3) style arguments
+
+\end{description}\end{quote}
+
+This function is similar to {\hyperref[appdev/refs/api/krb5_prepend_error_message:c.krb5_prepend_error_message]{\code{krb5\_prepend\_error\_message()}}} , but uses a va\_list instead of variadic arguments.
+
+
 \subsubsection{krb5\_vset\_error\_message -  Set an extended error message for an error code using a va\_list.}
 \label{appdev/refs/api/krb5_vset_error_message:krb5-vset-error-message-set-an-extended-error-message-for-an-error-code-using-a-va-list}\label{appdev/refs/api/krb5_vset_error_message::doc}\index{krb5\_vset\_error\_message (C function)}
 
@@ -9479,6 +9521,52 @@ If this function is not used, the behavior of {\hyperref[appdev/refs/api/krb5_ve
 \textbf{{[}in{]}} \textbf{args} - List of vprintf(3) style arguments
 
 \end{description}\end{quote}
+
+
+\subsubsection{krb5\_vwrap\_error\_message -  Add a prefix to a different error code's message using a va\_list.}
+\label{appdev/refs/api/krb5_vwrap_error_message:krb5-vwrap-error-message-add-a-prefix-to-a-different-error-code-s-message-using-a-va-list}\label{appdev/refs/api/krb5_vwrap_error_message::doc}\index{krb5\_vwrap\_error\_message (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/api/krb5_vwrap_error_message:c.krb5_vwrap_error_message}\pysiglinewithargsret{void \bfcode{krb5\_vwrap\_error\_message}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ ctx}, {\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}}\emph{ old\_code}, {\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}}\emph{ code}, const char *\emph{ fmt}, va\_list\emph{ args}}{}
+\end{fulllineitems}
+
+\begin{quote}\begin{description}
+\item[{param}] \leavevmode
+\textbf{{[}in{]}} \textbf{ctx} - Library context
+
+\textbf{{[}in{]}} \textbf{old\_code} - Previous error code
+
+\textbf{{[}in{]}} \textbf{code} - Error code
+
+\textbf{{[}in{]}} \textbf{fmt} - Format string for error message prefix
+
+\textbf{{[}in{]}} \textbf{args} - List of vprintf(3) style arguments
+
+\end{description}\end{quote}
+
+This function is similar to {\hyperref[appdev/refs/api/krb5_wrap_error_message:c.krb5_wrap_error_message]{\code{krb5\_wrap\_error\_message()}}} , but uses a va\_list instead of variadic arguments.
+
+
+\subsubsection{krb5\_wrap\_error\_message -  Add a prefix to a different error code's message.}
+\label{appdev/refs/api/krb5_wrap_error_message:krb5-wrap-error-message-add-a-prefix-to-a-different-error-code-s-message}\label{appdev/refs/api/krb5_wrap_error_message::doc}\index{krb5\_wrap\_error\_message (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/api/krb5_wrap_error_message:c.krb5_wrap_error_message}\pysiglinewithargsret{void \bfcode{krb5\_wrap\_error\_message}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ ctx}, {\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}}\emph{ old\_code}, {\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}}\emph{ code}, const char *\emph{ fmt}, ...}{}
+\end{fulllineitems}
+
+\begin{quote}\begin{description}
+\item[{param}] \leavevmode
+\textbf{{[}in{]}} \textbf{ctx} - Library context
+
+\textbf{{[}in{]}} \textbf{old\_code} - Previous error code
+
+\textbf{{[}in{]}} \textbf{code} - Error code
+
+\textbf{{[}in{]}} \textbf{fmt} - Format string for error message prefix
+
+\end{description}\end{quote}
+
+Format a message and prepend it to the message for \emph{old\_code} . The prefix will be separated from the old message with a colon and space. Set the resulting message as the extended error message for \emph{code} .
 
 
 \subsection{Public interfaces that should not be called directly}
@@ -9680,6 +9768,30 @@ This function is similar to {\hyperref[appdev/refs/api/krb5_k_decrypt_iov:c.krb5
 \end{notice}
 
 
+\subsubsection{krb5\_c\_derive\_prfplus -  Derive a key using some input data (via RFC 6113 PRF+).}
+\label{appdev/refs/api/krb5_c_derive_prfplus::doc}\label{appdev/refs/api/krb5_c_derive_prfplus:krb5-c-derive-prfplus-derive-a-key-using-some-input-data-via-rfc-6113-prf}\index{krb5\_c\_derive\_prfplus (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/api/krb5_c_derive_prfplus:c.krb5_c_derive_prfplus}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_c\_derive\_prfplus}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, const {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} *\emph{ k}, const {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ input}, {\hyperref[appdev/refs/types/krb5_enctype:c.krb5_enctype]{krb5\_enctype}}\emph{ enctype}, {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} **\emph{ out}}{}
+\end{fulllineitems}
+
+\begin{quote}\begin{description}
+\item[{param}] \leavevmode
+\textbf{{[}in{]}} \textbf{context} - Library context
+
+\textbf{{[}in{]}} \textbf{k} - KDC contribution key
+
+\textbf{{[}in{]}} \textbf{input} - Input string
+
+\textbf{{[}in{]}} \textbf{enctype} - Output key enctype (or \textbf{ENCTYPE\_NULL} )
+
+\textbf{{[}out{]}} \textbf{out} - Derived keyblock
+
+\end{description}\end{quote}
+
+This function uses PRF+ as defined in RFC 6113 to derive a key from another key and an input string. If \emph{enctype} is \textbf{ENCTYPE\_NULL} , the output key will have the same enctype as the input key.
+
+
 \subsubsection{krb5\_c\_encrypt -  Encrypt data using a key (operates on keyblock).}
 \label{appdev/refs/api/krb5_c_encrypt::doc}\label{appdev/refs/api/krb5_c_encrypt:krb5-c-encrypt-encrypt-data-using-a-key-operates-on-keyblock}\index{krb5\_c\_encrypt (C function)}
 
@@ -9856,7 +9968,7 @@ This function determines whether two encryption types use the same kind of keys.
 \label{appdev/refs/api/krb5_c_fx_cf2_simple:krb5-c-fx-cf2-simple-compute-the-krb-fx-cf2-combination-of-two-keys-and-pepper-strings}\label{appdev/refs/api/krb5_c_fx_cf2_simple::doc}\index{krb5\_c\_fx\_cf2\_simple (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{appdev/refs/api/krb5_c_fx_cf2_simple:c.krb5_c_fx_cf2_simple}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_c\_fx\_cf2\_simple}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} *\emph{ k1}, const char *\emph{ pepper1}, {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} *\emph{ k2}, const char *\emph{ pepper2}, {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} **\emph{ out}}{}
+\phantomsection\label{appdev/refs/api/krb5_c_fx_cf2_simple:c.krb5_c_fx_cf2_simple}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_c\_fx\_cf2\_simple}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, const {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} *\emph{ k1}, const char *\emph{ pepper1}, const {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} *\emph{ k2}, const char *\emph{ pepper2}, {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} **\emph{ out}}{}
 \end{fulllineitems}
 
 \begin{quote}\begin{description}
@@ -10194,6 +10306,40 @@ This function returns the number of the padding octets required to pad \emph{dat
 \end{description}\end{quote}
 
 This function selects a pseudo-random function based on \emph{keyblock} and computes its value over \emph{input} , placing the result into \emph{output} . The caller must preinitialize \emph{output} and allocate space for the result, using {\hyperref[appdev/refs/api/krb5_c_prf_length:c.krb5_c_prf_length]{\code{krb5\_c\_prf\_length()}}} to determine the required length.
+
+
+\subsubsection{krb5\_c\_prfplus -  Generate pseudo-random bytes using RFC 6113 PRF+.}
+\label{appdev/refs/api/krb5_c_prfplus:krb5-c-prfplus-generate-pseudo-random-bytes-using-rfc-6113-prf}\label{appdev/refs/api/krb5_c_prfplus::doc}\index{krb5\_c\_prfplus (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/api/krb5_c_prfplus:c.krb5_c_prfplus}\pysiglinewithargsret{{\hyperref[appdev/refs/types/krb5_error_code:c.krb5_error_code]{krb5\_error\_code}} \bfcode{krb5\_c\_prfplus}}{{\hyperref[appdev/refs/types/krb5_context:c.krb5_context]{krb5\_context}}\emph{ context}, const {\hyperref[appdev/refs/types/krb5_keyblock:c.krb5_keyblock]{krb5\_keyblock}} *\emph{ k}, const {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ input}, {\hyperref[appdev/refs/types/krb5_data:c.krb5_data]{krb5\_data}} *\emph{ output}}{}
+\end{fulllineitems}
+
+\begin{quote}\begin{description}
+\item[{param}] \leavevmode
+\textbf{{[}in{]}} \textbf{context} - Library context
+
+\textbf{{[}in{]}} \textbf{k} - KDC contribution key
+
+\textbf{{[}in{]}} \textbf{input} - Input data
+
+\textbf{{[}out{]}} \textbf{output} - Pseudo-random output buffer
+
+\end{description}\end{quote}
+\begin{quote}\begin{description}
+\item[{return}] \leavevmode\begin{itemize}
+\item {} 
+0 on success, E2BIG if output-\textgreater{}length is too large for PRF+ to generate, ENOMEM on allocation failure, or an error code from krb5\_c\_prf()
+
+\end{itemize}
+
+\end{description}\end{quote}
+
+This function fills \emph{output} with PRF+(k, input) as defined in RFC 6113 section 5.1. The caller must preinitialize \emph{output} and allocate the desired amount of space. The length of the pseudo-random output will match the length of \emph{output} .
+
+\begin{notice}{note}{Note:}
+RFC 4402 defines a different PRF+ operation. This function does not implement that operation.
+\end{notice}
 
 
 \subsubsection{krb5\_c\_prf\_length -  Get the output length of pseudo-random functions for an encryption type.}
@@ -10613,7 +10759,7 @@ This function is similar to {\hyperref[appdev/refs/api/krb5_k_verify_checksum_io
 
 \begin{quote}\begin{description}
 \item[{param}] \leavevmode
-\textbf{{[}in{]}} \textbf{code} - ASN.1-formatted ticket
+\textbf{{[}in{]}} \textbf{code} - ASN.1-formattedticket
 
 \textbf{{[}out{]}} \textbf{rep} - Decoded ticket information
 
@@ -16851,6 +16997,44 @@ Initial authentication request.
 
 
 
+\subsubsection{KRB5\_AUTHDATA\_AUTH\_INDICATOR}
+\label{appdev/refs/macros/KRB5_AUTHDATA_AUTH_INDICATOR:krb5-authdata-auth-indicator}\label{appdev/refs/macros/KRB5_AUTHDATA_AUTH_INDICATOR::doc}\label{appdev/refs/macros/KRB5_AUTHDATA_AUTH_INDICATOR:krb5-authdata-auth-indicator-data}\index{KRB5\_AUTHDATA\_AUTH\_INDICATOR (built-in variable)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/macros/KRB5_AUTHDATA_AUTH_INDICATOR:KRB5_AUTHDATA_AUTH_INDICATOR}\pysigline{\bfcode{KRB5\_AUTHDATA\_AUTH\_INDICATOR}}
+\end{fulllineitems}
+
+
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+
+\code{KRB5\_AUTHDATA\_AUTH\_INDICATOR}
+ & 
+\code{97}
+\\
+\hline\end{tabulary}
+
+
+
+\subsubsection{KRB5\_AUTHDATA\_CAMMAC}
+\label{appdev/refs/macros/KRB5_AUTHDATA_CAMMAC:krb5-authdata-cammac}\label{appdev/refs/macros/KRB5_AUTHDATA_CAMMAC::doc}\label{appdev/refs/macros/KRB5_AUTHDATA_CAMMAC:krb5-authdata-cammac-data}\index{KRB5\_AUTHDATA\_CAMMAC (built-in variable)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/macros/KRB5_AUTHDATA_CAMMAC:KRB5_AUTHDATA_CAMMAC}\pysigline{\bfcode{KRB5\_AUTHDATA\_CAMMAC}}
+\end{fulllineitems}
+
+
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+
+\code{KRB5\_AUTHDATA\_CAMMAC}
+ & 
+\code{96}
+\\
+\hline\end{tabulary}
+
+
+
 \subsubsection{KRB5\_AUTHDATA\_ETYPE\_NEGOTIATION}
 \label{appdev/refs/macros/KRB5_AUTHDATA_ETYPE_NEGOTIATION:krb5-authdata-etype-negotiation}\label{appdev/refs/macros/KRB5_AUTHDATA_ETYPE_NEGOTIATION::doc}\label{appdev/refs/macros/KRB5_AUTHDATA_ETYPE_NEGOTIATION:krb5-authdata-etype-negotiation-data}\index{KRB5\_AUTHDATA\_ETYPE\_NEGOTIATION (built-in variable)}
 
@@ -18270,6 +18454,25 @@ More responses needed.
 
 
 
+\subsubsection{KRB5\_KEYUSAGE\_CAMMAC}
+\label{appdev/refs/macros/KRB5_KEYUSAGE_CAMMAC:krb5-keyusage-cammac}\label{appdev/refs/macros/KRB5_KEYUSAGE_CAMMAC::doc}\label{appdev/refs/macros/KRB5_KEYUSAGE_CAMMAC:krb5-keyusage-cammac-data}\index{KRB5\_KEYUSAGE\_CAMMAC (built-in variable)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/macros/KRB5_KEYUSAGE_CAMMAC:KRB5_KEYUSAGE_CAMMAC}\pysigline{\bfcode{KRB5\_KEYUSAGE\_CAMMAC}}
+\end{fulllineitems}
+
+
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+
+\code{KRB5\_KEYUSAGE\_CAMMAC}
+ & 
+\code{64}
+\\
+\hline\end{tabulary}
+
+
+
 \subsubsection{KRB5\_KEYUSAGE\_ENC\_CHALLENGE\_CLIENT}
 \label{appdev/refs/macros/KRB5_KEYUSAGE_ENC_CHALLENGE_CLIENT:krb5-keyusage-enc-challenge-client-data}\label{appdev/refs/macros/KRB5_KEYUSAGE_ENC_CHALLENGE_CLIENT::doc}\label{appdev/refs/macros/KRB5_KEYUSAGE_ENC_CHALLENGE_CLIENT:krb5-keyusage-enc-challenge-client}\index{KRB5\_KEYUSAGE\_ENC\_CHALLENGE\_CLIENT (built-in variable)}
 
@@ -18550,6 +18753,27 @@ More responses needed.
 \code{KRB5\_KEYUSAGE\_KRB\_SAFE\_CKSUM}
  & 
 \code{15}
+\\
+\hline\end{tabulary}
+
+
+
+\subsubsection{KRB5\_KEYUSAGE\_PA\_FX\_COOKIE}
+\label{appdev/refs/macros/KRB5_KEYUSAGE_PA_FX_COOKIE::doc}\label{appdev/refs/macros/KRB5_KEYUSAGE_PA_FX_COOKIE:krb5-keyusage-pa-fx-cookie}\label{appdev/refs/macros/KRB5_KEYUSAGE_PA_FX_COOKIE:krb5-keyusage-pa-fx-cookie-data}\index{KRB5\_KEYUSAGE\_PA\_FX\_COOKIE (built-in variable)}
+
+\begin{fulllineitems}
+\phantomsection\label{appdev/refs/macros/KRB5_KEYUSAGE_PA_FX_COOKIE:KRB5_KEYUSAGE_PA_FX_COOKIE}\pysigline{\bfcode{KRB5\_KEYUSAGE\_PA\_FX\_COOKIE}}
+\end{fulllineitems}
+
+
+Used for encrypted FAST cookies.
+
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+
+\code{KRB5\_KEYUSAGE\_PA\_FX\_COOKIE}
+ & 
+\code{513}
 \\
 \hline\end{tabulary}
 

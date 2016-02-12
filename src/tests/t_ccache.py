@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Copyright (C) 2011 by the Massachusetts Institute of Technology.
 # All rights reserved.
 
@@ -20,7 +22,6 @@
 # this software for any purpose.  It is provided "as is" without express
 # or implied warranty.
 
-#!/usr/bin/python
 from k5test import *
 
 realm = K5Realm(create_host=False)
@@ -29,18 +30,31 @@ keyctl = which('keyctl')
 out = realm.run([klist, '-c', 'KEYRING:process:abcd'], expected_code=1)
 test_keyring = (keyctl is not None and
                 'Unknown credential cache type' not in out)
+if not test_keyring:
+    skipped('keyring ccache tests', 'keyring support not built')
 
 # Test kdestroy and klist of a non-existent ccache.
 realm.run([kdestroy])
 output = realm.run([klist], expected_code=1)
-if ' not found' not in output:
+if 'No credentials cache found' not in output:
     fail('Expected error message not seen in klist output')
 
 # Test kinit with an inaccessible ccache.
 out = realm.run([kinit, '-c', 'testdir/xx/yy', realm.user_princ],
                 input=(password('user') + '\n'), expected_code=1)
-if ' while storing credentials' not in out:
+if 'Failed to store credentials' not in out:
     fail('Expected error message not seen in kinit output')
+
+# Test klist -s with a single ccache.
+realm.run([klist, '-s'], expected_code=1)
+realm.kinit(realm.user_princ, password('user'))
+realm.run([klist, '-s'])
+realm.kinit(realm.user_princ, password('user'), ['-l', '-1s'])
+realm.run([klist, '-s'], expected_code=1)
+realm.kinit(realm.user_princ, password('user'), ['-S', 'kadmin/admin'])
+realm.run([klist, '-s'])
+realm.run([kdestroy])
+realm.run([klist, '-s'], expected_code=1)
 
 realm.addprinc('alice', password('alice'))
 realm.addprinc('bob', password('bob'))
@@ -49,17 +63,20 @@ realm.addprinc('carol', password('carol'))
 def collection_test(realm, ccname):
     realm.env['KRB5CCNAME'] = ccname
 
+    realm.run([klist, '-A', '-s'], expected_code=1)
     realm.kinit('alice', password('alice'))
     output = realm.run([klist])
     if 'Default principal: alice@' not in output:
         fail('Initial kinit failed to get credentials for alice.')
+    realm.run([klist, '-A', '-s'])
     realm.run([kdestroy])
     output = realm.run([klist], expected_code=1)
-    if ' not found' not in output:
+    if 'No credentials cache' not in output and 'not found' not in output:
         fail('Initial kdestroy failed to destroy primary cache.')
     output = realm.run([klist, '-l'], expected_code=1)
     if not output.endswith('---\n') or output.count('\n') != 2:
         fail('Initial kdestroy failed to empty cache collection.')
+    realm.run([klist, '-A', '-s'], expected_code=1)
 
     realm.kinit('alice', password('alice'))
     realm.kinit('carol', password('carol'))
@@ -83,10 +100,13 @@ def collection_test(realm, ccname):
     output = realm.run([klist, '-l'])
     if 'carol@' in output or 'bob@' not in output or output.count('\n') != 4:
         fail('kdestroy failed to remove only primary ccache.')
+    realm.run([klist, '-s'], expected_code=1)
+    realm.run([klist, '-A', '-s'])
     realm.run([kdestroy, '-A'])
     output = realm.run([klist, '-l'], expected_code=1)
     if not output.endswith('---\n') or output.count('\n') != 2:
         fail('kdestroy -a failed to empty cache collection.')
+    realm.run([klist, '-A', '-s'], expected_code=1)
 
 
 collection_test(realm, 'DIR:' + os.path.join(realm.testdir, 'cc'))

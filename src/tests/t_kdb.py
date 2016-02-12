@@ -10,13 +10,11 @@ realm.run(['./kdbtest'])
 
 if (not os.path.exists(os.path.join(plugins, 'kdb', 'kldap.so')) and
     not os.path.exists(os.path.join(buildtop, 'lib', 'libkdb_ldap.a'))):
-    success('Warning: not testing LDAP back end because it is not built')
-    exit(0)
+    skip_rest('LDAP KDB tests', 'LDAP KDB module not built')
 
 system_slapd = which('slapd')
 if not system_slapd:
-    success('Warning: not testing LDAP module because slapd not found')
-    exit(0)
+    skip_rest('LDAP KDB tests', 'slapd not found')
 
 ldapdir = os.path.abspath('ldap')
 slapd = os.path.join(ldapdir, 'slapd')
@@ -114,8 +112,7 @@ kldaputil(['destroy', '-f'])
 
 ldapmodify = which('ldapmodify')
 if not ldapmodify:
-    success('Warning: skipping some LDAP tests because ldapmodify not found')
-    exit(0)
+    skip_rest('some LDAP KDB tests', 'ldapmodify not found')
 
 def ldap_modify(ldif, args=[]):
     proc = subprocess.Popen([ldapmodify, '-H', ldap_uri, '-D', admin_dn,
@@ -155,43 +152,45 @@ if out != 'KRBTEST.COM\n':
 # because we're sticking a krbPrincipalAux objectclass onto a subtree
 # krbContainer, but it works and it avoids having to load core.schema
 # in the test LDAP server.
-out = realm.run_kadminl('ank -randkey -x dn=cn=krb5 princ1')
+out = realm.run([kadminl, 'ank', '-randkey', '-x', 'dn=cn=krb5', 'princ1'],
+                expected_code=1)
 if 'DN is out of the realm subtree' not in out:
     fail('Unexpected kadmin.local output for out-of-realm dn')
-out = realm.run_kadminl('ank -randkey -x dn=cn=t2,cn=krb5 princ1')
-if 'Principal "princ1@KRBTEST.COM" created.\n' not in  out:
-    fail('Unexpected kadmin.local output for specified dn')
-out = realm.run_kadminl('getprinc princ1')
+realm.run([kadminl, 'ank', '-randkey', '-x', 'dn=cn=t2,cn=krb5', 'princ1'])
+out = realm.run([kadminl, 'getprinc', 'princ1'])
 if 'Principal: princ1' not in out:
     fail('Unexpected kadmin.local output after creating princ1')
-out = realm.run_kadminl('ank -randkey -x dn=cn=t2,cn=krb5 again')
+out = realm.run([kadminl, 'ank', '-randkey', '-x', 'dn=cn=t2,cn=krb5',
+                 'again'], expected_code=1)
 if 'ldap object is already kerberized' not in out:
     fail('Unexpected kadmin.local output trying to re-kerberize DN')
 # Check that we can't set linkdn on a non-standalone object.
-out = realm.run_kadminl('modprinc -x linkdn=cn=t1,cn=krb5 princ1')
+out = realm.run([kadminl, 'modprinc', '-x', 'linkdn=cn=t1,cn=krb5', 'princ1'],
+                expected_code=1)
 if 'link information can not be set' not in out:
     fail('Unexpected kadmin.local output trying to set linkdn on princ1')
 
 # Create a principal with a specified linkdn.
-out = realm.run_kadminl('ank -randkey -x linkdn=cn=krb5 princ2')
+out = realm.run([kadminl, 'ank', '-randkey', '-x', 'linkdn=cn=krb5', 'princ2'],
+                expected_code=1)
 if 'DN is out of the realm subtree' not in out:
     fail('Unexpected kadmin.local output for out-of-realm linkdn')
-out = realm.run_kadminl('ank -randkey -x linkdn=cn=t1,cn=krb5 princ2')
-if 'Principal "princ2@KRBTEST.COM" created.\n' not in out:
-    fail('Unexpected kadmin.local output for specified linkdn')
+realm.run([kadminl, 'ank', '-randkey', '-x', 'linkdn=cn=t1,cn=krb5', 'princ2'])
 # Check that we can't reset linkdn.
-out = realm.run_kadminl('modprinc -x linkdn=cn=t2,cn=krb5 princ2')
+out = realm.run([kadminl, 'modprinc', '-x', 'linkdn=cn=t2,cn=krb5', 'princ2'],
+                expected_code=1)
 if 'kerberos principal is already linked' not in out:
     fail('Unexpected kadmin.local output for re-specified linkdn')
 
 # Create a principal with a specified containerdn.
-out = realm.run_kadminl('ank -randkey -x containerdn=cn=krb5 princ3')
+out = realm.run([kadminl, 'ank', '-randkey', '-x', 'containerdn=cn=krb5',
+                 'princ3'], expected_code=1)
 if 'DN is out of the realm subtree' not in out:
     fail('Unexpected kadmin.local output for out-of-realm containerdn')
-out = realm.run_kadminl('ank -randkey -x containerdn=cn=t1,cn=krb5 princ3')
-if 'Principal "princ3@KRBTEST.COM" created.\n' not in out:
-    fail('Unexpected kadmin.local output for specified containerdn')
-out = realm.run_kadminl('modprinc -x containerdn=cn=t2,cn=krb5 princ3')
+realm.run([kadminl, 'ank', '-randkey', '-x', 'containerdn=cn=t1,cn=krb5',
+           'princ3'])
+out = realm.run([kadminl, 'modprinc', '-x', 'containerdn=cn=t2,cn=krb5',
+                 'princ3'], expected_code=1)
 if 'containerdn option not supported' not in out:
     fail('Unexpected kadmin.local output trying to reset containerdn')
 
@@ -212,8 +211,8 @@ if out != 'tktpol\n':
     fail('Unexpected kdb5_ldap_util list_policy output')
 
 # Associate the ticket policy to a principal.
-realm.run_kadminl('ank -randkey -x tktpolicy=tktpol princ4')
-out = realm.run_kadminl('getprinc princ4')
+realm.run([kadminl, 'ank', '-randkey', '-x', 'tktpolicy=tktpol', 'princ4'])
+out = realm.run([kadminl, 'getprinc', 'princ4'])
 if ('Maximum ticket life: 0 days 04:00:00\n' not in out or
     'Maximum renewable life: 0 days 08:00:00\n' not in out or
     'Attributes: DISALLOW_FORWARDABLE REQUIRES_PRE_AUTH\n' not in out):
@@ -223,8 +222,8 @@ if ('Maximum ticket life: 0 days 04:00:00\n' not in out or
 kldaputil(['destroy_policy', '-force', 'tktpol'], expected_code=1)
 
 # Dissociate the ticket policy from the principal.
-realm.run_kadminl('modprinc -x tktpolicy= princ4')
-out = realm.run_kadminl('getprinc princ4')
+realm.run([kadminl, 'modprinc', '-x', 'tktpolicy=', 'princ4'])
+out = realm.run([kadminl, 'getprinc', 'princ4'])
 if ('Maximum ticket life: 0 days 05:00:00\n' not in out or
     'Maximum renewable life: 0 days 10:00:00\n' not in out or
     'Attributes:\n' not in out):
@@ -240,6 +239,29 @@ if out:
 # Create another ticket policy to be destroyed with the realm.
 kldaputil(['create_policy', 'tktpol2'])
 
+# Try to create a password policy conflicting with a ticket policy.
+out = realm.run([kadminl, 'addpol', 'tktpol2'], expected_code=1)
+if 'Already exists while creating policy "tktpol2"' not in out:
+    fail('Expected error not seen in kadmin.local output')
+
+# Try to create a ticket policy conflicting with a password policy.
+realm.run([kadminl, 'addpol', 'pwpol'])
+out = kldaputil(['create_policy', 'pwpol'], expected_code=1)
+if 'Already exists while creating policy object' not in out:
+    fail('Expected error not seen in kdb5_ldap_util output')
+
+# Try to use a password policy as a ticket policy.
+out = realm.run([kadminl, 'modprinc', '-x', 'tktpolicy=pwpol', 'princ4'],
+                expected_code=1)
+if 'Object class violation' not in out:
+    fail('Expected error not seem in kadmin.local output')
+
+# Use a ticket policy as a password policy (CVE-2014-5353).  This
+# works with a warning; use kadmin.local -q so the warning is shown.
+out = realm.run([kadminl, '-q', 'modprinc -policy tktpol2 princ4'])
+if 'WARNING: policy "tktpol2" does not exist' not in out:
+    fail('Expected error not seen in kadmin.local output')
+
 # Do some basic tests with a KDC against the LDAP module, exercising the
 # db_args processing code.
 realm.start_kdc(['-x', 'nconns=3', '-x', 'host=' + ldap_uri,
@@ -252,7 +274,7 @@ realm.run([kvno, realm.host_princ])
 realm.klist(realm.user_princ, realm.host_princ)
 
 # Test service principal aliases.
-realm.addprinc('canon')
+realm.addprinc('canon', password('canon'))
 ldap_modify('dn: krbPrincipalName=canon@KRBTEST.COM,cn=t1,cn=krb5\n'
             'changetype: modify\n'
             'add: krbPrincipalName\n'
@@ -260,10 +282,10 @@ ldap_modify('dn: krbPrincipalName=canon@KRBTEST.COM,cn=t1,cn=krb5\n'
             '-\n'
             'add: krbCanonicalName\n'
             'krbCanonicalName: canon@KRBTEST.COM\n')
-out = realm.run_kadminl('getprinc alias')
+out = realm.run([kadminl, 'getprinc', 'alias'])
 if 'Principal: canon@KRBTEST.COM\n' not in out:
     fail('Could not fetch canon through alias')
-out = realm.run_kadminl('getprinc canon')
+out = realm.run([kadminl, 'getprinc', 'canon'])
 if 'Principal: canon@KRBTEST.COM\n' not in out:
     fail('Could not fetch canon through canon')
 realm.run([kvno, 'alias'])
@@ -271,6 +293,8 @@ realm.run([kvno, 'canon'])
 out = realm.run([klist])
 if 'alias@KRBTEST.COM\n' not in out or 'canon@KRBTEST.COM' not in out:
     fail('After fetching alias and canon, klist is missing one or both')
+realm.kinit(realm.user_princ, password('user'), ['-S', 'alias'])
+realm.klist(realm.user_princ, 'alias@KRBTEST.COM')
 
 # Make sure an alias to the local TGS is still treated like an alias.
 ldap_modify('dn: krbPrincipalName=krbtgt/KRBTEST.COM@KRBTEST.COM,'
@@ -281,32 +305,64 @@ ldap_modify('dn: krbPrincipalName=krbtgt/KRBTEST.COM@KRBTEST.COM,'
             '-\n'
             'add: krbCanonicalName\n'
             'krbCanonicalName: krbtgt/KRBTEST.COM@KRBTEST.COM\n')
-out = realm.run_kadminl('getprinc tgtalias')
+out = realm.run([kadminl, 'getprinc', 'tgtalias'])
 if 'Principal: krbtgt/KRBTEST.COM@KRBTEST.COM' not in out:
     fail('Could not fetch krbtgt through tgtalias')
+realm.kinit(realm.user_princ, password('user'))
 realm.run([kvno, 'tgtalias'])
-out = realm.run([klist])
-if 'tgtalias@KRBTEST.COM\n' not in out:
-    fail('After fetching tgtalias, klist is missing it')
+realm.klist(realm.user_princ, 'tgtalias@KRBTEST.COM')
 
 # Make sure aliases work in header tickets.
-realm.run_kadminl('modprinc -maxrenewlife "3 hours" user')
-realm.run_kadminl('modprinc -maxrenewlife "3 hours" krbtgt/KRBTEST.COM')
+realm.run([kadminl, 'modprinc', '-maxrenewlife', '3 hours', 'user'])
+realm.run([kadminl, 'modprinc', '-maxrenewlife', '3 hours',
+           'krbtgt/KRBTEST.COM'])
 realm.kinit(realm.user_princ, password('user'), ['-l', '1h', '-r', '2h'])
 realm.run([kvno, 'alias'])
 realm.kinit(realm.user_princ, flags=['-R', '-S', 'alias'])
 realm.klist(realm.user_princ, 'alias@KRBTEST.COM')
 
+# Test client principal aliases, with and without preauth.
+realm.kinit('canon', password('canon'))
+out = realm.kinit('alias', password('canon'), expected_code=1)
+if 'not found in Kerberos database' not in out:
+    fail('Wrong error message for kinit to alias without -C flag')
+realm.kinit('alias', password('canon'), ['-C'])
+realm.run([kvno, 'alias'])
+realm.klist('canon@KRBTEST.COM', 'alias@KRBTEST.COM')
+realm.run([kadminl, 'modprinc', '+requires_preauth', 'canon'])
+realm.kinit('canon', password('canon'))
+realm.kinit('alias', password('canon'), ['-C'])
+
 # Regression test for #7980 (fencepost when dividing keys up by kvno).
-realm.run_kadminl('addprinc -randkey -e aes256-cts,aes128-cts kvnoprinc')
-realm.run_kadminl('cpw -randkey -keepold -e aes256-cts,aes128-cts kvnoprinc')
-out = realm.run_kadminl('getprinc kvnoprinc')
+realm.run([kadminl, 'addprinc', '-randkey', '-e', 'aes256-cts,aes128-cts',
+           'kvnoprinc'])
+realm.run([kadminl, 'cpw', '-randkey', '-keepold', '-e',
+           'aes256-cts,aes128-cts', 'kvnoprinc'])
+out = realm.run([kadminl, 'getprinc', 'kvnoprinc'])
 if 'Number of keys: 4' not in out:
     fail('After cpw -keepold, wrong number of keys')
-realm.run_kadminl('cpw -randkey -keepold -e aes256-cts,aes128-cts kvnoprinc')
-out = realm.run_kadminl('getprinc kvnoprinc')
+realm.run([kadminl, 'cpw', '-randkey', '-keepold', '-e',
+           'aes256-cts,aes128-cts', 'kvnoprinc'])
+out = realm.run([kadminl, 'getprinc', 'kvnoprinc'])
 if 'Number of keys: 6' not in out:
     fail('After cpw -keepold, wrong number of keys')
+
+# Regression test for #8041 (NULL dereference on keyless principals).
+realm.run([kadminl, 'addprinc', '-nokey', 'keylessprinc'])
+out = realm.run([kadminl, 'getprinc', 'keylessprinc'])
+if 'Number of keys: 0' not in out:
+    fail('Failed to create a principal with no keys')
+realm.run([kadminl, 'cpw', '-randkey', '-e', 'aes256-cts,aes128-cts',
+           'keylessprinc'])
+realm.run([kadminl, 'cpw', '-randkey', '-keepold', '-e',
+           'aes256-cts,aes128-cts', 'keylessprinc'])
+out = realm.run([kadminl, 'getprinc', 'keylessprinc'])
+if 'Number of keys: 4' not in out:
+    fail('Failed to add keys to keylessprinc')
+realm.run([kadminl, 'purgekeys', '-all', 'keylessprinc'])
+out = realm.run([kadminl, 'getprinc', 'keylessprinc'])
+if 'Number of keys: 0' not in out:
+    fail('After purgekeys -all, keys remain')
 
 realm.stop()
 
@@ -325,12 +381,10 @@ if out:
     fail('Unexpected kdb5_ldap_util list output after destroy')
 
 if not core_schema:
-    success('Warning: skipping some LDAP tests because core schema not found')
-    sys.exit(0)
+    skip_rest('LDAP SASL tests', 'core schema not found')
 
 if runenv.have_sasl != 'yes':
-    success('Warning: skipping some LDAP tests because SASL support not built')
-    sys.exit(0)
+    skip_rest('LDAP SASL tests', 'SASL support not built')
 
 # Test SASL EXTERNAL auth.  Remove the DNs and service password file
 # from the DB module config.
@@ -365,11 +419,11 @@ realm.addprinc(realm.user_princ, password('user'))
 realm.kinit(realm.user_princ, password('user'))
 realm.stop()
 # Exercise DB options, which should cause binding to fail.
-out = realm.run([kadmin_local, '-x', 'sasl_authcid=ab', '-q', 'getprinc user'],
+out = realm.run([kadminl, '-x', 'sasl_authcid=ab', 'getprinc', 'user'],
                 expected_code=1)
 if 'Cannot bind to LDAP server' not in out:
     fail('Expected error not seen in kadmin.local output')
-out = realm.run([kadmin_local, '-x', 'bindpwd=wrong', '-q', 'getprinc user'],
+out = realm.run([kadminl, '-x', 'bindpwd=wrong', 'getprinc', 'user'],
                 expected_code=1)
 if 'Cannot bind to LDAP server' not in out:
     fail('Expected error not seen in kadmin.local output')

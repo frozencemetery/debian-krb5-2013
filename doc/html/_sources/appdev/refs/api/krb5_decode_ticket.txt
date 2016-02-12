@@ -10,7 +10,7 @@ krb5_decode_ticket -  Decode an ASN.1-formatted ticket.
 
 :param:
 
-	          **[in]** **code** - ASN.1-formatted ticket
+	          **[in]** **code** - ASN.1-formattedticket
 
 	          **[out]** **rep** - Decoded ticket information
 

@@ -111,8 +111,8 @@ leash_error_message(
 #ifdef USE_MESSAGE_BOX
     *p = 0; /* ensure NULL termination of message */
     if ( displayMB )
-        MessageBox(NULL, message, "Leash", MB_OK | MB_ICONERROR | MB_TASKMODAL |
-                    MB_SETFOREGROUND);
+        MessageBox(NULL, message, "MIT Kerberos",
+                   MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_SETFOREGROUND);
 #endif /* USE_MESSAGE_BOX */
     if (rc5) return rc5;
     if (rcL) return rcL;
@@ -2886,7 +2886,7 @@ static BOOL cc_have_tickets(krb5_context ctx, krb5_ccache cache)
     krb5_error_code code;
     BOOL have_tickets = FALSE;
 
-    // Don't need the actual ticket, also turns off OPENCLOSE mode
+    // Don't need the actual ticket.
     flags = KRB5_TC_NOTICKET;
     code = pkrb5_cc_set_flags(ctx, cache, flags);
     if (code)
@@ -2907,7 +2907,7 @@ static BOOL cc_have_tickets(krb5_context ctx, krb5_ccache cache)
         code = pkrb5_cc_end_seq_get(ctx, cache, &cur);
         if (code)
             goto cleanup;
-        flags = KRB5_TC_OPENCLOSE;      /* turns on OPENCLOSE mode */
+        flags = 0;
         code = pkrb5_cc_set_flags(ctx, cache, flags);
         if (code)
             goto cleanup;

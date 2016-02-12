@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <link rel="copyright" title="Copyright" href="../copyright.html" />
     <link rel="top" title="MIT Kerberos Documentation" href="../index.html" />
     <link rel="up" title="Protocols and file formats" href="index.html" />
-    <link rel="next" title="MIT Kerberos features" href="../mitK5features.html" />
+    <link rel="next" title="KDC cookie format" href="cookie.html" />
     <link rel="prev" title="Credential cache file format" href="ccache_file_format.html" /> 
   </head>
   <body>
@@ -44,7 +44,7 @@
             accesskey="C">Contents</a> |
         <a href="ccache_file_format.html" title="Credential cache file format"
             accesskey="P">previous</a> |
-        <a href="../mitK5features.html" title="MIT Kerberos features"
+        <a href="cookie.html" title="KDC cookie format"
             accesskey="N">next</a> |
         <a href="../genindex.html" title="General Index"
             accesskey="I">index</a> |
@@ -88,6 +88,7 @@ the key entry.  Key entries use the following informal grammar:</p>
     enctype (16 bits)
     key length (32 bits)
     key contents
+    key version (32 bits) [in release 1.14 and later]
 
 principal ::=
     count of components (32 bits) [includes realm in version 1]
@@ -102,11 +103,10 @@ data ::=
     value (length bytes)
 </pre></div>
 </div>
-<p>Some implementations of Kerberos recognize a 32-bit key version at the
-end of an entry, if the record length is at least 4 bytes longer than
-the entry and the value of those 32 bits is not 0.  If present, this
-key version supersedes the 8-bit key version.  MIT krb5 does not yet
-implement this extension.</p>
+<p>The 32-bit key version overrides the 8-bit key version.  To determine
+if it is present, the implementation must check that at least 4 bytes
+remain in the record after the other fields are read, and that the
+value of the 32-bit integer contained in those bytes is non-zero.</p>
 </div>
 </div>
 
@@ -138,6 +138,7 @@ implement this extension.</p>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Keytab file format</a><ul class="simple">
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="cookie.html">KDC cookie format</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../mitK5features.html">MIT Kerberos features</a></li>
@@ -162,7 +163,7 @@ implement this extension.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">
@@ -171,7 +172,7 @@ implement this extension.</p>
             >Contents</a> |
         <a href="ccache_file_format.html" title="Credential cache file format"
             >previous</a> |
-        <a href="../mitK5features.html" title="MIT Kerberos features"
+        <a href="cookie.html" title="KDC cookie format"
             >next</a> |
         <a href="../genindex.html" title="General Index"
             >index</a> |

@@ -22,7 +22,7 @@
 
 """A module for krb5 test scripts
 
-To run test scripts during "make check" (if Python 2.4 or later is
+To run test scripts during "make check" (if Python 2.5 or later is
 available), add rules like the following to Makefile.in:
 
     check-pytests::
@@ -129,6 +129,14 @@ Scripts may use the following functions and variables:
   the operations tested; it will only be displayed (with leading
   marker and trailing newline) if the script is running verbosely.
 
+* skipped(whatmsg, whymsg): Indicate that some tests were skipped.
+  whatmsg should concisely say what was skipped (e.g. "LDAP KDB
+  tests") and whymsg should give the reason (e.g. "because LDAP module
+  not built").
+
+* skip_rest(message): Indicate that some tests were skipped, then exit
+  the current script.
+
 * output(message, force_verbose=False): Place message (without any
   added newline) in testlog, and write it to stdout if running
   verbosely.
@@ -193,7 +201,7 @@ Scripts may use the following functions and variables:
   - krb5kdc
   - kadmind
   - kadmin
-  - kadmin_local
+  - kadminl (kadmin.local)
   - kdb5_ldap_util
   - kdb5_util
   - ktutil
@@ -279,14 +287,12 @@ Scripts may use the following realm methods and attributes:
   (must be a filename; self.keytab if not specified) and verify that
   the output shows the keytab name and principal name.
 
-* realm.run_kadminl(query): Run the specified query in kadmin.local.
-
 * realm.prep_kadmin(princname=None, password=None, flags=[]): Populate
   realm.kadmin_ccache with a ticket which can be used to run kadmin.
   If princname is not specified, realm.admin_princ and its default
   password will be used.
 
-* realm.run_kadmin(query, **keywords): Run the specified query in
+* realm.run_kadmin(args, **keywords): Run the specified query in
   kadmin, using realm.kadmin_ccache to authenticate.  Accepts the same
   keyword arguments as run.
 
@@ -302,6 +308,11 @@ Scripts may use the following realm methods and attributes:
   environment created with realm.special_env() for the slave.  If args
   is given, it contains a list of additional kpropd arguments.
   Returns a handle to the kpropd process.
+
+* realm.run_kpropd_once(env, args=[]): Run kpropd once, using the -t
+  flag.  Pass an environment created with realm.special_env() for the
+  slave.  If args is given, it contains a list of additional kpropd
+  arguments.  Returns the kpropd output.
 
 * realm.realm: The realm's name.
 
@@ -371,6 +382,20 @@ def success(msg):
     global _success
     output('*** Success: %s\n' % msg)
     _success = True
+
+
+def skipped(whatmsg, whymsg):
+    output('*** Skipping: %s: %s\n' % (whatmsg, whymsg), force_verbose=True)
+    f = open(os.path.join(buildtop, 'skiptests'), 'a')
+    f.write('Skipped %s: %s\n' % (whatmsg, whymsg))
+    f.close()
+
+
+def skip_rest(whatmsg, whymsg):
+    global _success
+    skipped(whatmsg, whymsg)
+    _success = True
+    sys.exit(0)
 
 
 def output(msg, force_verbose=False):
@@ -751,8 +776,8 @@ class K5Realm(object):
         if create_kdb:
             self.create_kdb()
         if krbtgt_keysalt and create_kdb:
-            self.run_kadminl('cpw -randkey -e %s %s' %
-                             (krbtgt_keysalt, self.krbtgt_princ))
+            self.run([kadminl, 'cpw', '-randkey', '-e', krbtgt_keysalt,
+                      self.krbtgt_princ])
         if create_user and create_kdb:
             self.addprinc(self.user_princ, password('user'))
             self.addprinc(self.admin_princ, password('admin'))
@@ -905,15 +930,19 @@ class K5Realm(object):
         stop_daemon(self._kadmind_proc)
         self._kadmind_proc = None
 
-    def start_kpropd(self, env, args=[]):
-        global krb5kdc
+    def _kpropd_args(self):
         slavedump_path = os.path.join(self.testdir, 'incoming-slave-datatrans')
         kpropdacl_path = os.path.join(self.testdir, 'kpropd-acl')
-        proc = _start_daemon([kpropd, '-D', '-P', str(self.kprop_port()),
-                              '-f', slavedump_path, '-p', kdb5_util,
-                              '-a', kpropdacl_path] + args, env, 'ready')
+        return [kpropd, '-D', '-P', str(self.kprop_port()),
+                '-f', slavedump_path, '-p', kdb5_util, '-a', kpropdacl_path]
+
+    def start_kpropd(self, env, args=[]):
+        proc = _start_daemon(self._kpropd_args() + args, env, 'ready')
         self._kpropd_procs.append(proc)
         return proc
+
+    def run_kpropd_once(self, env, args=[]):
+        return self.run(self._kpropd_args() + ['-t'] + args, env=env)
 
     def stop(self):
         if self._kdc_proc:
@@ -926,12 +955,12 @@ class K5Realm(object):
 
     def addprinc(self, princname, password=None):
         if password:
-            self.run_kadminl('addprinc -pw %s %s' % (password, princname))
+            self.run([kadminl, 'addprinc', '-pw', password, princname])
         else:
-            self.run_kadminl('addprinc -randkey %s' % princname)
+            self.run([kadminl, 'addprinc', '-randkey', princname])
 
     def extract_keytab(self, princname, keytab):
-        self.run_kadminl('ktadd -k %s -norandkey %s' % (keytab, princname))
+        self.run([kadminl, 'ktadd', '-k', keytab, '-norandkey', princname])
 
     def kinit(self, princname, password=None, flags=[], **keywords):
         if password:
@@ -963,10 +992,6 @@ class K5Realm(object):
             princ not in output):
             fail('Unexpected klist output.')
 
-    def run_kadminl(self, query, env=None):
-        global kadmin_local
-        return self.run([kadmin_local, '-q', query], env=env)
-
     def prep_kadmin(self, princname=None, pw=None, flags=[]):
         if princname is None:
             princname = self.admin_princ
@@ -975,9 +1000,8 @@ class K5Realm(object):
                           flags=['-S', 'kadmin/admin',
                                  '-c', self.kadmin_ccache] + flags)
 
-    def run_kadmin(self, query, **keywords):
-        return self.run([kadmin, '-c', self.kadmin_ccache, '-q', query],
-                        **keywords)
+    def run_kadmin(self, args, **keywords):
+        return self.run([kadmin, '-c', self.kadmin_ccache] + args, **keywords)
 
     def special_env(self, name, has_kdc_conf, krb5_conf=None, kdc_conf=None):
         krb5_conf_path = os.path.join(self.testdir, 'krb5.conf.%s' % name)
@@ -1186,7 +1210,7 @@ null_input = open(os.devnull, 'r')
 krb5kdc = os.path.join(buildtop, 'kdc', 'krb5kdc')
 kadmind = os.path.join(buildtop, 'kadmin', 'server', 'kadmind')
 kadmin = os.path.join(buildtop, 'kadmin', 'cli', 'kadmin')
-kadmin_local = os.path.join(buildtop, 'kadmin', 'cli', 'kadmin.local')
+kadminl = os.path.join(buildtop, 'kadmin', 'cli', 'kadmin.local')
 kdb5_ldap_util = os.path.join(buildtop, 'plugins', 'kdb', 'ldap', 'ldap_util',
                               'kdb5_ldap_util')
 kdb5_util = os.path.join(buildtop, 'kadmin', 'dbutil', 'kdb5_util')

@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "KADMIN" "1" " " "1.13.2" "MIT Kerberos"
+.TH "KADMIN" "1" " " "1.14" "MIT Kerberos"
 .SH NAME
 kadmin \- Kerberos V5 database administration program
 .
@@ -40,6 +40,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 [[\fB\-c\fP \fIcache_name\fP]|[\fB\-k\fP [\fB\-t\fP \fIkeytab\fP]]|\fB\-n\fP]
 [\fB\-w\fP \fIpassword\fP]
 [\fB\-s\fP \fIadmin_server\fP[:\fIport\fP]]
+[command args...]
 .sp
 \fBkadmin.local\fP
 [\fB\-r\fP \fIrealm\fP]
@@ -49,6 +50,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 [\fB\-e\fP \fIenc\fP:\fIsalt\fP ...]
 [\fB\-m\fP]
 [\fB\-x\fP \fIdb_args\fP]
+[command args...]
 .SH DESCRIPTION
 .sp
 kadmin and kadmin.local are command\-line interfaces to the Kerberos V5
@@ -127,8 +129,7 @@ care, as it may expose the password to other users on the system
 via the process list.
 .TP
 .B \fB\-q\fP \fIquery\fP
-Perform the specified query and then exit.  This can be useful for
-writing scripts.
+Perform the specified query and then exit.
 .TP
 .B \fB\-d\fP \fIdbname\fP
 Specifies the name of the KDC database.  This option does not
@@ -156,6 +157,29 @@ Prevent fallback to AUTH_GSSAPI authentication flavor.
 Specifies the database specific arguments.  See the next section
 for supported options.
 .UNINDENT
+.sp
+Starting with release 1.14, if any command\-line arguments remain after
+the options, they will be treated as a single query to be executed.
+This mode of operation is intended for scripts and behaves differently
+from the interactive mode in several respects:
+.INDENT 0.0
+.IP \(bu 2
+Query arguments are split by the shell, not by kadmin.
+.IP \(bu 2
+Informational and warning messages are suppressed.  Error messages
+and query output (e.g. for \fBget_principal\fP) will still be
+displayed.
+.IP \(bu 2
+Confirmation prompts are disabled (as if \fB\-force\fP was given).
+Password prompts will still be issued as required.
+.IP \(bu 2
+The exit status will be non\-zero if the query fails.
+.UNINDENT
+.sp
+The \fB\-q\fP option does not carry these behavior differences; the query
+will be processed as if it was entered interactively.  The \fB\-q\fP
+option cannot be used in combination with a query in the remaining
+arguments.
 .SH DATABASE OPTIONS
 .sp
 Database options can be used to override database\-specific defaults.
@@ -652,6 +676,12 @@ supply per\-principal configuration to the KDC and some KDC plugin
 modules.  The following string attribute names are recognized by the
 KDC:
 .INDENT 0.0
+.TP
+.B \fBrequire_auth\fP
+Specifies an authentication indicator which is required to
+authenticate to the principal as a service.  Multiple indicators
+can be specified, separated by spaces; in this case any of the
+specified indicators will be accepted.  (New in release 1.14.)
 .TP
 .B \fBsession_enctypes\fP
 Specifies the encryption types supported for session keys when the

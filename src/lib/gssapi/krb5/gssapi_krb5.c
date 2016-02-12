@@ -124,6 +124,9 @@
  * except the last in each value's encoding.
  */
 
+#define NO_CI_FLAGS_X_OID_LENGTH 6
+#define NO_CI_FLAGS_X_OID "\x2a\x85\x70\x2b\x0d\x1d"
+
 const gss_OID_desc krb5_gss_oid_array[] = {
     /* this is the official, rfc-specified OID */
     {GSS_MECH_KRB5_OID_LENGTH, GSS_MECH_KRB5_OID},
@@ -144,6 +147,7 @@ const gss_OID_desc krb5_gss_oid_array[] = {
     {10, "\052\206\110\206\367\022\001\002\002\001"},
     /* gss_nt_krb5_principal.  Object identifier for a krb5_principal. Do not use. */
     {10, "\052\206\110\206\367\022\001\002\002\002"},
+    {NO_CI_FLAGS_X_OID_LENGTH, NO_CI_FLAGS_X_OID},
     { 0, 0 }
 };
 
@@ -156,6 +160,8 @@ const gss_OID_desc * const gss_mech_iakerb            = krb5_gss_oid_array+3;
 const gss_OID_desc * const gss_nt_krb5_name           = krb5_gss_oid_array+5;
 const gss_OID_desc * const gss_nt_krb5_principal      = krb5_gss_oid_array+6;
 const gss_OID_desc * const GSS_KRB5_NT_PRINCIPAL_NAME = krb5_gss_oid_array+5;
+
+const gss_OID_desc * const GSS_KRB5_CRED_NO_CI_FLAGS_X = krb5_gss_oid_array+7;
 
 static const gss_OID_set_desc oidsets[] = {
     {1, (gss_OID) krb5_gss_oid_array+0}, /* RFC OID */
@@ -345,7 +351,7 @@ static struct {
     }
 };
 
-static OM_uint32 KRB5_CALLCONV
+OM_uint32 KRB5_CALLCONV
 krb5_gss_inquire_sec_context_by_oid (OM_uint32 *minor_status,
                                      const gss_ctx_id_t context_handle,
                                      const gss_OID desired_object,
@@ -459,7 +465,7 @@ static struct {
 };
 #endif
 
-static OM_uint32 KRB5_CALLCONV
+OM_uint32 KRB5_CALLCONV
 krb5_gss_set_sec_context_option (OM_uint32 *minor_status,
                                  gss_ctx_id_t *context_handle,
                                  const gss_OID desired_object,
@@ -497,6 +503,20 @@ krb5_gss_set_sec_context_option (OM_uint32 *minor_status,
     return GSS_S_UNAVAILABLE;
 }
 
+static OM_uint32
+no_ci_flags(OM_uint32 *minor_status,
+            gss_cred_id_t *cred_handle,
+            const gss_OID desired_oid,
+            const gss_buffer_t value)
+{
+    krb5_gss_cred_id_t cred;
+
+    cred = (krb5_gss_cred_id_t) *cred_handle;
+    cred->suppress_ci_flags = 1;
+
+    *minor_status = 0;
+    return GSS_S_COMPLETE;
+}
 /*
  * gssspi_set_cred_option() methods
  */
@@ -519,6 +539,10 @@ static struct {
     {
         {GSS_KRB5_IMPORT_CRED_OID_LENGTH, GSS_KRB5_IMPORT_CRED_OID},
         gss_krb5int_import_cred
+    },
+    {
+        {NO_CI_FLAGS_X_OID_LENGTH, NO_CI_FLAGS_X_OID},
+        no_ci_flags
     },
 };
 
@@ -725,6 +749,7 @@ krb5_gss_inquire_attrs_for_mech(OM_uint32 *minor_status,
 
     if (g_OID_equal(mech, gss_mech_iakerb)) {
         MA_SUPPORTED(GSS_C_MA_AUTH_INIT_INIT);
+        MA_SUPPORTED(GSS_C_MA_NOT_DFLT_MECH);
     } else if (!g_OID_equal(mech, gss_mech_krb5)) {
         MA_SUPPORTED(GSS_C_MA_DEPRECATED);
     }
@@ -904,20 +929,103 @@ static struct gss_config krb5_mechanism = {
     krb5_gss_get_mic_iov_length,
 };
 
+/* Functions which use security contexts or acquire creds are IAKERB-specific;
+ * other functions can borrow from the krb5 mech. */
+static struct gss_config iakerb_mechanism = {
+    { GSS_MECH_KRB5_OID_LENGTH, GSS_MECH_KRB5_OID },
+    NULL,
+    iakerb_gss_acquire_cred,
+    krb5_gss_release_cred,
+    iakerb_gss_init_sec_context,
+#ifdef LEAN_CLIENT
+    NULL,
+#else
+    iakerb_gss_accept_sec_context,
+#endif
+    iakerb_gss_process_context_token,
+    iakerb_gss_delete_sec_context,
+    iakerb_gss_context_time,
+    iakerb_gss_get_mic,
+    iakerb_gss_verify_mic,
+#if defined(IOV_SHIM_EXERCISE_WRAP) || defined(IOV_SHIM_EXERCISE)
+    NULL,
+#else
+    iakerb_gss_wrap,
+#endif
+#if defined(IOV_SHIM_EXERCISE_UNWRAP) || defined(IOV_SHIM_EXERCISE)
+    NULL,
+#else
+    iakerb_gss_unwrap,
+#endif
+    krb5_gss_display_status,
+    krb5_gss_indicate_mechs,
+    krb5_gss_compare_name,
+    krb5_gss_display_name,
+    krb5_gss_import_name,
+    krb5_gss_release_name,
+    krb5_gss_inquire_cred,
+    NULL,                /* add_cred */
+#ifdef LEAN_CLIENT
+    NULL,
+    NULL,
+#else
+    iakerb_gss_export_sec_context,
+    iakerb_gss_import_sec_context,
+#endif
+    krb5_gss_inquire_cred_by_mech,
+    krb5_gss_inquire_names_for_mech,
+    iakerb_gss_inquire_context,
+    krb5_gss_internal_release_oid,
+    iakerb_gss_wrap_size_limit,
+    krb5_gss_localname,
+    krb5_gss_authorize_localname,
+    krb5_gss_export_name,
+    krb5_gss_duplicate_name,
+    krb5_gss_store_cred,
+    iakerb_gss_inquire_sec_context_by_oid,
+    krb5_gss_inquire_cred_by_oid,
+    iakerb_gss_set_sec_context_option,
+    krb5_gssspi_set_cred_option,
+    krb5_gssspi_mech_invoke,
+    NULL,                /* wrap_aead */
+    NULL,                /* unwrap_aead */
+    iakerb_gss_wrap_iov,
+    iakerb_gss_unwrap_iov,
+    iakerb_gss_wrap_iov_length,
+    NULL,               /* complete_auth_token */
+    NULL,               /* acquire_cred_impersonate_name */
+    NULL,               /* add_cred_impersonate_name */
+    NULL,               /* display_name_ext */
+    krb5_gss_inquire_name,
+    krb5_gss_get_name_attribute,
+    krb5_gss_set_name_attribute,
+    krb5_gss_delete_name_attribute,
+    krb5_gss_export_name_composite,
+    krb5_gss_map_name_to_any,
+    krb5_gss_release_any_name_mapping,
+    iakerb_gss_pseudo_random,
+    NULL,               /* set_neg_mechs */
+    krb5_gss_inquire_saslname_for_mech,
+    krb5_gss_inquire_mech_for_saslname,
+    krb5_gss_inquire_attrs_for_mech,
+    krb5_gss_acquire_cred_from,
+    krb5_gss_store_cred_into,
+    iakerb_gss_acquire_cred_with_password,
+    krb5_gss_export_cred,
+    krb5_gss_import_cred,
+    NULL,               /* import_sec_context_by_mech */
+    NULL,               /* import_name_by_mech */
+    NULL,               /* import_cred_by_mech */
+    iakerb_gss_get_mic_iov,
+    iakerb_gss_verify_mic_iov,
+    iakerb_gss_get_mic_iov_length,
+};
+
 #ifdef _GSS_STATIC_LINK
 #include "mglueP.h"
 static int gss_iakerbmechglue_init(void)
 {
     struct gss_mech_config mech_iakerb;
-    struct gss_config iakerb_mechanism = krb5_mechanism;
-
-    /* IAKERB mechanism mirrors krb5, but with different context SPIs */
-    iakerb_mechanism.gss_accept_sec_context = iakerb_gss_accept_sec_context;
-    iakerb_mechanism.gss_init_sec_context   = iakerb_gss_init_sec_context;
-    iakerb_mechanism.gss_delete_sec_context = iakerb_gss_delete_sec_context;
-    iakerb_mechanism.gss_acquire_cred       = iakerb_gss_acquire_cred;
-    iakerb_mechanism.gssspi_acquire_cred_with_password
-                                    = iakerb_gss_acquire_cred_with_password;
 
     memset(&mech_iakerb, 0, sizeof(mech_iakerb));
     mech_iakerb.mech = &iakerb_mechanism;

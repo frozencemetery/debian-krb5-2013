@@ -15,7 +15,7 @@
 
 \title{Kerberos User Guide}
 \date{ }
-\release{1.13.2}
+\release{1.14}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -1351,7 +1351,6 @@ kerberos(1), cc(1)
 {[} \textbf{-n} \emph{target\_principal\_name} {]}
 {[} \textbf{-c} \emph{source\_cache\_name} {]}
 {[} \textbf{-k} {]}
-{[} \textbf{-D} {]}
 {[} \textbf{-r} time {]}
 {[} \textbf{-pf} {]}
 {[} \textbf{-l} \emph{lifetime} {]}
@@ -1581,9 +1580,6 @@ krb5cc\PYGZus{}1984.2
 Do not delete the target cache upon termination of the target
 shell or a command (\textbf{-e} command).  Without \textbf{-k}, ksu deletes
 the target cache.
-
-\item[{\textbf{-D}}] \leavevmode
-Turn on debug mode.
 
 \item[{\textbf{-z}}] \leavevmode
 Restrict the copy of tickets from the source cache to the target

@@ -124,6 +124,7 @@ BEGIN
         MENUITEM "&Valid Until",                ID_VALID_UNTIL
         MENUITEM "&Encryption Type",            ID_ENCRYPTION_TYPE
         MENUITEM "&Flags",                      ID_SHOW_TICKET_FLAGS
+        MENUITEM "&Credential Cache Name",      ID_CCACHE_NAME
     END
     POPUP "&Options"
     BEGIN
@@ -155,8 +156,10 @@ BEGIN
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "D",            ID_DESTROY_TICKET,      VIRTKEY, CONTROL, NOINVERT
     "I",            ID_IMPORT_TICKET,       VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_MAKE_DEFAULT,        VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_CHANGE_PASSWORD,     VIRTKEY, CONTROL, NOINVERT
     "R",            ID_RENEW_TICKET,        VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     "T",            ID_INIT_TICKET,         VIRTKEY, CONTROL, NOINVERT
@@ -882,16 +885,6 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Leash_toolbar.bmp"
-IDB_HOMESMALL           BITMAP                  "res\\homesmall.bmp"
-IDB_HOMELARGE           BITMAP                  "res\\homelarge.bmp"
-IDB_BITMAP2             BITMAP                  "res\\main.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Ribbon
-//
-
-IDR_RIBBON1             RT_RIBBON_XML           "res\\ribbon1.mfcribbon-ms"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -976,6 +969,7 @@ BEGIN
     ID_FORGET_PRINCIPALS    "Clear the Principal history.  This only affects autocompletion in the Get Tickets and Change Password dialogs.\n Forget Principals"
     ID_ENCRYPTION_TYPE      "Display column showing the encryption type for your tickets and session keys.\n Encryption Type"
     ID_VALID_UNTIL          "Display column showing when your tickets will expire.\n Valid Until"
+    ID_CCACHE_NAME          "Display column showing the name of the credential cache containing this ticket.\n Cache Name"
 END
 
 STRINGTABLE
@@ -1011,3 +1005,12 @@ LANGUAGE 9, 1
 #endif
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// UIFILE
+//
+
+#include "kfwribbon.rc"
