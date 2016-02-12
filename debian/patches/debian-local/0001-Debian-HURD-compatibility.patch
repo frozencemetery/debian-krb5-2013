@@ -1,4 +1,4 @@
-From 8068523e7d7260cff1416c1cda17b464978aa031 Mon Sep 17 00:00:00 2001
+From dfeb32fcf5663b385af7d41ac609ba40534de739 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:05:13 -0500
 Subject: Debian: HURD compatibility
@@ -32,10 +32,10 @@ index ee8e9d6..695305f 100644
  extern int optind;
  extern char * optarg;
 diff --git a/src/include/k5-int.h b/src/include/k5-int.h
-index d57dd6b..4989a71 100644
+index 41c3d1b..4810f04 100644
 --- a/src/include/k5-int.h
 +++ b/src/include/k5-int.h
-@@ -564,6 +564,9 @@ extern char *strdup (const char *);
+@@ -573,6 +573,9 @@ extern char *strdup (const char *);
  #ifdef HAVE_SYS_PARAM_H
  #include <sys/param.h>                  /* MAXPATHLEN */
  #endif
@@ -61,7 +61,7 @@ index 20a348c..b8b61ce 100644
   * Free a kt_list
   */
 diff --git a/src/lib/gssapi/spnego/spnego_mech.c b/src/lib/gssapi/spnego/spnego_mech.c
-index f9248ab..6e39c37 100644
+index e6703eb..a71a0c4 100644
 --- a/src/lib/gssapi/spnego/spnego_mech.c
 +++ b/src/lib/gssapi/spnego/spnego_mech.c
 @@ -65,6 +65,9 @@
