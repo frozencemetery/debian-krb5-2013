@@ -1,3 +1,24 @@
+krb5 (1.12.1+dfsg-19+deb8u2) jessie-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * Verify decoded kadmin C strings [CVE-2015-8629]
+    CVE-2015-8629: An authenticated attacker can cause kadmind to read
+    beyond the end of allocated memory by sending a string without a
+    terminating zero byte. Information leakage may be possible for an
+    attacker with permission to modify the database. (Closes: #813296)
+  * Check for null kadm5 policy name [CVE-2015-8630]
+    CVE-2015-8630: An authenticated attacker with permission to modify a
+    principal entry can cause kadmind to dereference a null pointer by
+    supplying a null policy value but including KADM5_POLICY in the mask.
+    (Closes: #813127)
+  * Fix leaks in kadmin server stubs [CVE-2015-8631]
+    CVE-2015-8631: An authenticated attacker can cause kadmind to leak
+    memory by supplying a null principal name in a request which uses one.
+    Repeating these requests will eventually cause kadmind to exhaust all
+    available memory. (Closes: #813126)
+
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 31 Jan 2016 11:48:01 +0100
+
 krb5 (1.12.1+dfsg-19+deb8u1) jessie-security; urgency=high
 
   * Import upstream patches for four CVEs:
