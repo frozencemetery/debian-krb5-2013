@@ -1,4 +1,4 @@
-From 2767f63e5d4d35c16d8a2e4863d15341f9ac0a9b Mon Sep 17 00:00:00 2001
+From b272e64781cab840322b0c26173954e172184203 Mon Sep 17 00:00:00 2001
 From: Greg Hudson <ghudson@mit.edu>
 Date: Wed, 4 Nov 2015 21:29:10 -0500
 Subject: Fix SPNEGO context import

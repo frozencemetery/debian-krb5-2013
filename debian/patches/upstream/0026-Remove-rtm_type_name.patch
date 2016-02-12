@@ -1,4 +1,4 @@
-From 69fa1fe36396c1f370c0dd91ca6de5ebd92c8601 Mon Sep 17 00:00:00 2001
+From c75cf353e22de0b75c4c07688d1a9cc179b7cf29 Mon Sep 17 00:00:00 2001
 From: Ben Kaduk <kaduk@mit.edu>
 Date: Fri, 1 Nov 2013 15:12:33 -0400
 Subject: Remove rtm_type_name()

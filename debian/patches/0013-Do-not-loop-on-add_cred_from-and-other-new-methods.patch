@@ -1,4 +1,4 @@
-From 2d1dddba54f37721198d49ddeb83c20c5674c737 Mon Sep 17 00:00:00 2001
+From 363068f870f3d9669c4e56a2bbd21ef1bdf21021 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Wed, 4 Jun 2014 12:06:27 -0400
 Subject: Do not loop on add_cred_from and other new methods

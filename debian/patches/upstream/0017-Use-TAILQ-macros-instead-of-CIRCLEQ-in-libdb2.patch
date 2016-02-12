@@ -1,4 +1,4 @@
-From 3d3bf0c075af62f278b63cfffda96a9b515dca39 Mon Sep 17 00:00:00 2001
+From 975710ef707797299ae2e266bdfc6bcc63ce6f93 Mon Sep 17 00:00:00 2001
 From: Greg Hudson <ghudson@mit.edu>
 Date: Mon, 17 Feb 2014 00:18:41 -0500
 Subject: Use TAILQ macros instead of CIRCLEQ in libdb2

@@ -1,7 +1,9 @@
-From 6bfce8087d58df74c9b8576941ba5bdab5f359c5 Mon Sep 17 00:00:00 2001
+From d64362a7473b81a423e206e5add26eb9f8f517b8 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:05:13 -0500
-Subject: =?UTF-8?q?ticket:=20new=0Asubject:=20fix=20ksu=20environment=20va?=
+Subject: =?UTF-8?q?=3D=3FUTF-8=3Fq=3Fticket:=3D20new=3D0Asubject:=3D20fix?=
+ =?UTF-8?q?=3D20ksu=3D20environment=3D20va=3F=3D?=
+
  =?UTF-8?q?riable=20handling?=
 
 Fix error messages from ksu

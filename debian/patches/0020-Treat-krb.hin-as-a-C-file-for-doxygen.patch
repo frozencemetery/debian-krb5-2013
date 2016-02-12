@@ -1,4 +1,4 @@
-From e96ecd1b55d9502f17bb654e3c99ea58af68a7ad Mon Sep 17 00:00:00 2001
+From e26d5255cd279c2a43cda8817c9563c705146018 Mon Sep 17 00:00:00 2001
 From: Benjamin Kaduk <kaduk@mit.edu>
 Date: Wed, 27 Aug 2014 23:55:27 -0400
 Subject: Treat krb.hin as a C file for doxygen

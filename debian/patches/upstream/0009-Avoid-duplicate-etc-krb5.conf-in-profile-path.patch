@@ -1,4 +1,4 @@
-From 0fc749e3426189ef94f32f88123b3ebad5b860c2 Mon Sep 17 00:00:00 2001
+From 6aa4400377bed15e06b944d1bfac3b0e4f685d47 Mon Sep 17 00:00:00 2001
 From: Tom Yu <tlyu@mit.edu>
 Date: Tue, 25 Feb 2014 17:35:35 -0500
 Subject: Avoid duplicate "/etc/krb5.conf" in profile path

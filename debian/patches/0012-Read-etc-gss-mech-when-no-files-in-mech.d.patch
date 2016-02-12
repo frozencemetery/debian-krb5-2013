@@ -1,4 +1,4 @@
-From 1f003b7f59c211cf5f462068c90b2b158800f439 Mon Sep 17 00:00:00 2001
+From 330a62058ec706ea0bacd65cb03d2813e2af009b Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Wed, 4 Jun 2014 12:03:19 -0400
 Subject: Read /etc/gss/mech when no files in mech.d

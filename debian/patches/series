@@ -1,4 +1,4 @@
-0001-ticket-new.patch
+0001-UTF-8-q-ticket-20new-0Asubject-20fix-20ksu-20environ.patch
 debian-local/0002-Debian-HURD-compatibility.patch
 debian-local/0003-debian-suppress-usr-lib-in-krb5-config.patch
 debian-local/0004-debian-osconf.hin-path-changes.patch
@@ -34,6 +34,6 @@ upstream/0033-Fix-build_principal-memory-bug-CVE-2015-2697.patch
 upstream/0034-Fix-two-IAKERB-comments.patch
 upstream/0035-Fix-IAKERB-context-export-import-CVE-2015-2698.patch
 upstream/0036-Fix-SPNEGO-context-import.patch
-upstream/0037-Verify-decoded-kadmin-C-strings-CVE-2015-8629.patch
-upstream/0038-Check-for-null-kadm5-policy-name-CVE-2015-8630.patch
-upstream/0039-Fix-leaks-in-kadmin-server-stubs-CVE-2015-8631.patch
+0037-Verify-decoded-kadmin-C-strings-CVE-2015-8629.patch
+0038-Check-for-null-kadm5-policy-name-CVE-2015-8630.patch
+0039-Fix-leaks-in-kadmin-server-stubs-CVE-2015-8631.patch

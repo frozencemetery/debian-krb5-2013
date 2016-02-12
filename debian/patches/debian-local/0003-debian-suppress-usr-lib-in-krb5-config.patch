@@ -1,4 +1,4 @@
-From d6cfadbf968045c8b57ea59ba884ae8a4ff4c173 Mon Sep 17 00:00:00 2001
+From 86ccb1cbdefeb19f7daf24227e3bfb4b07468c18 Mon Sep 17 00:00:00 2001
 From: Sam Hartman <hartmans@debian.org>
 Date: Mon, 26 Dec 2011 18:19:53 -0500
 Subject: debian: suppress /usr/lib in krb5-config
