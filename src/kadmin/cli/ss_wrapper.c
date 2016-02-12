@@ -29,6 +29,10 @@
 #include <ss/ss.h>
 #include "kadmin.h"
 
+#ifdef NEED_SS_EXECUTE_COMMAND_PROTO
+int ss_execute_command(int, char **);
+#endif
+
 extern ss_request_table kadmin_cmds;
 extern int exit_status;
 extern char *whoami;
@@ -36,26 +40,38 @@ extern char *whoami;
 int
 main(int argc, char *argv[])
 {
-    char *request;
+    char *request, **args;
     krb5_error_code retval;
     int sci_idx, code = 0;
 
     setlocale(LC_ALL, "");
     whoami = ((whoami = strrchr(argv[0], '/')) ? whoami+1 : argv[0]);
 
-    request = kadmin_startup(argc, argv);
+    kadmin_startup(argc, argv, &request, &args);
     sci_idx = ss_create_invocation(whoami, "5.0", NULL, &kadmin_cmds, &retval);
     if (retval) {
         ss_perror(sci_idx, retval, _("creating invocation"));
         exit(1);
     }
-    if (request) {
+
+    if (*args != NULL) {
+        /* Execute post-option arguments as a single script-mode command. */
+        code = ss_execute_command(sci_idx, args);
+        if (code) {
+            ss_perror(sci_idx, code, *args);
+            exit_status = 1;
+        }
+    } else if (request != NULL) {
+        /* Execute the -q option as a single interactive command. */
         code = ss_execute_line(sci_idx, request);
         if (code != 0) {
             ss_perror(sci_idx, code, request);
-            exit_status++;
+            exit_status = 1;
         }
-    } else
-        retval = ss_listen(sci_idx);
+    } else {
+        /* Prompt for commands. */
+        (void)ss_listen(sci_idx);
+    }
+
     return quit() ? 1 : exit_status;
 }

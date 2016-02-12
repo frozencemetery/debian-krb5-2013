@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -108,7 +108,8 @@ following options:</p>
 [<strong>-q</strong> <em>query</em>]
 [[<strong>-c</strong> <em>cache_name</em>]|[<strong>-k</strong> [<strong>-t</strong> <em>keytab</em>]]|<strong>-n</strong>]
 [<strong>-w</strong> <em>password</em>]
-[<strong>-s</strong> <em>admin_server</em>[:<em>port</em>]]</p>
+[<strong>-s</strong> <em>admin_server</em>[:<em>port</em>]]
+[command args...]</p>
 <p><strong>kadmin.local</strong>
 [<strong>-r</strong> <em>realm</em>]
 [<strong>-p</strong> <em>principal</em>]
@@ -116,7 +117,8 @@ following options:</p>
 [<strong>-d</strong> <em>dbname</em>]
 [<strong>-e</strong> <em>enc</em>:<em>salt</em> ...]
 [<strong>-m</strong>]
-[<strong>-x</strong> <em>db_args</em>]</p>
+[<strong>-x</strong> <em>db_args</em>]
+[command args...]</p>
 <p><strong>OPTIONS</strong></p>
 <dl class="docutils">
 <dt><strong>-r</strong> <em>realm</em></dt>
@@ -161,8 +163,7 @@ own temporary ccache.</dd>
 care, as it may expose the password to other users on the system
 via the process list.</dd>
 <dt><strong>-q</strong> <em>query</em></dt>
-<dd>Perform the specified query and then exit.  This can be useful for
-writing scripts.</dd>
+<dd>Perform the specified query and then exit.</dd>
 <dt><strong>-d</strong> <em>dbname</em></dt>
 <dd>Specifies the name of the KDC database.  This option does not
 apply to the LDAP database module.</dd>
@@ -1755,6 +1756,7 @@ config file, and the per-slave dump files are stored in
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth_indicator.html">Authentication indicators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="env_variables.html">Environment variables</a></li>
@@ -1790,7 +1792,7 @@ config file, and the per-slave dump files are stored in
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

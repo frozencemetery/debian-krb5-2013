@@ -37,10 +37,12 @@ import struct
 
 try:
     from pyrad import packet, dictionary
+except ImportError:
+    skip_rest('OTP tests', 'Python pyrad module not found')
+try:
     from multiprocessing import Process, Queue
 except ImportError:
-    success('Warning: skipping OTP tests due to missing pyrad or old Python')
-    exit(0)
+    skip_rest('OTP tests', 'Python version 2.6 required')
 
 # We could use a dictionary file, but since we need so few attributes,
 # we'll just include them here.
@@ -147,13 +149,16 @@ def verify(daemon, queue, reply, usernm, passwd):
     assert data['pass'] == [passwd]
     daemon.join()
 
-def setstr(princ, type, username=None):
-    cmd = 'setstr %s otp "[{""type"": ""%s""' % (princ, type)
-    if username is None:
-        cmd += '}]"'
-    else:
-        cmd += ', ""username"": ""%s""}]"' % username
-    return cmd
+def otpconfig(toktype, username=None, indicators=None):
+    val = '[{"type": "%s"' % toktype
+    if username is not None:
+        val += ', "username": "%s"' % username
+    if indicators is not None:
+        qind = ['"%s"' % s for s in indicators]
+        jsonlist = '[' + ', '.join(qind) + ']'
+        val += ', "indicators":' + jsonlist
+    val += '}]'
+    return val
 
 prefix = "/tmp/%d" % os.getpid()
 secret_file = prefix + ".secret"
@@ -165,14 +170,15 @@ atexit.register(lambda: os.remove(secret_file))
 conf = {'plugins': {'kdcpreauth': {'enable_only': 'otp'}},
         'otp': {'udp': {'server': '127.0.0.1:$port9',
                         'secret': secret_file,
-                        'strip_realm': 'true'},
+                        'strip_realm': 'true',
+                        'indicator': ['indotp1', 'indotp2']},
                 'unix': {'server': socket_file,
                          'strip_realm': 'false'}}}
 
 queue = Queue()
 
 realm = K5Realm(kdc_conf=conf)
-realm.run_kadminl('modprinc +requires_preauth %s' % realm.user_princ)
+realm.run([kadminl, 'modprinc', '+requires_preauth', realm.user_princ])
 flags = ['-T', realm.ccache]
 server_addr = '127.0.0.1:' + str(realm.portbase + 9)
 
@@ -180,7 +186,8 @@ server_addr = '127.0.0.1:' + str(realm.portbase + 9)
 daemon = UDPRadiusDaemon(args=(server_addr, secret_file, 'accept', queue))
 daemon.start()
 queue.get()
-realm.run_kadminl(setstr(realm.user_princ, 'udp', 'custom'))
+realm.run([kadminl, 'setstr', realm.user_princ, 'otp',
+           otpconfig('udp', 'custom')])
 realm.kinit(realm.user_princ, 'reject', flags=flags, expected_code=1)
 verify(daemon, queue, False, 'custom', 'reject')
 
@@ -188,9 +195,26 @@ verify(daemon, queue, False, 'custom', 'reject')
 daemon = UDPRadiusDaemon(args=(server_addr, secret_file, 'accept', queue))
 daemon.start()
 queue.get()
-realm.run_kadminl(setstr(realm.user_princ, 'udp'))
+realm.run([kadminl, 'setstr', realm.user_princ, 'otp', otpconfig('udp')])
 realm.kinit(realm.user_princ, 'accept', flags=flags)
 verify(daemon, queue, True, realm.user_princ.split('@')[0], 'accept')
+realm.extract_keytab(realm.krbtgt_princ, realm.keytab)
+out = realm.run(['./adata', realm.krbtgt_princ])
+if '+97: [indotp1, indotp2]' not in out:
+    fail('auth indicators not seen in OTP ticket')
+
+# Repeat with an indicators override in the string attribute.
+daemon = UDPRadiusDaemon(args=(server_addr, secret_file, 'accept', queue))
+daemon.start()
+queue.get()
+oconf = otpconfig('udp', indicators=['indtok1', 'indtok2'])
+realm.run([kadminl, 'setstr', realm.user_princ, 'otp', oconf])
+realm.kinit(realm.user_princ, 'accept', flags=flags)
+verify(daemon, queue, True, realm.user_princ.split('@')[0], 'accept')
+realm.extract_keytab(realm.krbtgt_princ, realm.keytab)
+out = realm.run(['./adata', realm.krbtgt_princ])
+if '+97: [indtok1, indtok2]' not in out:
+    fail('auth indicators not seen in OTP ticket')
 
 # Detect upstream pyrad bug
 #   https://github.com/wichert/pyrad/pull/18
@@ -198,15 +222,14 @@ try:
     auth = packet.Packet.CreateAuthenticator()
     packet.Packet(authenticator=auth, secret="").ReplyPacket()
 except AssertionError:
-    success('Warning: skipping UNIX domain socket tests because of pyrad '
-            'assertion bug')
-    exit(0)
+    skip_rest('OTP UNIX domain socket tests', 'pyrad assertion bug detected')
 
 ## Test Unix fail / custom username
 daemon = UnixRadiusDaemon(args=(socket_file, '', 'accept', queue))
 daemon.start()
 queue.get()
-realm.run_kadminl(setstr(realm.user_princ, 'unix', 'custom'))
+realm.run([kadminl, 'setstr', realm.user_princ, 'otp',
+           otpconfig('unix', 'custom')])
 realm.kinit(realm.user_princ, 'reject', flags=flags, expected_code=1)
 verify(daemon, queue, False, 'custom', 'reject')
 
@@ -214,7 +237,7 @@ verify(daemon, queue, False, 'custom', 'reject')
 daemon = UnixRadiusDaemon(args=(socket_file, '', 'accept', queue))
 daemon.start()
 queue.get()
-realm.run_kadminl(setstr(realm.user_princ, 'unix'))
+realm.run([kadminl, 'setstr', realm.user_princ, 'otp', otpconfig('unix')])
 realm.kinit(realm.user_princ, 'accept', flags=flags)
 verify(daemon, queue, True, realm.user_princ, 'accept')
 

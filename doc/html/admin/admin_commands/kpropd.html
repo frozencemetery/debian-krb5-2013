@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -75,7 +75,8 @@
 [<strong>-F</strong> <em>principal_database</em>]
 [<strong>-p</strong> <em>kdb5_util_prog</em>]
 [<strong>-P</strong> <em>port</em>]
-[<strong>-d</strong>]</p>
+[<strong>-d</strong>]
+[<strong>-t</strong>]</p>
 </div>
 <div class="section" id="description">
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
@@ -137,6 +138,11 @@ program; by default the pathname used is <a class="reference internal" href="../
 itself from the current job and run in the background.  Instead,
 it will run in the foreground and print out debugging messages
 during the database propagation.</dd>
+<dt><strong>-t</strong></dt>
+<dd>In standalone mode without incremental propagation, exit after one
+dump file is received.  In incremental propagation mode, exit as
+soon as the database is up to date, or if the master returns an
+error.</dd>
 <dt><strong>-P</strong></dt>
 <dd>Allow for an alternate port number for kpropd to listen on.  This
 is only useful in combination with the <strong>-S</strong> option.</dd>
@@ -207,6 +213,7 @@ will allow Kerberos database propagation via <a class="reference internal" href=
 <li class="toctree-l2"><a class="reference internal" href="../princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../enctypes.html">Encryption types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../https.html">HTTPS proxy configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auth_indicator.html">Authentication indicators</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Administration  programs</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="kadmin_local.html">kadmin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kadmind.html">kadmind</a></li>
@@ -255,7 +262,7 @@ will allow Kerberos database propagation via <a class="reference internal" href=
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

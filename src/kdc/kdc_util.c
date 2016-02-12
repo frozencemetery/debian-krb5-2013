@@ -540,6 +540,45 @@ errout:
     return retval;
 }
 
+/*
+ * If candidate is the local TGT for realm, set *alias_out to candidate and
+ * *storage_out to NULL.  Otherwise, load the local TGT into *storage_out and
+ * set *alias_out to *storage_out.
+ *
+ * In the future we might generalize this to a small per-request principal
+ * cache.  For now, it saves a load operation in the common case where the AS
+ * server or TGS header ticket server is the local TGT.
+ */
+krb5_error_code
+get_local_tgt(krb5_context context, const krb5_data *realm,
+              krb5_db_entry *candidate, krb5_db_entry **alias_out,
+              krb5_db_entry **storage_out)
+{
+    krb5_error_code ret;
+    krb5_principal princ;
+    krb5_db_entry *tgt;
+
+    *alias_out = NULL;
+    *storage_out = NULL;
+
+    ret = krb5_build_principal_ext(context, &princ, realm->length, realm->data,
+                                   KRB5_TGS_NAME_SIZE, KRB5_TGS_NAME,
+                                   realm->length, realm->data, 0);
+    if (ret)
+        return ret;
+
+    if (!krb5_principal_compare(context, candidate->princ, princ)) {
+        ret = krb5_db_get_principal(context, princ, 0, &tgt);
+        if (!ret)
+            *storage_out = *alias_out = tgt;
+    } else {
+        *alias_out = candidate;
+    }
+
+    krb5_free_principal(context, princ);
+    return ret;
+}
+
 /* This probably wants to be updated if you support last_req stuff */
 
 static krb5_last_req_entry nolrentry = { KV5M_LAST_REQ_ENTRY, KRB5_LRQ_NONE, 0 };
@@ -733,6 +772,42 @@ validate_forwardable(krb5_kdc_req *request, krb5_db_entry client,
         return(KDC_ERR_POLICY);
     } else
         return 0;
+}
+
+/* Return KRB5KDC_ERR_POLICY if indicators does not contain the required auth
+ * indicators for server, ENOMEM on allocation error, 0 otherwise. */
+krb5_error_code
+check_indicators(krb5_context context, krb5_db_entry *server,
+                 krb5_data *const *indicators)
+{
+    krb5_error_code ret;
+    char *str = NULL, *copy = NULL, *save, *ind;
+
+    ret = krb5_dbe_get_string(context, server, KRB5_KDB_SK_REQUIRE_AUTH, &str);
+    if (ret || str == NULL)
+        goto cleanup;
+    copy = strdup(str);
+    if (copy == NULL) {
+        ret = ENOMEM;
+        goto cleanup;
+    }
+
+    /* Look for any of the space-separated strings in indicators. */
+    ind = strtok_r(copy, " ", &save);
+    while (ind != NULL) {
+        if (authind_contains(indicators, ind))
+            goto cleanup;
+        ind = strtok_r(NULL, " ", &save);
+    }
+
+    ret = KRB5KDC_ERR_POLICY;
+    k5_setmsg(context, ret,
+              _("Required auth indicators not present in ticket: %s"), str);
+
+cleanup:
+    krb5_dbe_free_string(context, str);
+    free(copy);
+    return ret;
 }
 
 #define ASN1_ID_CLASS   (0xc0)
@@ -1599,7 +1674,7 @@ krb5_error_code
 validate_transit_path(krb5_context context,
                       krb5_const_principal client,
                       krb5_db_entry *server,
-                      krb5_db_entry *krbtgt)
+                      krb5_db_entry *header_srv)
 {
     /* Incoming */
     if (isflagset(server->attributes, KRB5_KDB_XREALM_NON_TRANSITIVE)) {
@@ -1607,9 +1682,9 @@ validate_transit_path(krb5_context context,
     }
 
     /* Outgoing */
-    if (isflagset(krbtgt->attributes, KRB5_KDB_XREALM_NON_TRANSITIVE) &&
-        (!krb5_principal_compare(context, server->princ, krbtgt->princ) ||
-         !krb5_realm_compare(context, client, krbtgt->princ))) {
+    if (isflagset(header_srv->attributes, KRB5_KDB_XREALM_NON_TRANSITIVE) &&
+        (!krb5_principal_compare(context, server->princ, header_srv->princ) ||
+         !krb5_realm_compare(context, client, header_srv->princ))) {
         return KRB5KDC_ERR_PATH_NOT_ACCEPTED;
     }
 

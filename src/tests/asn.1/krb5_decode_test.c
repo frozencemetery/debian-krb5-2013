@@ -366,8 +366,7 @@ int main(argc, argv)
         setup(krb5_enc_tkt_part,ktest_make_sample_enc_tkt_part);
         decode_run("enc_tkt_part","","63 82 01 14 30 82 01 10 A0 07 03 05 00 FE DC BA 98 A1 13 30 11 A0 03 02 01 01 A1 0A 04 08 31 32 33 34 35 36 37 38 A2 10 1B 0E 41 54 48 45 4E 41 2E 4D 49 54 2E 45 44 55 A3 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A4 2E 30 2C A0 03 02 01 01 A1 25 04 23 45 44 55 2C 4D 49 54 2E 2C 41 54 48 45 4E 41 2E 2C 57 41 53 48 49 4E 47 54 4F 4E 2E 45 44 55 2C 43 53 2E A5 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A6 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A7 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A8 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A9 20 30 1E 30 0D A0 03 02 01 02 A1 06 04 04 12 D0 00 23 30 0D A0 03 02 01 02 A1 06 04 04 12 D0 00 23 AA 24 30 22 30 0F A0 03 02 01 01 A1 08 04 06 66 6F 6F 62 61 72 30 0F A0 03 02 01 01 A1 08 04 06 66 6F 6F 62 61 72",decode_krb5_enc_tkt_part,ktest_equal_enc_tkt_part,krb5_free_enc_tkt_part);
 
-        /* ref.times.starttime = 0; */
-        ref.times.starttime = ref.times.authtime;
+        ref.times.starttime = 0;
         ref.times.renew_till = 0;
         ktest_destroy_address(&(ref.caddrs[1]));
         ktest_destroy_address(&(ref.caddrs[0]));
@@ -1084,6 +1083,27 @@ int main(argc, argv)
     {
         setup(krb5_kkdcp_message,ktest_make_sample_kkdcp_message);
         decode_run("kkdcp_message","","30 82 01 FC A0 82 01 EC 04 82 01 E8 6A 82 01 E4 30 82 01 E0 A1 03 02 01 05 A2 03 02 01 0A A3 26 30 24 30 10 A1 03 02 01 0D A2 09 04 07 70 61 2D 64 61 74 61 30 10 A1 03 02 01 0D A2 09 04 07 70 61 2D 64 61 74 61 A4 82 01 AA 30 82 01 A6 A0 07 03 05 00 FE DC BA 98 A1 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A2 10 1B 0E 41 54 48 45 4E 41 2E 4D 49 54 2E 45 44 55 A3 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A4 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A5 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A6 11 18 0F 31 39 39 34 30 36 31 30 30 36 30 33 31 37 5A A7 03 02 01 2A A8 08 30 06 02 01 00 02 01 01 A9 20 30 1E 30 0D A0 03 02 01 02 A1 06 04 04 12 D0 00 23 30 0D A0 03 02 01 02 A1 06 04 04 12 D0 00 23 AA 25 30 23 A0 03 02 01 00 A1 03 02 01 05 A2 17 04 15 6B 72 62 41 53 4E 2E 31 20 74 65 73 74 20 6D 65 73 73 61 67 65 AB 81 BF 30 81 BC 61 5C 30 5A A0 03 02 01 05 A1 10 1B 0E 41 54 48 45 4E 41 2E 4D 49 54 2E 45 44 55 A2 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A3 25 30 23 A0 03 02 01 00 A1 03 02 01 05 A2 17 04 15 6B 72 62 41 53 4E 2E 31 20 74 65 73 74 20 6D 65 73 73 61 67 65 61 5C 30 5A A0 03 02 01 05 A1 10 1B 0E 41 54 48 45 4E 41 2E 4D 49 54 2E 45 44 55 A2 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A3 25 30 23 A0 03 02 01 00 A1 03 02 01 05 A2 17 04 15 6B 72 62 41 53 4E 2E 31 20 74 65 73 74 20 6D 65 73 73 61 67 65 A1 0A 1B 08 6B 72 62 35 64 61 74 61",decode_krb5_kkdcp_message,ktest_equal_kkdcp_message,ktest_free_kkdcp_message);
+    }
+
+    /****************************************************************/
+    /* decode_krb5_cammac */
+    {
+        setup(krb5_cammac,ktest_make_minimal_cammac);
+        decode_run("cammac","(optionals NULL)","30 12 A0 10 30 0E 30 0C A0 03 02 01 01 A1 05 04 03 61 64 31",decode_krb5_cammac,ktest_equal_cammac,k5_free_cammac);
+        ktest_empty_cammac(&ref);
+    }
+    {
+        setup(krb5_cammac,ktest_make_maximal_cammac);
+        decode_run("cammac","","30 81 F2 A0 1E 30 1C 30 0C A0 03 02 01 01 A1 05 04 03 61 64 31 30 0C A0 03 02 01 02 A1 05 04 03 61 64 32 A1 3D 30 3B A0 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A1 03 02 01 05 A2 03 02 01 10 A3 13 30 11 A0 03 02 01 01 A1 0A 04 08 63 6B 73 75 6D 6B 64 63 A2 3D 30 3B A0 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A1 03 02 01 05 A2 03 02 01 10 A3 13 30 11 A0 03 02 01 01 A1 0A 04 08 63 6B 73 75 6D 73 76 63 A3 52 30 50 30 13 A3 11 30 0F A0 03 02 01 01 A1 08 04 06 63 6B 73 75 6D 31 30 39 A0 1A 30 18 A0 03 02 01 01 A1 11 30 0F 1B 06 68 66 74 73 61 69 1B 05 65 78 74 72 61 A1 03 02 01 05 A2 03 02 01 10 A3 11 30 0F A0 03 02 01 01 A1 08 04 06 63 6B 73 75 6D 32",decode_krb5_cammac,ktest_equal_cammac,k5_free_cammac);
+        ktest_empty_cammac(&ref);
+    }
+
+    /****************************************************************/
+    /* decode_krb5_secure_cookie */
+    {
+        setup(krb5_secure_cookie,ktest_make_sample_secure_cookie);
+        decode_run("secure_cookie","","30 2C 02 04 2D F8 02 25 30 24 30 10 A1 03 02 01 0D A2 09 04 07 70 61 2D 64 61 74 61 30 10 A1 03 02 01 0D A2 09 04 07 70 61 2D 64 61 74 61",decode_krb5_secure_cookie,ktest_equal_secure_cookie,k5_free_secure_cookie);
+        ktest_empty_secure_cookie(&ref);
     }
 
 #ifndef DISABLE_PKINIT

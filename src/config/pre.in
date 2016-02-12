@@ -226,6 +226,7 @@ KRB5_INCSUBDIRS = \
 # Macros used by the KADM5 (OV-based) unit test system.
 # XXX check which of these are actually used!
 #
+SKIPTESTS	= $(BUILDTOP)/skiptests
 TESTDIR		= $(BUILDTOP)/kadmin/testing
 STESTDIR	= $(top_srcdir)/kadmin/testing
 ENV_SETUP	= $(TESTDIR)/scripts/env-setup.sh
@@ -411,6 +412,12 @@ APPUTILS_LIB	= -lapputils
 # So test programs can find their libraries without "make install", etc.
 RUN_SETUP=@KRB5_RUN_ENV@
 RUN_VARS=@KRB5_RUN_VARS@
+
+# Appropriate command prefix for most C test programs: use libraries
+# from the build tree, avoid referencing the installed krb5.conf and
+# message catalog, and use valgrind when asked.
+RUN_TEST=$(RUN_SETUP) KRB5_CONFIG=$(top_srcdir)/config-files/krb5.conf \
+    LC_ALL=C $(VALGRIND)
 
 #
 # variables for --with-tcl=

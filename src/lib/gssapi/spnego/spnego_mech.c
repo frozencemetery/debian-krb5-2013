@@ -99,7 +99,8 @@ static gss_OID_set get_mech_set(OM_uint32 *, unsigned char **, unsigned int);
 static OM_uint32 get_req_flags(unsigned char **, OM_uint32, OM_uint32 *);
 static OM_uint32 get_available_mechs(OM_uint32 *, gss_name_t, gss_cred_usage_t,
 				     gss_const_key_value_set_t,
-				     gss_cred_id_t *, gss_OID_set *);
+				     gss_cred_id_t *, gss_OID_set *,
+				     OM_uint32 *);
 static OM_uint32 get_negotiable_mechs(OM_uint32 *, spnego_gss_cred_id_t,
 				      gss_cred_usage_t, gss_OID_set *);
 static void release_spnego_ctx(spnego_gss_ctx_id_t *);
@@ -193,7 +194,7 @@ static const gss_OID_set_desc spnego_oidsets[] = {
 };
 const gss_OID_set_desc * const gss_mech_set_spnego = spnego_oidsets+0;
 
-static int make_NegHints(OM_uint32 *, spnego_gss_cred_id_t, gss_buffer_t *);
+static int make_NegHints(OM_uint32 *, gss_buffer_t *);
 static int put_neg_hints(unsigned char **, gss_buffer_t, unsigned int);
 static OM_uint32
 acc_ctx_hints(OM_uint32 *, gss_ctx_id_t *, spnego_gss_cred_id_t,
@@ -332,6 +333,23 @@ void gss_spnegoint_lib_fini(void)
 {
 }
 
+static OM_uint32
+create_spnego_cred(OM_uint32 *minor_status, gss_cred_id_t mcred,
+		   spnego_gss_cred_id_t *cred_out)
+{
+	spnego_gss_cred_id_t spcred;
+
+	*cred_out = NULL;
+	spcred = calloc(1, sizeof(spnego_gss_cred_id_rec));
+	if (spcred == NULL) {
+		*minor_status = ENOMEM;
+		return GSS_S_FAILURE;
+	}
+	spcred->mcred = mcred;
+	*cred_out = spcred;
+	return GSS_S_COMPLETE;
+}
+
 /*ARGSUSED*/
 OM_uint32 KRB5_CALLCONV
 spnego_gss_acquire_cred(OM_uint32 *minor_status,
@@ -375,12 +393,9 @@ spnego_gss_acquire_cred_from(OM_uint32 *minor_status,
 
 	/* We will obtain a mechglue credential and wrap it in a
 	 * spnego_gss_cred_id_rec structure.  Allocate the wrapper. */
-	spcred = malloc(sizeof(spnego_gss_cred_id_rec));
-	if (spcred == NULL) {
-		*minor_status = ENOMEM;
-		return (GSS_S_FAILURE);
-	}
-	spcred->neg_mechs = GSS_C_NULL_OID_SET;
+	status = create_spnego_cred(minor_status, mcred, &spcred);
+	if (status != GSS_S_COMPLETE)
+		return (status);
 
 	/*
 	 * Always use get_available_mechs to collect a list of
@@ -388,7 +403,7 @@ spnego_gss_acquire_cred_from(OM_uint32 *minor_status,
 	 */
 	status = get_available_mechs(minor_status, desired_name,
 				     cred_usage, cred_store, &mcred,
-				     &amechs);
+				     &amechs, time_rec);
 
 	if (actual_mechs && amechs != GSS_C_NULL_OID_SET) {
 		(void) gssint_copy_oid_set(&tmpmin, amechs, actual_mechs);
@@ -876,16 +891,21 @@ init_ctx_call_init(OM_uint32 *minor_status,
 		   OM_uint32 *negState,
 		   send_token_flag *send_token)
 {
-	OM_uint32 ret, tmpret, tmpmin;
+	OM_uint32 ret, tmpret, tmpmin, mech_req_flags;
 	gss_cred_id_t mcred;
 
 	mcred = (spcred == NULL) ? GSS_C_NO_CREDENTIAL : spcred->mcred;
+
+	mech_req_flags = req_flags;
+	if (spcred == NULL || !spcred->no_ask_integ)
+		mech_req_flags |= GSS_C_INTEG_FLAG;
+
 	ret = gss_init_sec_context(minor_status,
 				   mcred,
 				   &sc->ctx_handle,
 				   target_name,
 				   sc->internal_mech,
-				   (req_flags | GSS_C_INTEG_FLAG),
+				   mech_req_flags,
 				   time_req,
 				   GSS_C_NO_CHANNEL_BINDINGS,
 				   mechtok_in,
@@ -1162,97 +1182,24 @@ put_neg_hints(unsigned char **buf_out, gss_buffer_t input_token,
 #define HOST_PREFIX	"host@"
 #define HOST_PREFIX_LEN	(sizeof(HOST_PREFIX) - 1)
 
+/* Encode the dummy hintname string (as specified in [MS-SPNG]) into a
+ * DER-encoded [0] tagged GeneralString, and place the result in *outbuf. */
 static int
-make_NegHints(OM_uint32 *minor_status,
-	      spnego_gss_cred_id_t spcred, gss_buffer_t *outbuf)
+make_NegHints(OM_uint32 *minor_status, gss_buffer_t *outbuf)
 {
-	gss_buffer_desc hintNameBuf;
-	gss_name_t hintName = GSS_C_NO_NAME;
-	gss_name_t hintKerberosName;
-	gss_OID hintNameType;
 	OM_uint32 major_status;
-	OM_uint32 minor;
 	unsigned int tlen = 0;
 	unsigned int hintNameSize = 0;
 	unsigned char *ptr;
 	unsigned char *t;
+	const char *hintname = "not_defined_in_RFC4178@please_ignore";
+	const size_t hintname_len = strlen(hintname);
 
 	*outbuf = GSS_C_NO_BUFFER;
-
-	if (spcred != NULL) {
-		major_status = gss_inquire_cred(minor_status,
-						spcred->mcred,
-						&hintName,
-						NULL,
-						NULL,
-						NULL);
-		if (major_status != GSS_S_COMPLETE)
-			return (major_status);
-	}
-
-	if (hintName == GSS_C_NO_NAME) {
-		krb5_error_code code;
-		krb5int_access kaccess;
-		char hostname[HOST_PREFIX_LEN + MAXHOSTNAMELEN + 1] = HOST_PREFIX;
-
-		code = krb5int_accessor(&kaccess, KRB5INT_ACCESS_VERSION);
-		if (code != 0) {
-			*minor_status = code;
-			return (GSS_S_FAILURE);
-		}
-
-		/* this breaks mutual authentication but Samba relies on it */
-		code = (*kaccess.clean_hostname)(NULL, NULL,
-						 &hostname[HOST_PREFIX_LEN],
-						 MAXHOSTNAMELEN);
-		if (code != 0) {
-			*minor_status = code;
-			return (GSS_S_FAILURE);
-		}
-
-		hintNameBuf.value = hostname;
-		hintNameBuf.length = strlen(hostname);
-
-		major_status = gss_import_name(minor_status,
-					       &hintNameBuf,
-					       GSS_C_NT_HOSTBASED_SERVICE,
-					       &hintName);
-		if (major_status != GSS_S_COMPLETE) {
-			return (major_status);
-		}
-	}
-
-	hintNameBuf.value = NULL;
-	hintNameBuf.length = 0;
-
-	major_status = gss_canonicalize_name(minor_status,
-					     hintName,
-					     (gss_OID)&gss_mech_krb5_oid,
-					     &hintKerberosName);
-	if (major_status != GSS_S_COMPLETE) {
-		gss_release_name(&minor, &hintName);
-		return (major_status);
-	}
-	gss_release_name(&minor, &hintName);
-
-	major_status = gss_display_name(minor_status,
-					hintKerberosName,
-					&hintNameBuf,
-					&hintNameType);
-	if (major_status != GSS_S_COMPLETE) {
-		gss_release_name(&minor, &hintName);
-		return (major_status);
-	}
-	gss_release_name(&minor, &hintKerberosName);
-
-	/*
-	 * Now encode the name hint into a NegHints ASN.1 type
-	 */
 	major_status = GSS_S_FAILURE;
 
 	/* Length of DER encoded GeneralString */
-	tlen = 1 + gssint_der_length_size(hintNameBuf.length) +
-		hintNameBuf.length;
+	tlen = 1 + gssint_der_length_size(hintname_len) + hintname_len;
 	hintNameSize = tlen;
 
 	/* Length of DER encoded hintName */
@@ -1272,12 +1219,11 @@ make_NegHints(OM_uint32 *minor_status,
 		goto errout;
 
 	*ptr++ = GENERAL_STRING;
-	if (gssint_put_der_length(hintNameBuf.length,
-				  &ptr, tlen - (int)(ptr-t)))
+	if (gssint_put_der_length(hintname_len, &ptr, tlen - (int)(ptr-t)))
 		goto errout;
 
-	memcpy(ptr, hintNameBuf.value, hintNameBuf.length);
-	ptr += hintNameBuf.length;
+	memcpy(ptr, hintname, hintname_len);
+	ptr += hintname_len;
 
 	*outbuf = (gss_buffer_t)malloc(sizeof(gss_buffer_desc));
 	if (*outbuf == NULL) {
@@ -1296,8 +1242,6 @@ errout:
 	if (t != NULL) {
 		free(t);
 	}
-
-	gss_release_buffer(&minor, &hintNameBuf);
 
 	return (major_status);
 }
@@ -1334,7 +1278,7 @@ acc_ctx_hints(OM_uint32 *minor_status,
 	if (ret != GSS_S_COMPLETE)
 		goto cleanup;
 
-	ret = make_NegHints(minor_status, spcred, mechListMIC);
+	ret = make_NegHints(minor_status, mechListMIC);
 	if (ret != GSS_S_COMPLETE)
 		goto cleanup;
 
@@ -1986,7 +1930,7 @@ spnego_gss_inquire_cred(
 			GSS_C_BOTH,
 			GSS_C_NO_CRED_STORE,
 			&creds,
-			mechanisms);
+			mechanisms, NULL);
 		if (status != GSS_S_COMPLETE) {
 			dsyslog("Leaving inquire_cred\n");
 			return (status);
@@ -2452,6 +2396,13 @@ spnego_gss_inquire_cred_by_oid(
 	return (ret);
 }
 
+/* This is the same OID as KRB5_NO_CI_FLAGS_X_OID. */
+#define NO_CI_FLAGS_X_OID_LENGTH 6
+#define NO_CI_FLAGS_X_OID "\x2a\x85\x70\x2b\x0d\x1d"
+static const gss_OID_desc no_ci_flags_oid[] = {
+	{NO_CI_FLAGS_X_OID_LENGTH, NO_CI_FLAGS_X_OID},
+};
+
 OM_uint32 KRB5_CALLCONV
 spnego_gss_set_cred_option(
 		OM_uint32 *minor_status,
@@ -2475,18 +2426,22 @@ spnego_gss_set_cred_option(
 		 * we need to wrap it up in an SPNEGO credential handle.
 		 */
 
-		spcred = malloc(sizeof(spnego_gss_cred_id_rec));
-		if (spcred == NULL) {
+		ret = create_spnego_cred(minor_status, mcred, &spcred);
+		if (ret != GSS_S_COMPLETE) {
 			gss_release_cred(&tmp_minor_status, &mcred);
-			*minor_status = ENOMEM;
-			return (GSS_S_FAILURE);
+			return (ret);
 		}
-		spcred->mcred = mcred;
-		spcred->neg_mechs = GSS_C_NULL_OID_SET;
 		*cred_handle = (gss_cred_id_t)spcred;
 	}
 
-	return (ret);
+	if (ret != GSS_S_COMPLETE)
+		return (ret);
+
+	/* Recognize KRB5_NO_CI_FLAGS_X_OID and avoid asking for integrity. */
+	if (g_OID_equal(desired_object, no_ci_flags_oid))
+		spcred->no_ask_integ = 1;
+
+	return (GSS_S_COMPLETE);
 }
 
 OM_uint32 KRB5_CALLCONV
@@ -2700,14 +2655,11 @@ spnego_gss_acquire_cred_impersonate_name(OM_uint32 *minor_status,
 	if (amechs != GSS_C_NULL_OID_SET)
 		(void) gss_release_oid_set(minor_status, &amechs);
 
-	out_spcred = malloc(sizeof(spnego_gss_cred_id_rec));
-	if (out_spcred == NULL) {
+	status = create_spnego_cred(minor_status, out_mcred, &out_spcred);
+	if (status != GSS_S_COMPLETE) {
 		gss_release_cred(minor_status, &out_mcred);
-		*minor_status = ENOMEM;
-		return (GSS_S_FAILURE);
+		return (status);
 	}
-	out_spcred->mcred = out_mcred;
-	out_spcred->neg_mechs = GSS_C_NULL_OID_SET;
 	*output_cred_handle = (gss_cred_id_t)out_spcred;
 
 	dsyslog("Leaving spnego_gss_acquire_cred_impersonate_name\n");
@@ -2740,7 +2692,7 @@ spnego_gss_acquire_cred_with_password(OM_uint32 *minor_status,
 
 	status = get_available_mechs(minor_status, desired_name,
 				     cred_usage, GSS_C_NO_CRED_STORE,
-				     NULL, &amechs);
+				     NULL, &amechs, NULL);
 	if (status != GSS_S_COMPLETE)
 	    goto cleanup;
 
@@ -2751,14 +2703,10 @@ spnego_gss_acquire_cred_with_password(OM_uint32 *minor_status,
 	if (status != GSS_S_COMPLETE)
 	    goto cleanup;
 
-	spcred = malloc(sizeof(spnego_gss_cred_id_rec));
-	if (spcred == NULL) {
-		*minor_status = ENOMEM;
-		status = GSS_S_FAILURE;
+	status = create_spnego_cred(minor_status, mcred, &spcred);
+	if (status != GSS_S_COMPLETE)
 		goto cleanup;
-	}
-	spcred->neg_mechs = GSS_C_NULL_OID_SET;
-	spcred->mcred = mcred;
+
 	mcred = GSS_C_NO_CREDENTIAL;
 	*output_cred_handle = (gss_cred_id_t)spcred;
 
@@ -3122,7 +3070,7 @@ release_spnego_ctx(spnego_gss_ctx_id_t *ctx)
  * SPNEGO because it will also return the SPNEGO mech and we do not
  * want to consider SPNEGO as an available security mech for
  * negotiation. For this reason, get_available_mechs will return
- * all available mechs except SPNEGO.
+ * all available, non-deprecated mechs except SPNEGO.
  *
  * If a ptr to a creds list is given, this function will attempt
  * to acquire creds for the creds given and trim the list of
@@ -3133,14 +3081,23 @@ static OM_uint32
 get_available_mechs(OM_uint32 *minor_status,
 	gss_name_t name, gss_cred_usage_t usage,
 	gss_const_key_value_set_t cred_store,
-	gss_cred_id_t *creds, gss_OID_set *rmechs)
+	gss_cred_id_t *creds, gss_OID_set *rmechs, OM_uint32 *time_rec)
 {
 	unsigned int	i;
 	int		found = 0;
 	OM_uint32 major_status = GSS_S_COMPLETE, tmpmin;
 	gss_OID_set mechs, goodmechs;
+	gss_OID_set_desc except_attrs;
+	gss_OID_desc attr_oids[2];
 
-	major_status = gss_indicate_mechs(minor_status, &mechs);
+	attr_oids[0] = *GSS_C_MA_DEPRECATED;
+	attr_oids[1] = *GSS_C_MA_NOT_DFLT_MECH;
+	except_attrs.count = 2;
+	except_attrs.elements = attr_oids;
+	major_status = gss_indicate_mechs_by_attrs(minor_status,
+						   GSS_C_NO_OID_SET,
+						   &except_attrs,
+						   GSS_C_NO_OID_SET, &mechs);
 
 	if (major_status != GSS_S_COMPLETE) {
 		return (major_status);
@@ -3178,7 +3135,7 @@ get_available_mechs(OM_uint32 *minor_status,
 						     GSS_C_INDEFINITE,
 						     *rmechs, usage,
 						     cred_store, creds,
-						     &goodmechs, NULL);
+						     &goodmechs, time_rec);
 
 		/*
 		 * Drop the old list in favor of the new
@@ -3228,7 +3185,7 @@ get_negotiable_mechs(OM_uint32 *minor_status, spnego_gss_cred_id_t spcred,
 		credptr = (usage == GSS_C_INITIATE) ? &creds : NULL;
 		ret = get_available_mechs(minor_status, GSS_C_NO_NAME, usage,
 					  GSS_C_NO_CRED_STORE, credptr,
-					  rmechs);
+					  rmechs, NULL);
 		gss_release_cred(&tmpmin, &creds);
 		return (ret);
 	}

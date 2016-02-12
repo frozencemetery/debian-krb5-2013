@@ -376,8 +376,7 @@ scan_ccache(krb5_context context, krb5_gss_cred_id_rec *cred)
     krb5_timestamp endtime;
     krb5_boolean is_tgt;
 
-    /* Turn off OPENCLOSE mode while extensive frobbing is going on.
-     * Turn on NOTICKET, as we don't need session keys here. */
+    /* Turn on NOTICKET, as we don't need session keys here. */
     code = krb5_cc_set_flags(context, ccache, KRB5_TC_NOTICKET);
     if (code)
         return code;
@@ -444,10 +443,8 @@ scan_ccache(krb5_context context, krb5_gss_cred_id_rec *cred)
         goto cleanup;
     }
 
-    (void)krb5_cc_set_flags(context, ccache, KRB5_TC_OPENCLOSE);
-
 cleanup:
-    (void)krb5_cc_set_flags(context, ccache, KRB5_TC_OPENCLOSE);
+    (void)krb5_cc_set_flags(context, ccache, 0);
     krb5_free_principal(context, ccache_princ);
     krb5_free_principal(context, tgt_princ);
     return code;
@@ -658,7 +655,21 @@ acquire_init_cred(krb5_context context,
     if (GSS_ERROR(kg_caller_provided_ccache_name(minor_status,
                                                  &caller_ccname)))
         return GSS_S_FAILURE;
-    if (req_ccache != NULL) {
+
+    if (password != GSS_C_NO_BUFFER) {
+        pwdata = make_data(password->value, password->length);
+        code = krb5int_copy_data_contents_add0(context, &pwdata, &pwcopy);
+        if (code)
+            goto error;
+        cred->password = pwcopy.data;
+
+        /* We will fetch the credential into a private memory ccache. */
+        assert(req_ccache == NULL);
+        code = krb5_cc_new_unique(context, "MEMORY", NULL, &cred->ccache);
+        if (code)
+            goto error;
+        cred->destroy_ccache = 1;
+    } else if (req_ccache != NULL) {
         code = krb5_cc_dup(context, req_ccache, &cred->ccache);
         if (code)
             goto error;
@@ -675,14 +686,6 @@ acquire_init_cred(krb5_context context,
         code = krb5_kt_client_default(context, &cred->client_keytab);
     if (code)
         goto error;
-
-    if (password != GSS_C_NO_BUFFER) {
-        pwdata = make_data(password->value, password->length);
-        code = krb5int_copy_data_contents_add0(context, &pwdata, &pwcopy);
-        if (code)
-            goto error;
-        cred->password = pwcopy.data;
-    }
 
     if (cred->ccache != NULL) {
         /* The caller specified a ccache; check what's in it. */
@@ -761,6 +764,7 @@ acquire_cred_context(krb5_context context, OM_uint32 *minor_status,
     cred->keytab = NULL;
 #endif /* LEAN_CLIENT */
     cred->destroy_ccache = 0;
+    cred->suppress_ci_flags = 0;
     cred->ccache = NULL;
 
     code = k5_mutex_init(&cred->lock);
@@ -821,8 +825,15 @@ acquire_cred_context(krb5_context context, OM_uint32 *minor_status,
         if (code != 0)
             goto krb_error_out;
 
-        if (time_rec)
+        if (time_rec) {
+            /* Resolve cred now to determine the expiration time. */
+            ret = kg_cred_resolve(minor_status, context, (gss_cred_id_t)cred,
+                                  GSS_C_NO_NAME);
+            if (GSS_ERROR(ret))
+                goto error_out;
             *time_rec = (cred->expire > now) ? (cred->expire - now) : 0;
+            k5_mutex_unlock(&cred->lock);
+        }
     }
 
     *minor_status = 0;

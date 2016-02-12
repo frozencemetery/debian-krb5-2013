@@ -339,7 +339,7 @@ cm_select_or_poll(const struct select_state *in, time_ms endtime,
     struct timeval tv;
 #endif
     krb5_error_code retval;
-    time_ms curtime = 0, interval;
+    time_ms curtime, interval;
 
     retval = get_curtime_ms(&curtime);
     if (retval != 0)
@@ -1315,7 +1315,7 @@ service_fds(krb5_context context, struct select_state *selstate,
             void *msg_handler_data, struct conn_state **winner_out)
 {
     int e, selret = 0;
-    time_ms endtime = 0;
+    time_ms endtime;
     struct conn_state *state;
 
     *winner_out = NULL;

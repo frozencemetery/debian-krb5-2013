@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -69,8 +69,9 @@
 changes are made to the Kerberos database through <a class="reference internal" href="../admin/admin_commands/kadmin_local.html#kadmin-1"><em>kadmin</em></a>.
 For a detailed description of the kadm5_hook interface, see the header
 file <tt class="docutils literal"><span class="pre">&lt;krb5/kadm5_hook_plugin.h&gt;</span></tt>.</p>
-<p>The kadm5_hook interface has four primary methods: <strong>chpass</strong>,
-<strong>create</strong>, <strong>modify</strong>, and <strong>remove</strong>.  Each of these methods is
+<p>The kadm5_hook interface has five primary methods: <strong>chpass</strong>,
+<strong>create</strong>, <strong>modify</strong>, <strong>remove</strong>, and <strong>rename</strong>.  (The <strong>rename</strong>
+method was introduced in release 1.14.)  Each of these methods is
 called twice when the corresponding administrative action takes place,
 once before the action is committed and once afterwards.  A module can
 prevent the action from taking place by returning an error code during
@@ -142,7 +143,7 @@ across versions as other public pluggable interfaces.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

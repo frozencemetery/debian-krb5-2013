@@ -635,6 +635,10 @@
 /* Define if in6addr_any is not defined in libc */
 #undef NEED_INSIXADDR_ANY
 
+/* define if the system header files are missing prototype for
+   ss_execute_command() */
+#undef NEED_SS_EXECUTE_COMMAND_PROTO
+
 /* define if the system header files are missing prototype for strptime() */
 #undef NEED_STRPTIME_PROTO
 

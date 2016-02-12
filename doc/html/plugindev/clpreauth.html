@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -82,9 +82,9 @@ interface, see the header file <tt class="docutils literal"><span class="pre">&l
 with the <strong>flags</strong> method.  In the most common case, this method
 just returns <tt class="docutils literal"><span class="pre">PA_REAL</span></tt>, indicating that it implements a normal
 preauthentication type.</li>
-<li>Examining the padata information included in the preauth_required
-error and producing padata values for the next AS request.  This is
-done with the <strong>process</strong> method.</li>
+<li>Examining the padata information included in a PREAUTH_REQUIRED or
+MORE_PREAUTH_DATA_REQUIRED error and producing padata values for the
+next AS request.  This is done with the <strong>process</strong> method.</li>
 <li>Examining the padata information included in a successful ticket
 reply, possibly verifying the KDC identity and computing a reply
 key.  This is also done with the <strong>process</strong> method.</li>
@@ -168,7 +168,7 @@ preauthentication mechanism computes one.</p>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

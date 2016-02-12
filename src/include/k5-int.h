@@ -211,6 +211,7 @@ typedef unsigned char   u_char;
 #define KRB5_CONF_DNS_LOOKUP_REALM             "dns_lookup_realm"
 #define KRB5_CONF_DOMAIN_REALM                 "domain_realm"
 #define KRB5_CONF_ENABLE_ONLY                  "enable_only"
+#define KRB5_CONF_ERR_FMT                      "err_fmt"
 #define KRB5_CONF_EXTRA_ADDRESSES              "extra_addresses"
 #define KRB5_CONF_FORWARDABLE                  "forwardable"
 #define KRB5_CONF_HOST_BASED_SERVICES          "host_based_services"
@@ -390,6 +391,8 @@ typedef unsigned char   u_char;
                                                       not find a KDC */
 #define KRB_AP_ERR_IAKERB_KDC_NO_RESPONSE       86 /* The KDC did not respond
                                                       to the IAKERB proxy */
+#define KDC_ERR_PREAUTH_EXPIRED                 90 /* RFC 6113 */
+#define KDC_ERR_MORE_PREAUTH_DATA_REQUIRED      91 /* RFC 6113 */
 #define KRB_ERR_MAX 127 /* err table base max offset for protocol err codes */
 
 /*
@@ -536,6 +539,12 @@ typedef struct _krb5_kkdcp_message {
     krb5_data target_domain;
     krb5_int32 dclocator_hint;
 } krb5_kkdcp_message;
+
+/* Plain text of an encrypted PA-FX-COOKIE value produced by the KDC. */
+typedef struct _krb5_secure_cookie {
+    time_t time;
+    krb5_pa_data **data;
+} krb5_secure_cookie;
 
 #include <stdlib.h>
 #include <string.h>
@@ -845,6 +854,26 @@ typedef struct _krb5_iakerb_finished {
     krb5_checksum checksum;
 } krb5_iakerb_finished;
 
+typedef struct _krb5_verifier_mac {
+    krb5_principal princ;
+    krb5_kvno kvno;
+    krb5_enctype enctype;
+    krb5_checksum checksum;
+} krb5_verifier_mac;
+
+/*
+ * AD-CAMMAC's other-verifiers field is a sequence of Verifier, which is an
+ * extensible choice with only one selection, Verifier-MAC.  For the time being
+ * we will represent this field directly as an array of krb5_verifier_mac.
+ * That will have to change if other selections are added.
+ */
+typedef struct _krb5_cammac {
+    krb5_authdata **elements;
+    krb5_verifier_mac *kdc_verifier;
+    krb5_verifier_mac *svc_verifier;
+    krb5_verifier_mac **other_verifiers;
+} krb5_cammac;
+
 krb5_pa_data *
 krb5int_find_pa_data(krb5_context, krb5_pa_data *const *, krb5_preauthtype);
 /* Does not return a copy; original padata sequence responsible for freeing*/
@@ -921,6 +950,8 @@ void k5_free_pa_otp_challenge(krb5_context context,
                               krb5_pa_otp_challenge *val);
 void k5_free_pa_otp_req(krb5_context context, krb5_pa_otp_req *val);
 void k5_free_kkdcp_message(krb5_context context, krb5_kkdcp_message *val);
+void k5_free_cammac(krb5_context context, krb5_cammac *val);
+void k5_free_secure_cookie(krb5_context context, krb5_secure_cookie *val);
 
 /* #include "krb5/wordsize.h" -- comes in through base-defs.h. */
 #include "com_err.h"
@@ -947,6 +978,12 @@ struct _krb5_authdata_context {
 };
 
 typedef struct _krb5_authdata_context *krb5_authdata_context;
+
+void
+k5_free_data_ptr_list(krb5_data **list);
+
+void
+k5_zapfree_pa_data(krb5_pa_data **val);
 
 void KRB5_CALLCONV
 krb5int_free_data_list(krb5_context context, krb5_data *data);
@@ -1098,7 +1135,8 @@ struct plugin_interface {
 #define PLUGIN_INTERFACE_HOSTREALM   6
 #define PLUGIN_INTERFACE_AUDIT       7
 #define PLUGIN_INTERFACE_TLS         8
-#define PLUGIN_NUM_INTERFACES        9
+#define PLUGIN_INTERFACE_KDCAUTHDATA 9
+#define PLUGIN_NUM_INTERFACES        10
 
 /* Retrieve the plugin module of type interface_id and name modname,
  * storing the result into module. */
@@ -1190,6 +1228,7 @@ struct _krb5_context {
 
     /* error detail info */
     struct errinfo err;
+    char *err_fmt;
 
     /* For Sun iprop code; does this really have to be here?  */
     struct _kdb_log_context *kdblog_context;
@@ -1469,6 +1508,15 @@ encode_krb5_pa_otp_enc_req(const krb5_data *, krb5_data **);
 krb5_error_code
 encode_krb5_kkdcp_message(const krb5_kkdcp_message *, krb5_data **);
 
+krb5_error_code
+encode_krb5_cammac(const krb5_cammac *, krb5_data **);
+
+krb5_error_code
+encode_utf8_strings(krb5_data *const *ut8fstrings, krb5_data **);
+
+krb5_error_code
+encode_krb5_secure_cookie(const krb5_secure_cookie *, krb5_data **);
+
 /*************************************************************************
  * End of prototypes for krb5_encode.c
  *************************************************************************/
@@ -1642,11 +1690,20 @@ decode_krb5_pa_otp_enc_req(const krb5_data *, krb5_data **);
 krb5_error_code
 decode_krb5_kkdcp_message(const krb5_data *, krb5_kkdcp_message **);
 
+krb5_error_code
+decode_krb5_cammac(const krb5_data *, krb5_cammac **);
+
+krb5_error_code
+decode_utf8_strings(const krb5_data *, krb5_data ***);
+
+krb5_error_code
+decode_krb5_secure_cookie(const krb5_data *, krb5_secure_cookie **);
+
 struct _krb5_key_data;          /* kdb.h */
 
 struct ldap_seqof_key_data {
     krb5_int32 mkvno;           /* Master key version number */
-    krb5_int16 kvno;            /* kvno of key_data elements (all the same) */
+    krb5_ui_2 kvno;             /* kvno of key_data elements (all the same) */
     struct _krb5_key_data *key_data;
     krb5_int16 n_key_data;
 };
@@ -2291,7 +2348,9 @@ krb5_boolean k5_etypes_contains(const krb5_enctype *list, krb5_enctype etype);
 void k5_change_error_message_code(krb5_context ctx, krb5_error_code oldcode,
                                   krb5_error_code newcode);
 
-/* Define a shorter internal name for krb5_set_error_message. */
+/* Define shorter internal names for setting error messages. */
 #define k5_setmsg krb5_set_error_message
+#define k5_prependmsg krb5_prepend_error_message
+#define k5_wrapmsg krb5_wrap_error_message
 
 #endif /* _KRB5_INT_H */

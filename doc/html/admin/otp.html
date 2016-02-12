@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -87,6 +87,7 @@ details of authentication.</p>
         timeout = &lt;integer&gt; (default: 5 [seconds])
         retries = &lt;integer&gt; (default: 3)
         strip_realm = &lt;boolean&gt; (default: true)
+        indicator = &lt;string&gt; (default: none)
     }
 </pre></div>
 </div>
@@ -99,6 +100,10 @@ specified, it defaults to <a class="reference internal" href="../mitK5defaults.h
 used in the User-Name attribute of the RADIUS packet.  The strip_realm
 parameter controls whether the principal is forwarded with or without
 the realm portion.</p>
+<p>If an indicator field is present, tickets issued using this token type
+will be annotated with the specified authentication indicator (see
+<a class="reference internal" href="auth_indicator.html#auth-indicator"><em>Authentication indicators</em></a>).  This key may be specified multiple times to
+add multiple indicators.</p>
 </div>
 <div class="section" id="the-default-token-type">
 <h2>The default token type<a class="headerlink" href="#the-default-token-type" title="Permalink to this headline">¶</a></h2>
@@ -121,7 +126,8 @@ the <strong>otp</strong> string attribute for that principal.  (See
 format:</p>
 <div class="highlight-xml"><div class="highlight"><pre>[{
     &quot;type&quot;: <span class="nt">&lt;string&gt;</span>,
-    &quot;username&quot;: <span class="nt">&lt;string&gt;</span>
+    &quot;username&quot;: <span class="nt">&lt;string&gt;</span>,
+    &quot;indicators&quot;: [<span class="nt">&lt;string&gt;</span>, ...]
  }, ...]
 </pre></div>
 </div>
@@ -130,7 +136,9 @@ optional.  The <strong>type</strong> field names the token type of this token; i
 not specified, it defaults to <tt class="docutils literal"><span class="pre">DEFAULT</span></tt>.  The <strong>username</strong> field
 specifies the value to be sent in the User-Name RADIUS attribute.  If
 not specified, the principal name is sent, with or without realm as
-defined in the token type.</p>
+defined in the token type.  The <strong>indicators</strong> field specifies a list
+of authentication indicators to annotate tickets with, overriding any
+indicators specified in the token type.</p>
 <p>For ease of configuration, an empty array (<tt class="docutils literal"><span class="pre">[]</span></tt>) is treated as
 equivalent to one DEFAULT token (<tt class="docutils literal"><span class="pre">[{}]</span></tt>).</p>
 </div>
@@ -180,6 +188,7 @@ equivalent to one DEFAULT token (<tt class="docutils literal"><span class="pre">
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth_indicator.html">Authentication indicators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="env_variables.html">Environment variables</a></li>
@@ -215,7 +224,7 @@ equivalent to one DEFAULT token (<tt class="docutils literal"><span class="pre">
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

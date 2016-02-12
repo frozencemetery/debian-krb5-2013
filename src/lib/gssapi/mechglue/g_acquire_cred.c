@@ -133,8 +133,10 @@ OM_uint32 *			time_rec;
 {
     OM_uint32 major = GSS_S_FAILURE, tmpMinor;
     OM_uint32 first_major = GSS_S_COMPLETE, first_minor = 0;
-    OM_uint32 initTimeOut, acceptTimeOut, outTime = GSS_C_INDEFINITE;
+    OM_uint32 initTimeOut = 0, acceptTimeOut = 0, outTime = GSS_C_INDEFINITE;
     gss_OID_set mechs = GSS_C_NO_OID_SET;
+    gss_OID_set_desc except_attrs;
+    gss_OID_desc attr_oids[2];
     unsigned int i;
     gss_union_cred_t creds = NULL;
 
@@ -152,10 +154,16 @@ OM_uint32 *			time_rec;
 
     /*
      * if desired_mechs equals GSS_C_NULL_OID_SET, then try to
-     * acquire credentials for all mechanisms.
+     * acquire credentials for all non-deprecated mechanisms.
      */
     if (desired_mechs == GSS_C_NULL_OID_SET) {
-	major = gss_indicate_mechs(minor_status, &mechs);
+	attr_oids[0] = *GSS_C_MA_DEPRECATED;
+	attr_oids[1] = *GSS_C_MA_NOT_DFLT_MECH;
+	except_attrs.count = 2;
+	except_attrs.elements = attr_oids;
+	major = gss_indicate_mechs_by_attrs(minor_status, GSS_C_NO_OID_SET,
+					    &except_attrs, GSS_C_NO_OID_SET,
+					    &mechs);
 	if (major != GSS_S_COMPLETE)
 	    goto cleanup;
     } else
@@ -182,8 +190,9 @@ OM_uint32 *			time_rec;
 	major = gss_add_cred_from(&tmpMinor, (gss_cred_id_t)creds,
 				  desired_name, &mechs->elements[i],
 				  cred_usage, time_req, time_req,
-				  cred_store, NULL, NULL, &initTimeOut,
-				  &acceptTimeOut);
+				  cred_store, NULL, NULL,
+				  time_rec ? &initTimeOut : NULL,
+				  time_rec ? &acceptTimeOut : NULL);
 	if (major == GSS_S_COMPLETE) {
 	    /* update the credential's time */
 	    if (cred_usage == GSS_C_ACCEPT) {
@@ -348,7 +357,7 @@ gss_add_cred_from(minor_status, input_cred_handle,
     OM_uint32		*acceptor_time_rec;
 {
     OM_uint32		status, temp_minor_status;
-    OM_uint32		time_req, time_rec;
+    OM_uint32		time_req, time_rec = 0, *time_recp = NULL;
     gss_union_name_t	union_name;
     gss_union_cred_t	new_union_cred, union_cred;
     gss_name_t		internal_name = GSS_C_NO_NAME;
@@ -439,15 +448,18 @@ gss_add_cred_from(minor_status, input_cred_handle,
     if (status != GSS_S_COMPLETE)
 	goto errout;
 
+    if (initiator_time_rec != NULL || acceptor_time_rec != NULL)
+	time_recp = &time_rec;
+
     if (mech->gss_acquire_cred_from) {
 	status = mech->gss_acquire_cred_from(minor_status, internal_name,
 					     time_req, target_mechs,
 					     cred_usage, cred_store, &cred,
-					     NULL, &time_rec);
+					     NULL, time_recp);
     } else if (cred_store == GSS_C_NO_CRED_STORE) {
 	status = mech->gss_acquire_cred(minor_status, internal_name, time_req,
 					target_mechs, cred_usage, &cred, NULL,
-					&time_rec);
+					time_recp);
     } else {
 	return GSS_S_UNAVAILABLE;
     }

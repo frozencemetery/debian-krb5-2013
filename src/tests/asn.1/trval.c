@@ -404,7 +404,7 @@ int do_cons(fp, enc, len, lev, rlen)
 {
     int n;
     int r = 0;
-    int rlen2 = 0;
+    int rlen2;
     int rlent;
     int save_appl;
 

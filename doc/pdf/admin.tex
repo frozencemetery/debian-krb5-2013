@@ -15,7 +15,7 @@
 
 \title{Kerberos Administration Guide}
 \date{ }
-\release{1.13.2}
+\release{1.14}
 \author{MIT}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -868,7 +868,12 @@ realms of interest, defaults for the current realm and for Kerberos
 applications, and mappings of hostnames onto Kerberos realms.
 Normally, you should install your krb5.conf file in the directory
 \code{/etc}.  You can override the default location by setting the
-environment variable \textbf{KRB5\_CONFIG}.
+environment variable \textbf{KRB5\_CONFIG}.  Multiple colon-separated
+filenames may be specified in \textbf{KRB5\_CONFIG}; all files which are
+present will be read.  Starting in release 1.14, directory names can
+also be specified in \textbf{KRB5\_CONFIG}; all files within the directory
+whose names consist solely of alphanumeric characters, dashes, or
+underscores will be read.
 
 
 \subsubsection{Structure}
@@ -1096,6 +1101,11 @@ because that fake KDC will be unable to decode anything you send
 it (besides the initial ticket request, which has no encrypted
 data), and anything the fake KDC sends will not be trusted without
 verification using some secret that it won't know.
+
+\item[{\textbf{err\_fmt}}] \leavevmode
+This relation allows for custom error message formatting.  If a
+value is set, error messages will be formatted by substituting a
+normal error message for \%M and an error code for \%C in the value.
 
 \item[{\textbf{extra\_addresses}}] \leavevmode
 This allows a computer to use multiple local addresses, in order
@@ -2830,6 +2840,11 @@ If this tag is \code{true}, the principal without the realm will be
 passed to the RADIUS server.  Otherwise, the realm will be
 included.  The default value is \code{true}.
 
+\item[{\textbf{indicator}}] \leavevmode
+This tag specifies an authentication indicator to be included in
+the ticket if this token type is used to authenticate.  This
+option may be specified multiple times.  (New in release 1.14.)
+
 \end{description}
 
 In the following example, requests are sent to a remote server via UDP:
@@ -2938,6 +2953,11 @@ this option is not recommended.
 \item[{\textbf{pkinit\_identity}}] \leavevmode
 Specifies the location of the KDC's X.509 identity information.
 This option is required if pkinit is to be supported by the KDC.
+
+\item[{\textbf{pkinit\_indicator}}] \leavevmode
+Specifies an authentication indicator to include in the ticket if
+pkinit is used to authenticate.  This option may be specified
+multiple times.  (New in release 1.14.)
 
 \item[{\textbf{pkinit\_kdc\_ocsp}}] \leavevmode
 Specifies the location of the KDC's OCSP.
@@ -3682,6 +3702,7 @@ following options:
 {[}{[}\textbf{-c} \emph{cache\_name}{]}\textbar{}{[}\textbf{-k} {[}\textbf{-t} \emph{keytab}{]}{]}\textbar{}\textbf{-n}{]}
 {[}\textbf{-w} \emph{password}{]}
 {[}\textbf{-s} \emph{admin\_server}{[}:\emph{port}{]}{]}
+{[}command args...{]}
 
 \textbf{kadmin.local}
 {[}\textbf{-r} \emph{realm}{]}
@@ -3691,6 +3712,7 @@ following options:
 {[}\textbf{-e} \emph{enc}:\emph{salt} ...{]}
 {[}\textbf{-m}{]}
 {[}\textbf{-x} \emph{db\_args}{]}
+{[}command args...{]}
 
 \textbf{OPTIONS}
 \begin{description}
@@ -3743,8 +3765,7 @@ care, as it may expose the password to other users on the system
 via the process list.
 
 \item[{\textbf{-q} \emph{query}}] \leavevmode
-Perform the specified query and then exit.  This can be useful for
-writing scripts.
+Perform the specified query and then exit.
 
 \item[{\textbf{-d} \emph{dbname}}] \leavevmode
 Specifies the name of the KDC database.  This option does not
@@ -6699,6 +6720,7 @@ Token types are defined in either {\hyperref[admin/conf_files/krb5_conf:krb5-con
         timeout = \PYGZlt{}integer\PYGZgt{} (default: 5 [seconds])
         retries = \PYGZlt{}integer\PYGZgt{} (default: 3)
         strip\PYGZus{}realm = \PYGZlt{}boolean\PYGZgt{} (default: true)
+        indicator = \PYGZlt{}string\PYGZgt{} (default: none)
     \PYGZcb{}
 \end{Verbatim}
 
@@ -6712,6 +6734,11 @@ When forwarding the request over RADIUS, by default the principal is
 used in the User-Name attribute of the RADIUS packet.  The strip\_realm
 parameter controls whether the principal is forwarded with or without
 the realm portion.
+
+If an indicator field is present, tickets issued using this token type
+will be annotated with the specified authentication indicator (see
+{\hyperref[admin/auth_indicator:auth-indicator]{\emph{Authentication indicators}}}).  This key may be specified multiple times to
+add multiple indicators.
 
 
 \section{The default token type}
@@ -6740,7 +6767,8 @@ format:
 \begin{Verbatim}[commandchars=\\\{\}]
 [\PYGZob{}
     \PYGZdq{}type\PYGZdq{}: \PYG{n+nt}{\PYGZlt{}string}\PYG{n+nt}{\PYGZgt{}},
-    \PYGZdq{}username\PYGZdq{}: \PYG{n+nt}{\PYGZlt{}string}\PYG{n+nt}{\PYGZgt{}}
+    \PYGZdq{}username\PYGZdq{}: \PYG{n+nt}{\PYGZlt{}string}\PYG{n+nt}{\PYGZgt{}},
+    \PYGZdq{}indicators\PYGZdq{}: [\PYG{n+nt}{\PYGZlt{}string}\PYG{n+nt}{\PYGZgt{}}, ...]
  \PYGZcb{}, ...]
 \end{Verbatim}
 
@@ -6749,7 +6777,9 @@ optional.  The \textbf{type} field names the token type of this token; if
 not specified, it defaults to \code{DEFAULT}.  The \textbf{username} field
 specifies the value to be sent in the User-Name RADIUS attribute.  If
 not specified, the principal name is sent, with or without realm as
-defined in the token type.
+defined in the token type.  The \textbf{indicators} field specifies a list
+of authentication indicators to annotate tickets with, overriding any
+indicators specified in the token type.
 
 For ease of configuration, an empty array (\code{{[}{]}}) is treated as
 equivalent to one DEFAULT token (\code{{[}\{\}{]}}).
@@ -7143,6 +7173,66 @@ If the proxy and client are properly configured, client commands such
 as \code{kinit}, \code{kvno}, and \code{kpasswd} should all function normally.
 
 
+\chapter{Authentication indicators}
+\label{admin/auth_indicator:auth-indicator}\label{admin/auth_indicator:authentication-indicators}\label{admin/auth_indicator::doc}
+As of release 1.14, the KDC can be configured to annotate tickets if
+the client authenticated using a stronger preauthentication mechanism
+such as {\hyperref[admin/pkinit:pkinit]{\emph{PKINIT}}} or {\hyperref[admin/otp:otp-preauth]{\emph{OTP}}}.  These
+annotations are called ``authentication indicators.''  Service
+principals can be configured to require particular authentication
+indicators in order to authenticate to that service.  An
+authentication indicator value can be any string chosen by the KDC
+administrator; there are no pre-set values.
+
+To use authentication indicators with PKINIT or OTP, first configure
+the KDC to include an indicator when that preauthentication mechanism
+is used.  For PKINIT, use the \textbf{pkinit\_indicator} variable in
+{\hyperref[admin/conf_files/kdc_conf:kdc-conf-5]{\emph{kdc.conf}}}.  For OTP, use the \textbf{indicator} variable in the
+token type definition, or specify the indicators in the \textbf{otp} user
+string as described in {\hyperref[admin/otp:otp-preauth]{\emph{OTP Preauthentication}}}.
+
+To require an indicator to be present in order to authenticate to a
+service principal, set the \textbf{require\_auth} string attribute on the
+principal to the indicator value to be required.  If you wish to allow
+one of several indicators to be accepted, you can specify multiple
+indicator values separated by spaces.
+
+For example, a realm could be configured to set the authentication
+indicator value ``strong'' when PKINIT is used to authenticate, using a
+setting in the {\hyperref[admin/conf_files/kdc_conf:kdc-realms]{\emph{{[}realms{]}}}} subsection:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{pkinit\PYGZus{}indicator} \PYG{o}{=} \PYG{n}{strong}
+\end{Verbatim}
+
+A service principal could be configured to require the ``strong''
+authentication indicator value:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} kadmin setstr host/high.value.server require\PYGZus{}auth strong
+Password for user/admin@KRBTEST.COM:
+\end{Verbatim}
+
+A user who authenticates with PKINIT would be able to obtain a ticket
+for the service principal:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} kinit \PYGZhy{}X X509\PYGZus{}user\PYGZus{}identity=FILE:/my/cert.pem,/my/key.pem user
+\PYGZdl{} kvno host/high.value.server
+host/high.value.server@KRBTEST.COM: kvno = 1
+\end{Verbatim}
+
+but a user who authenticates with a password would not:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} kinit user
+Password for user@KRBTEST.COM:
+\PYGZdl{} kvno host/high.value.server
+kvno: KDC policy rejects request while getting credentials for
+  host/high.value.server@KRBTEST.COM
+\end{Verbatim}
+
+
 \chapter{Administration  programs}
 \label{admin/admin_commands/index:administration-programs}\label{admin/admin_commands/index::doc}
 
@@ -7159,6 +7249,7 @@ as \code{kinit}, \code{kvno}, and \code{kpasswd} should all function normally.
 {[}{[}\textbf{-c} \emph{cache\_name}{]}\textbar{}{[}\textbf{-k} {[}\textbf{-t} \emph{keytab}{]}{]}\textbar{}\textbf{-n}{]}
 {[}\textbf{-w} \emph{password}{]}
 {[}\textbf{-s} \emph{admin\_server}{[}:\emph{port}{]}{]}
+{[}command args...{]}
 
 \textbf{kadmin.local}
 {[}\textbf{-r} \emph{realm}{]}
@@ -7168,6 +7259,7 @@ as \code{kinit}, \code{kvno}, and \code{kpasswd} should all function normally.
 {[}\textbf{-e} \emph{enc}:\emph{salt} ...{]}
 {[}\textbf{-m}{]}
 {[}\textbf{-x} \emph{db\_args}{]}
+{[}command args...{]}
 
 
 \subsection{DESCRIPTION}
@@ -7249,8 +7341,7 @@ care, as it may expose the password to other users on the system
 via the process list.
 
 \item[{\textbf{-q} \emph{query}}] \leavevmode
-Perform the specified query and then exit.  This can be useful for
-writing scripts.
+Perform the specified query and then exit.
 
 \item[{\textbf{-d} \emph{dbname}}] \leavevmode
 Specifies the name of the KDC database.  This option does not
@@ -7280,9 +7371,36 @@ for supported options.
 
 \end{description}
 \phantomsection\label{admin/admin_commands/kadmin_local:kadmin-options-end}
+Starting with release 1.14, if any command-line arguments remain after
+the options, they will be treated as a single query to be executed.
+This mode of operation is intended for scripts and behaves differently
+from the interactive mode in several respects:
+\begin{itemize}
+\item {} 
+Query arguments are split by the shell, not by kadmin.
+
+\item {} 
+Informational and warning messages are suppressed.  Error messages
+and query output (e.g. for \textbf{get\_principal}) will still be
+displayed.
+
+\item {} 
+Confirmation prompts are disabled (as if \textbf{-force} was given).
+Password prompts will still be issued as required.
+
+\item {} 
+The exit status will be non-zero if the query fails.
+
+\end{itemize}
+
+The \textbf{-q} option does not carry these behavior differences; the query
+will be processed as if it was entered interactively.  The \textbf{-q}
+option cannot be used in combination with a query in the remaining
+arguments.
+
 
 \subsection{DATABASE OPTIONS}
-\label{admin/admin_commands/kadmin_local:database-options}\label{admin/admin_commands/kadmin_local:dboptions}\label{admin/admin_commands/kadmin_local:kadmin-options-end}
+\label{admin/admin_commands/kadmin_local:database-options}\label{admin/admin_commands/kadmin_local:dboptions}
 Database options can be used to override database-specific defaults.
 Supported options for the DB2 module are:
 \begin{quote}
@@ -7760,6 +7878,12 @@ supply per-principal configuration to the KDC and some KDC plugin
 modules.  The following string attribute names are recognized by the
 KDC:
 \begin{description}
+\item[{\textbf{require\_auth}}] \leavevmode
+Specifies an authentication indicator which is required to
+authenticate to the principal as a service.  Multiple indicators
+can be specified, separated by spaces; in this case any of the
+specified indicators will be accepted.  (New in release 1.14.)
+
 \item[{\textbf{session\_enctypes}}] \leavevmode
 Specifies the encryption types supported for session keys when the
 principal is authenticated to as a server.  See
@@ -8554,6 +8678,201 @@ needed updating or not.  The \textbf{-n} option performs a dry run, only
 showing the actions which would have been taken.
 
 
+\subsubsection{tabdump}
+\label{admin/admin_commands/kdb5_util:tabdump}\begin{quote}
+
+\textbf{tabdump} {[}\textbf{-H}{]} {[}\textbf{-c}{]} {[}\textbf{-e}{]} {[}\textbf{-n}{]} {[}\textbf{-o} \emph{outfile}{]}
+\emph{dumptype}
+\end{quote}
+
+Dump selected fields of the database in a tabular format suitable for
+reporting (e.g., using traditional Unix text processing tools) or
+importing into relational databases.  The data format is tab-separated
+(default), or optionally comma-separated (CSV), with a fixed number of
+columns.  The output begins with a header line containing field names,
+unless suppression is requested using the \textbf{-H} option.
+
+The \emph{dumptype} parameter specifies the name of an output table (see
+below).
+
+Options:
+\begin{description}
+\item[{\textbf{-H}}] \leavevmode
+suppress writing the field names in a header line
+
+\item[{\textbf{-c}}] \leavevmode
+use comma separated values (CSV) format, with minimal quoting,
+instead of the default tab-separated (unquoted, unescaped) format
+
+\item[{\textbf{-e}}] \leavevmode
+write empty hexadecimal string fields as empty fields instead of
+as ``-1''.
+
+\item[{\textbf{-n}}] \leavevmode
+produce numeric output for fields that normally have symbolic
+output, such as enctypes and flag names.  Also requests output of
+time stamps as decimal POSIX time\_t values.
+
+\item[{\textbf{-o} \emph{outfile}}] \leavevmode
+write the dump to the specified output file instead of to standard
+output
+
+\end{description}
+
+Dump types:
+\begin{description}
+\item[{\textbf{keydata}}] \leavevmode
+principal encryption key information, including actual key data
+(which is still encrypted in the master key)
+\begin{description}
+\item[{\textbf{name}}] \leavevmode
+principal name
+
+\item[{\textbf{keyindex}}] \leavevmode
+index of this key in the principal's key list
+
+\item[{\textbf{kvno}}] \leavevmode
+key version number
+
+\item[{\textbf{enctype}}] \leavevmode
+encryption type
+
+\item[{\textbf{key}}] \leavevmode
+key data as a hexadecimal string
+
+\item[{\textbf{salttype}}] \leavevmode
+salt type
+
+\item[{\textbf{salt}}] \leavevmode
+salt data as a hexadecimal string
+
+\end{description}
+
+\item[{\textbf{keyinfo}}] \leavevmode
+principal encryption key information (as in \textbf{keydata} above),
+excluding actual key data
+
+\item[{\textbf{princ\_flags}}] \leavevmode
+principal boolean attributes.  Flag names print as hexadecimal
+numbers if the \textbf{-n} option is specified, and all flag positions
+are printed regardless of whether or not they are set.  If \textbf{-n}
+is not specified, print all known flag names for each principal,
+but only print hexadecimal flag names if the corresponding flag is
+set.
+\begin{description}
+\item[{\textbf{name}}] \leavevmode
+principal name
+
+\item[{\textbf{flag}}] \leavevmode
+flag name
+
+\item[{\textbf{value}}] \leavevmode
+boolean value (0 for clear, or 1 for set)
+
+\end{description}
+
+\item[{\textbf{princ\_lockout}}] \leavevmode
+state information used for tracking repeated password failures
+\begin{description}
+\item[{\textbf{name}}] \leavevmode
+principal name
+
+\item[{\textbf{last\_success}}] \leavevmode
+time stamp of most recent successful authentication
+
+\item[{\textbf{last\_failed}}] \leavevmode
+time stamp of most recent failed authentication
+
+\item[{\textbf{fail\_count}}] \leavevmode
+count of failed attempts
+
+\end{description}
+
+\item[{\textbf{princ\_meta}}] \leavevmode
+principal metadata
+\begin{description}
+\item[{\textbf{name}}] \leavevmode
+principal name
+
+\item[{\textbf{modby}}] \leavevmode
+name of last principal to modify this principal
+
+\item[{\textbf{modtime}}] \leavevmode
+timestamp of last modification
+
+\item[{\textbf{lastpwd}}] \leavevmode
+timestamp of last password change
+
+\item[{\textbf{policy}}] \leavevmode
+policy object name
+
+\item[{\textbf{mkvno}}] \leavevmode
+key version number of the master key that encrypts this
+principal's key data
+
+\item[{\textbf{hist\_kvno}}] \leavevmode
+key version number of the history key that encrypts the key
+history data for this principal
+
+\end{description}
+
+\item[{\textbf{princ\_stringattrs}}] \leavevmode
+string attributes (key/value pairs)
+\begin{description}
+\item[{\textbf{name}}] \leavevmode
+principal name
+
+\item[{\textbf{key}}] \leavevmode
+attribute name
+
+\item[{\textbf{value}}] \leavevmode
+attribute value
+
+\end{description}
+
+\item[{\textbf{princ\_tktpolicy}}] \leavevmode
+per-principal ticket policy data, including maximum ticket
+lifetimes
+\begin{description}
+\item[{\textbf{name}}] \leavevmode
+principal name
+
+\item[{\textbf{expiration}}] \leavevmode
+principal expiration date
+
+\item[{\textbf{pw\_expiration}}] \leavevmode
+password expiration date
+
+\item[{\textbf{max\_life}}] \leavevmode
+maximum ticket lifetime
+
+\item[{\textbf{max\_renew\_life}}] \leavevmode
+maximum renewable ticket lifetime
+
+\end{description}
+
+\end{description}
+
+Examples:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} kdb5\PYGZus{}util tabdump \PYGZhy{}o keyinfo.txt keyinfo
+\PYGZdl{} cat keyinfo.txt
+name        keyindex        kvno    enctype salttype        salt
+foo@EXAMPLE.COM     0       1       aes128\PYGZhy{}cts\PYGZhy{}hmac\PYGZhy{}sha1\PYGZhy{}96 normal  \PYGZhy{}1
+bar@EXAMPLE.COM     0       1       aes128\PYGZhy{}cts\PYGZhy{}hmac\PYGZhy{}sha1\PYGZhy{}96 normal  \PYGZhy{}1
+bar@EXAMPLE.COM     1       1       des\PYGZhy{}cbc\PYGZhy{}crc     normal  \PYGZhy{}1
+\PYGZdl{} sqlite3
+sqlite\PYGZgt{} .mode tabs
+sqlite\PYGZgt{} .import keyinfo.txt keyinfo
+sqlite\PYGZgt{} select * from keyinfo where enctype like \PYGZsq{}des\PYGZhy{}cbc\PYGZhy{}\PYGZpc{}\PYGZsq{};
+bar@EXAMPLE.COM     1       1       des\PYGZhy{}cbc\PYGZhy{}crc     normal  \PYGZhy{}1
+sqlite\PYGZgt{} .quit
+\PYGZdl{} awk \PYGZhy{}F\PYGZsq{}\PYGZbs{}t\PYGZsq{} \PYGZsq{}\PYGZdl{}4 \PYGZti{} /des\PYGZhy{}cbc\PYGZhy{}/ \PYGZob{} print \PYGZcb{}\PYGZsq{} keyinfo.txt
+bar@EXAMPLE.COM     1       1       des\PYGZhy{}cbc\PYGZhy{}crc     normal  \PYGZhy{}1
+\end{Verbatim}
+
+
 \subsection{SEE ALSO}
 \label{admin/admin_commands/kdb5_util:see-also}
 {\hyperref[admin/admin_commands/kadmin_local:kadmin-1]{\emph{kadmin}}}
@@ -9227,6 +9546,7 @@ Specifies the location of the keytab file.
 {[}\textbf{-p} \emph{kdb5\_util\_prog}{]}
 {[}\textbf{-P} \emph{port}{]}
 {[}\textbf{-d}{]}
+{[}\textbf{-t}{]}
 
 
 \subsection{DESCRIPTION}
@@ -9299,6 +9619,12 @@ Turn on debug mode.  In this mode, kpropd will not detach
 itself from the current job and run in the background.  Instead,
 it will run in the foreground and print out debugging messages
 during the database propagation.
+
+\item[{\textbf{-t}}] \leavevmode
+In standalone mode without incremental propagation, exit after one
+dump file is received.  In incremental propagation mode, exit as
+soon as the database is up to date, or if the master returns an
+error.
 
 \item[{\textbf{-P}}] \leavevmode
 Allow for an alternate port number for kpropd to listen on.  This
@@ -10029,8 +10355,9 @@ according to the operating system's layout of \code{/var}.
 The following environment variables can be used during runtime:
 \begin{description}
 \item[{\textbf{KRB5\_CONFIG}}] \leavevmode
-Main Kerberos configuration file.  (See {\hyperref[mitK5defaults:mitk5defaults]{\emph{MIT Kerberos defaults}}} for
-the default name.)
+Main Kerberos configuration file.  Multiple filenames can be
+specified, separated by a colon; all files which are present will
+be read.  (See {\hyperref[mitK5defaults:mitk5defaults]{\emph{MIT Kerberos defaults}}} for the default path.)
 
 \item[{\textbf{KRB5\_KDC\_PROFILE}}] \leavevmode
 KDC configuration file.  (See {\hyperref[mitK5defaults:mitk5defaults]{\emph{MIT Kerberos defaults}}} for the default

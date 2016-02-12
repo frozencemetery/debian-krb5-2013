@@ -75,6 +75,11 @@ kdc_get_server_key (krb5_context, krb5_ticket *, unsigned int,
                     krb5_boolean match_enctype,
                     krb5_db_entry **, krb5_keyblock **, krb5_kvno *);
 
+krb5_error_code
+get_local_tgt(krb5_context context, const krb5_data *realm,
+              krb5_db_entry *candidate, krb5_db_entry **alias_out,
+              krb5_db_entry **storage_out);
+
 int
 validate_as_request (kdc_realm_t *, krb5_kdc_req *, krb5_db_entry,
                      krb5_db_entry, krb5_timestamp,
@@ -89,6 +94,10 @@ int
 validate_tgs_request (kdc_realm_t *, krb5_kdc_req *, krb5_db_entry,
                       krb5_ticket *, krb5_timestamp,
                       const char **, krb5_pa_data ***);
+
+krb5_error_code
+check_indicators(krb5_context context, krb5_db_entry *server,
+                 krb5_data *const *indicators);
 
 int
 fetch_asn1_field (unsigned char *, unsigned int, unsigned int, krb5_data *);
@@ -106,6 +115,31 @@ ktypes2str(char *s, size_t len, int nktypes, krb5_enctype *ktype);
 
 void
 rep_etypes2str(char *s, size_t len, krb5_kdc_rep *rep);
+
+/* authind.c */
+krb5_boolean
+authind_contains(krb5_data *const *indicators, const char *ind);
+
+krb5_error_code
+authind_add(krb5_context context, const char *ind, krb5_data ***indicators);
+
+krb5_error_code
+authind_extract(krb5_context context, krb5_authdata **authdata,
+                krb5_data ***indicators);
+
+/* cammac.c */
+krb5_error_code
+cammac_create(krb5_context context, krb5_enc_tkt_part *enc_tkt_reply,
+              krb5_keyblock *server_key, krb5_db_entry *krbtgt,
+              krb5_authdata **contents, krb5_authdata ***cammac_out);
+
+krb5_boolean
+cammac_check_kdcver(krb5_context context, krb5_cammac *cammac,
+                    krb5_enc_tkt_part *enc_tkt, krb5_db_entry *krbtgt);
+
+krb5_boolean
+cammac_check_svcver(krb5_context context, krb5_cammac *cammac,
+                    krb5_keyblock *server_key);
 
 /* do_as_req.c */
 void
@@ -206,18 +240,24 @@ krb5_error_code
 unload_authdata_plugins(krb5_context context);
 
 krb5_error_code
+get_auth_indicators(krb5_context context, krb5_enc_tkt_part *enc_tkt,
+                    krb5_db_entry *local_tgt, krb5_data ***indicators_out);
+
+krb5_error_code
 handle_authdata (krb5_context context,
                  unsigned int flags,
                  krb5_db_entry *client,
                  krb5_db_entry *server,
-                 krb5_db_entry *krbtgt,
+                 krb5_db_entry *header_server,
+                 krb5_db_entry *local_tgt,
                  krb5_keyblock *client_key,
                  krb5_keyblock *server_key,
-                 krb5_keyblock *krbtgt_key,
+                 krb5_keyblock *header_key,
                  krb5_data *req_pkt,
                  krb5_kdc_req *request,
                  krb5_const_principal for_user_princ,
                  krb5_enc_tkt_part *enc_tkt_request,
+                 krb5_data *const *auth_indicators,
                  krb5_enc_tkt_part *enc_tkt_reply);
 
 /* replay.c */
@@ -369,9 +409,6 @@ krb5_error_code kdc_fast_handle_reply_key(struct kdc_request_state *state,
                                           krb5_keyblock **out_key);
 
 
-krb5_error_code kdc_preauth_get_cookie(struct kdc_request_state *state,
-                                       krb5_pa_data **cookie);
-
 krb5_boolean
 kdc_fast_hide_client(struct kdc_request_state *state);
 
@@ -381,14 +418,33 @@ kdc_handle_protected_negotiation( krb5_context context,
                                   const krb5_keyblock *reply_key,
                                   krb5_pa_data ***out_enc_padata);
 
+krb5_error_code
+kdc_fast_read_cookie(krb5_context context, struct kdc_request_state *state,
+                     krb5_kdc_req *req, krb5_db_entry *local_tgt);
+
+krb5_boolean kdc_fast_search_cookie(struct kdc_request_state *state,
+                                    krb5_preauthtype pa_type, krb5_data *out);
+
+krb5_error_code kdc_fast_set_cookie(struct kdc_request_state *state,
+                                    krb5_preauthtype pa_type,
+                                    const krb5_data *data);
+
+krb5_error_code
+kdc_fast_make_cookie(krb5_context context, struct kdc_request_state *state,
+                     krb5_db_entry *local_tgt,
+                     krb5_const_principal client_princ,
+                     krb5_pa_data **cookie_out);
+
 /* Information handle for kdcpreauth callbacks.  All pointers are aliases. */
 struct krb5_kdcpreauth_rock_st {
     krb5_kdc_req *request;
     krb5_data *inner_body;
     krb5_db_entry *client;
     krb5_key_data *client_key;
+    krb5_keyblock *client_keyblock;
     struct kdc_request_state *rstate;
     verto_ctx *vctx;
+    krb5_data ***auth_indicators;
 };
 
 #define isflagset(flagfield, flag) (flagfield & (flag))

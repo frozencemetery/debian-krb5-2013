@@ -560,11 +560,6 @@ already_tried(krb5_context context, krb5_preauthtype pa_type)
     size_t count;
     krb5_preauthtype *newptr;
 
-    /* Allow multi-hop SAM-2 exchanges using repeated preauth-required errors
-     * for historical compatibility. */
-    if (pa_type == KRB5_PADATA_SAM_CHALLENGE_2)
-        return FALSE;
-
     for (count = 0; pctx->tried != NULL && pctx->tried[count] != 0; count++) {
         if (pctx->tried[count] == pa_type)
             return TRUE;
@@ -1008,7 +1003,6 @@ krb5_preauth_supply_preauth_data(krb5_context context,
     struct krb5_preauth_context_st *pctx = context->preauth_context;
     clpreauth_handle *hp, h;
     krb5_error_code ret;
-    const char *emsg = NULL;
 
     if (pctx == NULL) {
         k5_init_preauth_context(context);
@@ -1028,10 +1022,7 @@ krb5_preauth_supply_preauth_data(krb5_context context,
         h = *hp;
         ret = clpreauth_gic_opts(context, h, opt, attr, value);
         if (ret) {
-            emsg = krb5_get_error_message(context, ret);
-            k5_setmsg(context, ret, _("Preauth module %s: %s"), h->vt.name,
-                      emsg);
-            krb5_free_error_message(context, emsg);
+            k5_prependmsg(context, ret, _("Preauth module %s"), h->vt.name);
             return ret;
         }
     }

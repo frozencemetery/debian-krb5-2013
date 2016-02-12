@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -107,7 +107,22 @@ to a callback function and handle (called a &#8220;rock&#8221;) which can be use
 to get additional information about the current request, including the
 maximum allowable clock skew, the client&#8217;s long-term keys, the
 DER-encoded request body, the FAST armor key, string attributes on the
-client&#8217;s database entry, and the client&#8217;s database entry itself.</p>
+client&#8217;s database entry, and the client&#8217;s database entry itself.  The
+<strong>verify</strong> method can assert one or more authentication indicators to
+be included in the issued ticket using the <tt class="docutils literal"><span class="pre">add_auth_indicator</span></tt>
+callback (new in release 1.14).</p>
+<p>A module can generate state information to be included with the next
+client request using the <tt class="docutils literal"><span class="pre">set_cookie</span></tt> callback (new in release
+1.14).  On the next request, the module can read this state
+information using the <tt class="docutils literal"><span class="pre">get_cookie</span></tt> callback.  Cookie information is
+encrypted, timestamped, and transmitted to the client in a
+<tt class="docutils literal"><span class="pre">PA-FX-COOKIE</span></tt> pa-data item.  Older clients may not support cookies
+and therefore may not transmit the cookie in the next request; in this
+case, <tt class="docutils literal"><span class="pre">get_cookie</span></tt> will not yield the saved information.</p>
+<p>If a module implements a mechanism which requires multiple round
+trips, its <strong>verify</strong> method can respond with the code
+<tt class="docutils literal"><span class="pre">KRB5KDC_ERR_MORE_PREAUTH_DATA_REQUIRED</span></tt> and a list of pa-data in
+the <em>e_data</em> parameter to be processed by the client.</p>
 <p>The <strong>edata</strong> and <strong>verify</strong> methods can be implemented
 asynchronously.  Because of this, they do not return values directly
 to the caller, but must instead invoke responder functions with their
@@ -173,7 +188,7 @@ callback to get an event context for use with the <a class="reference external" 
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

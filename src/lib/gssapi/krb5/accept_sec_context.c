@@ -325,12 +325,6 @@ kg_accept_dce(minor_status, context_handle, verifier_cred_handle,
         goto fail;
     }
 
-    if (ctx->krb_times.endtime < now) {
-        code = 0;
-        major_status = GSS_S_CREDENTIALS_EXPIRED;
-        goto fail;
-    }
-
     ap_rep.data = input_token->value;
     ap_rep.length = input_token->length;
 
@@ -358,7 +352,7 @@ kg_accept_dce(minor_status, context_handle, verifier_cred_handle,
         *mech_type = ctx->mech_used;
 
     if (time_rec)
-        *time_rec = ctx->krb_times.endtime - now;
+        *time_rec = ctx->krb_times.endtime + ctx->k5_context->clockskew - now;
 
     /* Never return GSS_C_DELEG_FLAG since we don't support DCE credential
      * delegation yet. */
@@ -670,13 +664,15 @@ kg_accept_krb5(minor_status, context_handle,
 #endif
 
     if (authdat->checksum == NULL) {
-        /* missing checksum counts as "inappropriate type" */
-        code = KRB5KRB_AP_ERR_INAPP_CKSUM;
-        major_status = GSS_S_FAILURE;
-        goto fail;
-    }
-
-    if (authdat->checksum->checksum_type != CKSUMTYPE_KG_CB) {
+        /*
+         * Some SMB client implementations use handcrafted GSSAPI code that
+         * does not provide a checksum.  MS-KILE documents that the Microsoft
+         * implementation considers a missing checksum acceptable; the server
+         * assumes all flags are unset in this case, and does not check channel
+         * bindings.
+         */
+        gss_flags = 0;
+    } else if (authdat->checksum->checksum_type != CKSUMTYPE_KG_CB) {
         /* Samba does not send 0x8003 GSS-API checksums */
         krb5_boolean valid;
         krb5_key subkey;
@@ -981,12 +977,6 @@ kg_accept_krb5(minor_status, context_handle,
         goto fail;
     }
 
-    if (ctx->krb_times.endtime < now) {
-        code = 0;
-        major_status = GSS_S_CREDENTIALS_EXPIRED;
-        goto fail;
-    }
-
     code = g_seqstate_init(&ctx->seqstate, ctx->seq_recv,
                            (ctx->gss_flags & GSS_C_REPLAY_FLAG) != 0,
                            (ctx->gss_flags & GSS_C_SEQUENCE_FLAG) != 0,
@@ -1150,8 +1140,10 @@ kg_accept_krb5(minor_status, context_handle,
     if (mech_type)
         *mech_type = (gss_OID) mech_used;
 
+    /* Add the maximum allowable clock skew as a grace period for context
+     * expiration, just as we do for the ticket. */
     if (time_rec)
-        *time_rec = ctx->krb_times.endtime - now;
+        *time_rec = ctx->krb_times.endtime + context->clockskew - now;
 
     if (ret_flags)
         *ret_flags = ctx->gss_flags;

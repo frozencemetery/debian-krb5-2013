@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.13.2',
+        VERSION:     '1.14',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -68,8 +68,9 @@
 <p>The following environment variables can be used during runtime:</p>
 <dl class="docutils">
 <dt><strong>KRB5_CONFIG</strong></dt>
-<dd>Main Kerberos configuration file.  (See <a class="reference internal" href="../mitK5defaults.html#mitk5defaults"><em>MIT Kerberos defaults</em></a> for
-the default name.)</dd>
+<dd>Main Kerberos configuration file.  Multiple filenames can be
+specified, separated by a colon; all files which are present will
+be read.  (See <a class="reference internal" href="../mitK5defaults.html#mitk5defaults"><em>MIT Kerberos defaults</em></a> for the default path.)</dd>
 <dt><strong>KRB5_KDC_PROFILE</strong></dt>
 <dd>KDC configuration file.  (See <a class="reference internal" href="../mitK5defaults.html#mitk5defaults"><em>MIT Kerberos defaults</em></a> for the default
 name.)</dd>
@@ -131,6 +132,7 @@ programs).</dd>
 <li class="toctree-l2"><a class="reference internal" href="princ_dns.html">Principal names and DNS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="enctypes.html">Encryption types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="https.html">HTTPS proxy configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth_indicator.html">Authentication indicators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="admin_commands/index.html">Administration  programs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../mitK5defaults.html">MIT Kerberos defaults</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Environment variables</a></li>
@@ -166,7 +168,7 @@ programs).</dd>
 
     <div class="footer-wrapper">
         <div class="footer" >
-            <div class="right" ><i>Release: 1.13.2</i><br />
+            <div class="right" ><i>Release: 1.14</i><br />
                 &copy; <a href="../copyright.html">Copyright</a> 1985-2015, MIT.
             </div>
             <div class="left">

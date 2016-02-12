@@ -74,152 +74,17 @@
 #include <ntsecapi.h>
 
 
-/* The following two features can only be built using the version of the
- * Platform SDK for Microsoft Windows Vista.  If AES support is defined
- * in NTSecAPI.h then we know that we have the required data structures.
- *
- * To build with the Windows XP SP2 SDK, the NTSecAPI.h from the Vista
- * SDK should be used in place of the XP SP2 SDK version.
- */
-#ifdef TRUST_ATTRIBUTE_TRUST_USES_AES_KEYS
-#define KERB_SUBMIT_TICKET 1
-#define HAVE_CACHE_INFO_EX2 1
-#endif
-
 #define MAX_MSG_SIZE 256
 #define MAX_MSPRINC_SIZE 1024
 
 /* THREAD SAFETY
- * The functions is_windows_2000(), is_windows_xp(),
- * does_retrieve_ticket_cache_ticket() and does_query_ticket_cache_ex2()
- * contain static variables to cache the responses of the tests being
+ * The function does_query_ticket_cache_ex2()
+ * contains static variables to cache the responses of the tests being
  * performed.  There is no harm in the test being performed more than
  * once since the result will always be the same.
  */
 
-static BOOL
-is_windows_2000 (void)
-{
-    static BOOL fChecked = FALSE;
-    static BOOL fIsWin2K = FALSE;
-
-    if (!fChecked)
-    {
-        OSVERSIONINFO Version;
-
-        memset (&Version, 0x00, sizeof(Version));
-        Version.dwOSVersionInfoSize = sizeof(Version);
-
-        if (GetVersionEx (&Version))
-        {
-            if (Version.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-                Version.dwMajorVersion >= 5)
-                fIsWin2K = TRUE;
-        }
-        fChecked = TRUE;
-    }
-
-    return fIsWin2K;
-}
-
-static BOOL
-is_windows_xp (void)
-{
-    static BOOL fChecked = FALSE;
-    static BOOL fIsWinXP = FALSE;
-
-    if (!fChecked)
-    {
-        OSVERSIONINFO Version;
-
-        memset (&Version, 0x00, sizeof(Version));
-        Version.dwOSVersionInfoSize = sizeof(Version);
-
-        if (GetVersionEx (&Version))
-        {
-            if (Version.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-                (Version.dwMajorVersion > 5 ||
-                 Version.dwMajorVersion == 5 && Version.dwMinorVersion >= 1) )
-                fIsWinXP = TRUE;
-        }
-        fChecked = TRUE;
-    }
-
-    return fIsWinXP;
-}
-
-static BOOL
-is_windows_vista (void)
-{
-    static BOOL fChecked = FALSE;
-    static BOOL fIsVista = FALSE;
-
-    if (!fChecked)
-    {
-        OSVERSIONINFO Version;
-
-        memset (&Version, 0x00, sizeof(Version));
-        Version.dwOSVersionInfoSize = sizeof(Version);
-
-        if (GetVersionEx (&Version))
-        {
-            if (Version.dwPlatformId == VER_PLATFORM_WIN32_NT && Version.dwMajorVersion >= 6)
-                fIsVista = TRUE;
-        }
-        fChecked = TRUE;
-    }
-
-    return fIsVista;
-}
-
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-
-static BOOL
-is_broken_wow64(void)
-{
-    static BOOL fChecked = FALSE;
-    static BOOL fIsBrokenWow64 = FALSE;
-
-    if (!fChecked)
-    {
-        BOOL isWow64 = FALSE;
-        OSVERSIONINFO Version;
-        HANDLE h1 = NULL;
-        LPFN_ISWOW64PROCESS fnIsWow64Process = NULL;
-
-        h1 = GetModuleHandle(L"kernel32.dll");
-        fnIsWow64Process =
-            (LPFN_ISWOW64PROCESS)GetProcAddress(h1, "IsWow64Process");
-
-        /* If we don't find the fnIsWow64Process function then we
-         * are not running in a broken Wow64
-         */
-        if (fnIsWow64Process) {
-            memset (&Version, 0x00, sizeof(Version));
-            Version.dwOSVersionInfoSize = sizeof(Version);
-
-            if (fnIsWow64Process(GetCurrentProcess(), &isWow64) &&
-                GetVersionEx (&Version)) {
-                if (isWow64 &&
-                    Version.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-                    Version.dwMajorVersion < 6)
-                    fIsBrokenWow64 = TRUE;
-            }
-        }
-        fChecked = TRUE;
-    }
-
-    return fIsBrokenWow64;
-}
-
-/* This flag is only supported by versions of Windows which have obtained
- * a code change from Microsoft.   When the code change is installed,
- * setting this flag will cause all retrieved credentials to be stored
- * in the LSA cache.
- */
-#ifndef KERB_RETRIEVE_TICKET_CACHE_TICKET
-#define KERB_RETRIEVE_TICKET_CACHE_TICKET  0x20
-#endif
 
 static VOID
 ShowWinError(LPSTR szAPI, DWORD dwError)
@@ -334,17 +199,23 @@ MITPrincToMSPrinc(krb5_context context, krb5_principal principal, UNICODE_STRING
 }
 
 static BOOL
-UnicodeStringToMITPrinc(UNICODE_STRING *service, WCHAR *realm, krb5_context context,
-                        krb5_principal *principal)
+UnicodeStringToMITPrinc(UNICODE_STRING *service, UNICODE_STRING *realm,
+                        krb5_context context, krb5_principal *principal)
 {
     WCHAR princbuf[512];
+    WCHAR realmbuf[512];
     char aname[512];
 
+    /* Convert the realm to a wchar string. */
+    realmbuf[0] = '\0';
+    wcsncpy(realmbuf, realm->Buffer, realm->Length / sizeof(WCHAR));
+    realmbuf[realm->Length / sizeof(WCHAR)] = 0;
+    /* Convert the principal components to a wchar string. */
     princbuf[0]=0;
     wcsncpy(princbuf, service->Buffer, service->Length/sizeof(WCHAR));
     princbuf[service->Length/sizeof(WCHAR)]=0;
     wcscat(princbuf, L"@");
-    wcscat(princbuf, realm);
+    wcscat(princbuf, realmbuf);
     if (UnicodeToANSI(princbuf, aname, sizeof(aname))) {
         if (krb5_parse_name(context, aname, principal) == 0)
             return TRUE;
@@ -452,48 +323,6 @@ MSTicketToMITTicket(KERB_EXTERNAL_TICKET *msticket, krb5_context context, krb5_d
     return TRUE;
 }
 
-/*
- * PreserveInitialTicketIdentity()
- *
- * This will find the "PreserveInitialTicketIdentity" key in the registry.
- * Returns 1 to preserve and 0 to not.
- */
-
-static DWORD
-PreserveInitialTicketIdentity(void)
-{
-    HKEY hKey;
-    DWORD size = sizeof(DWORD);
-    DWORD type = REG_DWORD;
-    const char *key_path = "Software\\MIT\\Kerberos5";
-    const char *value_name = "PreserveInitialTicketIdentity";
-    DWORD retval = 1;     /* default to Preserve */
-
-    if (RegOpenKeyExA(HKEY_CURRENT_USER, key_path, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
-        goto syskey;
-    if (RegQueryValueExA(hKey, value_name, 0, &type, (LPBYTE)&retval, &size) != ERROR_SUCCESS)
-    {
-        RegCloseKey(hKey);
-        goto syskey;
-    }
-    RegCloseKey(hKey);
-    goto done;
-
-syskey:
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, key_path, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
-        goto done;
-    if (RegQueryValueExA(hKey, value_name, 0, &type, (LPBYTE)&retval, &size) != ERROR_SUCCESS)
-    {
-        RegCloseKey(hKey);
-        goto done;
-    }
-    RegCloseKey(hKey);
-
-done:
-    return retval;
-}
-
-
 static BOOL
 MSCredToMITCred(KERB_EXTERNAL_TICKET *msticket, UNICODE_STRING ClientRealm,
                 krb5_context context, krb5_creds *creds)
@@ -526,27 +355,22 @@ MSCredToMITCred(KERB_EXTERNAL_TICKET *msticket, UNICODE_STRING ClientRealm,
     return MSTicketToMITTicket(msticket, context, &creds->ticket);
 }
 
-#ifdef HAVE_CACHE_INFO_EX2
 /* CacheInfoEx2ToMITCred is used when we do not need the real ticket */
 static BOOL
 CacheInfoEx2ToMITCred(KERB_TICKET_CACHE_INFO_EX2 *info,
                       krb5_context context, krb5_creds *creds)
 {
-    WCHAR wrealm[128];
     ZeroMemory(creds, sizeof(krb5_creds));
     creds->magic=KV5M_CREDS;
 
     // construct Client Principal
-    wcsncpy(wrealm, info->ClientRealm.Buffer, info->ClientRealm.Length/sizeof(WCHAR));
-    wrealm[info->ClientRealm.Length/sizeof(WCHAR)]=0;
-    if (!UnicodeStringToMITPrinc(&info->ClientName, wrealm, context, &creds->client))
+    if (!UnicodeStringToMITPrinc(&info->ClientName, &info->ClientRealm,
+                                 context, &creds->client))
         return FALSE;
 
     // construct Service Principal
-    wcsncpy(wrealm, info->ServerRealm.Buffer,
-            info->ServerRealm.Length/sizeof(WCHAR));
-    wrealm[info->ServerRealm.Length/sizeof(WCHAR)]=0;
-    if (!UnicodeStringToMITPrinc(&info->ServerName, wrealm, context, &creds->server))
+    if (!UnicodeStringToMITPrinc(&info->ServerName, &info->ServerRealm,
+                                 context, &creds->server))
         return FALSE;
 
     creds->keyblock.magic = KV5M_KEYBLOCK;
@@ -565,7 +389,6 @@ CacheInfoEx2ToMITCred(KERB_TICKET_CACHE_INFO_EX2 *info,
 
     return TRUE;
 }
-#endif /* HAVE_CACHE_INFO_EX2 */
 
 static BOOL
 PackageConnectLookup(HANDLE *pLogonHandle, ULONG *pPackageId)
@@ -603,72 +426,11 @@ PackageConnectLookup(HANDLE *pLogonHandle, ULONG *pPackageId)
 
 }
 
-static BOOL
-does_retrieve_ticket_cache_ticket (void)
-{
-    static BOOL fChecked = FALSE;
-    static BOOL fCachesTicket = FALSE;
-
-    if (!fChecked)
-    {
-        NTSTATUS Status = 0;
-        NTSTATUS SubStatus = 0;
-        HANDLE LogonHandle;
-        ULONG  PackageId;
-        ULONG RequestSize;
-        PKERB_RETRIEVE_TKT_REQUEST pTicketRequest = NULL;
-        PKERB_RETRIEVE_TKT_RESPONSE pTicketResponse = NULL;
-        ULONG ResponseSize;
-
-        RequestSize = sizeof(*pTicketRequest) + 1;
-
-        if (!PackageConnectLookup(&LogonHandle, &PackageId))
-            return FALSE;
-
-        pTicketRequest = (PKERB_RETRIEVE_TKT_REQUEST) LocalAlloc(LMEM_ZEROINIT, RequestSize);
-        if (!pTicketRequest) {
-            LsaDeregisterLogonProcess(LogonHandle);
-            return FALSE;
-        }
-
-        pTicketRequest->MessageType = KerbRetrieveEncodedTicketMessage;
-        pTicketRequest->LogonId.LowPart = 0;
-        pTicketRequest->LogonId.HighPart = 0;
-        pTicketRequest->TargetName.Length = 0;
-        pTicketRequest->TargetName.MaximumLength = 0;
-        pTicketRequest->TargetName.Buffer = (PWSTR) (pTicketRequest + 1);
-        pTicketRequest->CacheOptions =
-            KERB_RETRIEVE_TICKET_DONT_USE_CACHE | KERB_RETRIEVE_TICKET_CACHE_TICKET;
-        pTicketRequest->EncryptionType = 0;
-        pTicketRequest->TicketFlags = 0;
-
-        Status = LsaCallAuthenticationPackage( LogonHandle,
-                                               PackageId,
-                                               pTicketRequest,
-                                               RequestSize,
-                                               &pTicketResponse,
-                                               &ResponseSize,
-                                               &SubStatus
-        );
-
-        LocalFree(pTicketRequest);
-        LsaDeregisterLogonProcess(LogonHandle);
-
-        if (FAILED(Status) || FAILED(SubStatus)) {
-            if (SubStatus == STATUS_NOT_SUPPORTED ||
-                SubStatus == SEC_E_NO_CREDENTIALS)
-                /* The combination of the two CacheOption flags
-                 * is not supported; therefore, the new flag is supported
-                 */
-                fCachesTicket = TRUE;
-        }
-        fChecked = TRUE;
-    }
-
-    return fCachesTicket;
-}
-
-#ifdef HAVE_CACHE_INFO_EX2
+/*
+ * This runtime check is only needed on Windows XP and Server 2003.
+ * It can safely be removed when we no longer wish to support any
+ * versions of those platforms.
+ */
 static BOOL
 does_query_ticket_cache_ex2 (void)
 {
@@ -722,7 +484,6 @@ does_query_ticket_cache_ex2 (void)
 
     return fEx2Response;
 }
-#endif /* HAVE_CACHE_INFO_EX2 */
 
 static DWORD
 ConcatenateUnicodeStrings(UNICODE_STRING *pTarget, UNICODE_STRING Source1, UNICODE_STRING Source2)
@@ -795,43 +556,6 @@ GetSecurityLogonSessionData(PSECURITY_LOGON_SESSION_DATA * ppSessionData)
         return FALSE;
 
     return TRUE;
-}
-
-//
-// IsKerberosLogon() does not validate whether or not there are valid tickets in the
-// cache.  It validates whether or not it is reasonable to assume that if we
-// attempted to retrieve valid tickets we could do so.  Microsoft does not
-// automatically renew expired tickets.  Therefore, the cache could contain
-// expired or invalid tickets.  Microsoft also caches the user's password
-// and will use it to retrieve new TGTs if the cache is empty and tickets
-// are requested.
-
-static BOOL
-IsKerberosLogon(VOID)
-{
-    PSECURITY_LOGON_SESSION_DATA pSessionData = NULL;
-    BOOL    Success = FALSE;
-
-    if ( GetSecurityLogonSessionData(&pSessionData) ) {
-        if ( pSessionData->AuthenticationPackage.Buffer ) {
-            WCHAR buffer[256];
-            WCHAR *usBuffer;
-            int usLength;
-
-            Success = FALSE;
-            usBuffer = (pSessionData->AuthenticationPackage).Buffer;
-            usLength = (pSessionData->AuthenticationPackage).Length;
-            if (usLength < 256)
-            {
-                lstrcpynW (buffer, usBuffer, usLength);
-                lstrcatW (buffer,L"");
-                if ( !lstrcmpW(L"Kerberos",buffer) )
-                    Success = TRUE;
-            }
-        }
-        LsaFreeReturnBuffer(pSessionData);
-    }
-    return Success;
 }
 
 static DWORD
@@ -927,62 +651,8 @@ PurgeAllTickets(HANDLE LogonHandle, ULONG  PackageId)
 }
 
 static BOOL
-PurgeTicket2000( HANDLE LogonHandle, ULONG  PackageId,
-                 krb5_context context, krb5_creds *cred )
-{
-    NTSTATUS Status = 0;
-    NTSTATUS SubStatus = 0;
-    KERB_PURGE_TKT_CACHE_REQUEST * pPurgeRequest;
-    DWORD dwRequestLen = sizeof(KERB_PURGE_TKT_CACHE_REQUEST) + 2048;
-    char * sname = NULL, * srealm = NULL;
-
-    if (krb5_unparse_name(context, cred->server, &sname))
-        return FALSE;
-
-    pPurgeRequest = malloc(dwRequestLen);
-    if ( pPurgeRequest == NULL )
-        return FALSE;
-    memset(pPurgeRequest, 0, dwRequestLen);
-
-    srealm = strrchr(sname, '@');
-    *srealm = '\0';
-    srealm++;
-
-    pPurgeRequest->MessageType = KerbPurgeTicketCacheMessage;
-    pPurgeRequest->LogonId.LowPart = 0;
-    pPurgeRequest->LogonId.HighPart = 0;
-    pPurgeRequest->ServerName.Buffer = (PWSTR)(((CHAR *)pPurgeRequest)+sizeof(KERB_PURGE_TKT_CACHE_REQUEST));
-    pPurgeRequest->ServerName.Length = strlen(sname)*sizeof(WCHAR);
-    pPurgeRequest->ServerName.MaximumLength = 256;
-    ANSIToUnicode(sname, pPurgeRequest->ServerName.Buffer,
-                  pPurgeRequest->ServerName.MaximumLength);
-    pPurgeRequest->RealmName.Buffer = (PWSTR)(((CHAR *)pPurgeRequest)+sizeof(KERB_PURGE_TKT_CACHE_REQUEST)+512);
-    pPurgeRequest->RealmName.Length = strlen(srealm)*sizeof(WCHAR);
-    pPurgeRequest->RealmName.MaximumLength = 256;
-    ANSIToUnicode(srealm, pPurgeRequest->RealmName.Buffer,
-                  pPurgeRequest->RealmName.MaximumLength);
-
-    Status = LsaCallAuthenticationPackage( LogonHandle,
-                                           PackageId,
-                                           pPurgeRequest,
-                                           dwRequestLen,
-                                           NULL,
-                                           NULL,
-                                           &SubStatus
-    );
-    free(pPurgeRequest);
-    krb5_free_unparsed_name(context, sname);
-
-    if (FAILED(Status) || FAILED(SubStatus))
-        return FALSE;
-
-    return TRUE;
-}
-
-
-static BOOL
-PurgeTicketXP( HANDLE LogonHandle, ULONG  PackageId,
-               krb5_context context, krb5_flags flags, krb5_creds *cred)
+PurgeTicketEx(HANDLE LogonHandle, ULONG  PackageId,
+              krb5_context context, krb5_flags flags, krb5_creds *cred)
 {
     NTSTATUS Status = 0;
     NTSTATUS SubStatus = 0;
@@ -1063,7 +733,6 @@ PurgeTicketXP( HANDLE LogonHandle, ULONG  PackageId,
     return TRUE;
 }
 
-#ifdef KERB_SUBMIT_TICKET
 static BOOL
 KerbSubmitTicket( HANDLE LogonHandle, ULONG  PackageId,
                   krb5_context context, krb5_creds *cred)
@@ -1173,7 +842,6 @@ KerbSubmitTicket( HANDLE LogonHandle, ULONG  PackageId,
     }
     return TRUE;
 }
-#endif /* KERB_SUBMIT_TICKET */
 
 /*
  * A simple function to determine if there is an exact match between two tickets
@@ -1212,7 +880,6 @@ krb5_is_permitted_tgs_enctype(krb5_context context, krb5_const_principal princ, 
     return(ret);
 }
 
-#define ENABLE_PURGING 1
 // to allow the purging of expired tickets from LSA cache.  This is necessary
 // to force the retrieval of new TGTs.  Microsoft does not appear to retrieve
 // new tickets when they expire.  Instead they continue to accept the expired
@@ -1244,9 +911,7 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
     PKERB_RETRIEVE_TKT_RESPONSE pTicketResponse = NULL;
     ULONG RequestSize;
     ULONG ResponseSize;
-#ifdef ENABLE_PURGING
     int    purge_cache = 0;
-#endif /* ENABLE_PURGING */
     int    ignore_cache = 0;
     krb5_enctype *etype_list = NULL, *ptr = NULL, etype = 0;
 
@@ -1340,9 +1005,6 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
          * a credential we can use.
          */
 
-#ifdef PURGE_ALL
-        purge_cache = 1;
-#else
         /* Check Supported Enctypes */
         if ( !enforce_tgs_enctypes ||
              IsMSSessionKeyNull(&pTicketResponse->Ticket.SessionKey) ||
@@ -1363,11 +1025,7 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
             MinLife.dwHighDateTime = (DWORD)((temp >> 32) & 0xFFFFFFFF);
             MinLife.dwLowDateTime = (DWORD)(temp & 0xFFFFFFFF);
             if (CompareFileTime(&MinLife, &LocalEndTime) >= 0) {
-#ifdef ENABLE_PURGING
                 purge_cache = 1;
-#else
-                ignore_cache = 1;
-#endif /* ENABLE_PURGING */
             }
             if (pTicketResponse->Ticket.TicketFlags & KERB_TICKET_FLAGS_invalid) {
                 ignore_cache = 1;   // invalid, need to attempt a TGT request
@@ -1377,7 +1035,6 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
             // not supported
             ignore_cache = 1;
         }
-#endif /* PURGE_ALL */
 
         Error = ConstructTicketRequest(pTicketResponse->Ticket.TargetDomainName,
                                        &pTicketRequest, &RequestSize);
@@ -1395,7 +1052,6 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
             pTicketResponse = NULL;
         }
 
-#ifdef ENABLE_PURGING
         if ( purge_cache ) {
             //
             // Purge the existing tickets which we cannot use so new ones can
@@ -1404,7 +1060,6 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
             //
             PurgeAllTickets(LogonHandle, PackageId);
         }
-#endif /* ENABLE_PURGING */
     }
 
     //
@@ -1415,12 +1070,8 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
     pTicketRequest->LogonId.LowPart = 0;
     pTicketRequest->LogonId.HighPart = 0;
     // Note: pTicketRequest->TargetName set up above
-#ifdef ENABLE_PURGING
     pTicketRequest->CacheOptions = ((ignore_cache || !purge_cache) ?
                                     KERB_RETRIEVE_TICKET_DONT_USE_CACHE : 0L);
-#else
-    pTicketRequest->CacheOptions = (ignore_cache ? KERB_RETRIEVE_TICKET_DONT_USE_CACHE : 0L);
-#endif /* ENABLE_PURGING */
     pTicketRequest->TicketFlags = 0L;
     pTicketRequest->EncryptionType = 0L;
 
@@ -1462,9 +1113,7 @@ GetMSTGT(krb5_context context, HANDLE LogonHandle, ULONG PackageId, KERB_EXTERNA
         // (This will not store the retrieved tickets in the LSA cache unless
         // 0 is supported.)
         pTicketRequest->EncryptionType = etype;
-        pTicketRequest->CacheOptions = 0;
-        if ( does_retrieve_ticket_cache_ticket() )
-            pTicketRequest->CacheOptions |= KERB_RETRIEVE_TICKET_CACHE_TICKET;
+        pTicketRequest->CacheOptions = KERB_RETRIEVE_TICKET_CACHE_TICKET;
 
         if ( pTicketResponse ) {
             memset(pTicketResponse,0,sizeof(KERB_RETRIEVE_TKT_RESPONSE));
@@ -1535,41 +1184,8 @@ cleanup:
 }
 
 static BOOL
-GetQueryTktCacheResponseW2K( HANDLE LogonHandle, ULONG PackageId,
-                             PKERB_QUERY_TKT_CACHE_RESPONSE * ppResponse)
-{
-    NTSTATUS Status = 0;
-    NTSTATUS SubStatus = 0;
-
-    KERB_QUERY_TKT_CACHE_REQUEST CacheRequest;
-    PKERB_QUERY_TKT_CACHE_RESPONSE pQueryResponse = NULL;
-    ULONG ResponseSize;
-
-    CacheRequest.MessageType = KerbQueryTicketCacheMessage;
-    CacheRequest.LogonId.LowPart = 0;
-    CacheRequest.LogonId.HighPart = 0;
-
-    Status = LsaCallAuthenticationPackage(
-        LogonHandle,
-        PackageId,
-        &CacheRequest,
-        sizeof(CacheRequest),
-        &pQueryResponse,
-        &ResponseSize,
-        &SubStatus
-    );
-
-    if ( !(FAILED(Status) || FAILED(SubStatus)) ) {
-        *ppResponse = pQueryResponse;
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-static BOOL
-GetQueryTktCacheResponseXP( HANDLE LogonHandle, ULONG PackageId,
-                            PKERB_QUERY_TKT_CACHE_EX_RESPONSE * ppResponse)
+GetQueryTktCacheResponseEx(HANDLE LogonHandle, ULONG PackageId,
+                           PKERB_QUERY_TKT_CACHE_EX_RESPONSE * ppResponse)
 {
     NTSTATUS Status = 0;
     NTSTATUS SubStatus = 0;
@@ -1600,10 +1216,9 @@ GetQueryTktCacheResponseXP( HANDLE LogonHandle, ULONG PackageId,
     return FALSE;
 }
 
-#ifdef HAVE_CACHE_INFO_EX2
 static BOOL
-GetQueryTktCacheResponseEX2( HANDLE LogonHandle, ULONG PackageId,
-                             PKERB_QUERY_TKT_CACHE_EX2_RESPONSE * ppResponse)
+GetQueryTktCacheResponseEx2(HANDLE LogonHandle, ULONG PackageId,
+                            PKERB_QUERY_TKT_CACHE_EX2_RESPONSE * ppResponse)
 {
     NTSTATUS Status = 0;
     NTSTATUS SubStatus = 0;
@@ -1633,7 +1248,6 @@ GetQueryTktCacheResponseEX2( HANDLE LogonHandle, ULONG PackageId,
 
     return FALSE;
 }
-#endif /* HAVE_CACHE_INFO_EX2 */
 
 static BOOL
 GetMSCacheTicketFromMITCred( HANDLE LogonHandle, ULONG PackageId,
@@ -1661,9 +1275,7 @@ GetMSCacheTicketFromMITCred( HANDLE LogonHandle, ULONG PackageId,
     pTicketRequest->TargetName.MaximumLength = MAX_MSPRINC_SIZE;
     pTicketRequest->TargetName.Buffer = (PWSTR) (pTicketRequest + 1);
     MITPrincToMSPrinc(context, creds->server, &pTicketRequest->TargetName);
-    pTicketRequest->CacheOptions = 0;
-    if ( does_retrieve_ticket_cache_ticket() )
-        pTicketRequest->CacheOptions |= KERB_RETRIEVE_TICKET_CACHE_TICKET;
+    pTicketRequest->CacheOptions = KERB_RETRIEVE_TICKET_CACHE_TICKET;
     pTicketRequest->TicketFlags = creds->ticket_flags;
     pTicketRequest->EncryptionType = creds->keyblock.enctype;
 
@@ -1687,74 +1299,9 @@ GetMSCacheTicketFromMITCred( HANDLE LogonHandle, ULONG PackageId,
 }
 
 static BOOL
-GetMSCacheTicketFromCacheInfoW2K( HANDLE LogonHandle, ULONG PackageId,
-                                  PKERB_TICKET_CACHE_INFO tktinfo, PKERB_EXTERNAL_TICKET *ticket)
-{
-    NTSTATUS Status = 0;
-    NTSTATUS SubStatus = 0;
-    ULONG RequestSize;
-    PKERB_RETRIEVE_TKT_REQUEST pTicketRequest = NULL;
-    PKERB_RETRIEVE_TKT_RESPONSE pTicketResponse = NULL;
-    ULONG ResponseSize;
-
-    RequestSize = sizeof(*pTicketRequest) + tktinfo->ServerName.Length;
-
-    pTicketRequest = (PKERB_RETRIEVE_TKT_REQUEST) LocalAlloc(LMEM_ZEROINIT, RequestSize);
-    if (!pTicketRequest)
-        return FALSE;
-
-    pTicketRequest->MessageType = KerbRetrieveEncodedTicketMessage;
-    pTicketRequest->LogonId.LowPart = 0;
-    pTicketRequest->LogonId.HighPart = 0;
-    pTicketRequest->TargetName.Length = tktinfo->ServerName.Length;
-    pTicketRequest->TargetName.MaximumLength = tktinfo->ServerName.Length;
-    pTicketRequest->TargetName.Buffer = (PWSTR) (pTicketRequest + 1);
-    memcpy(pTicketRequest->TargetName.Buffer,tktinfo->ServerName.Buffer, tktinfo->ServerName.Length);
-    pTicketRequest->CacheOptions = 0;
-    if ( does_retrieve_ticket_cache_ticket() )
-        pTicketRequest->CacheOptions |= KERB_RETRIEVE_TICKET_CACHE_TICKET;
-    pTicketRequest->EncryptionType = tktinfo->EncryptionType;
-    pTicketRequest->TicketFlags = 0;
-    if ( tktinfo->TicketFlags & KERB_TICKET_FLAGS_forwardable )
-        pTicketRequest->TicketFlags |= KDC_OPT_FORWARDABLE;
-    if ( tktinfo->TicketFlags & KERB_TICKET_FLAGS_forwarded )
-        pTicketRequest->TicketFlags |= KDC_OPT_FORWARDED;
-    if ( tktinfo->TicketFlags & KERB_TICKET_FLAGS_proxiable )
-        pTicketRequest->TicketFlags |= KDC_OPT_PROXIABLE;
-    if ( tktinfo->TicketFlags & KERB_TICKET_FLAGS_renewable )
-        pTicketRequest->TicketFlags |= KDC_OPT_RENEWABLE;
-
-    Status = LsaCallAuthenticationPackage(
-        LogonHandle,
-        PackageId,
-        pTicketRequest,
-        RequestSize,
-        &pTicketResponse,
-        &ResponseSize,
-        &SubStatus
-    );
-
-    LocalFree(pTicketRequest);
-
-    if (FAILED(Status) || FAILED(SubStatus))
-        return(FALSE);
-
-    /* otherwise return ticket */
-    *ticket = &(pTicketResponse->Ticket);
-
-    /* set the initial flag if we were attempting to retrieve one
-     * because Windows won't necessarily return the initial ticket
-     * to us.
-     */
-    if ( tktinfo->TicketFlags & KERB_TICKET_FLAGS_initial )
-        (*ticket)->TicketFlags |= KERB_TICKET_FLAGS_initial;
-
-    return(TRUE);
-}
-
-static BOOL
-GetMSCacheTicketFromCacheInfoXP( HANDLE LogonHandle, ULONG PackageId,
-                                 PKERB_TICKET_CACHE_INFO_EX tktinfo, PKERB_EXTERNAL_TICKET *ticket)
+GetMSCacheTicketFromCacheInfoEx(HANDLE LogonHandle, ULONG PackageId,
+                                PKERB_TICKET_CACHE_INFO_EX tktinfo,
+                                PKERB_EXTERNAL_TICKET *ticket)
 {
     NTSTATUS Status = 0;
     NTSTATUS SubStatus = 0;
@@ -1816,10 +1363,10 @@ GetMSCacheTicketFromCacheInfoXP( HANDLE LogonHandle, ULONG PackageId,
     return(TRUE);
 }
 
-#ifdef HAVE_CACHE_INFO_EX2
 static BOOL
-GetMSCacheTicketFromCacheInfoEX2( HANDLE LogonHandle, ULONG PackageId,
-                                  PKERB_TICKET_CACHE_INFO_EX2 tktinfo, PKERB_EXTERNAL_TICKET *ticket)
+GetMSCacheTicketFromCacheInfoEx2(HANDLE LogonHandle, ULONG PackageId,
+                                 PKERB_TICKET_CACHE_INFO_EX2 tktinfo,
+                                 PKERB_EXTERNAL_TICKET *ticket)
 {
     NTSTATUS Status = 0;
     NTSTATUS SubStatus = 0;
@@ -1881,7 +1428,6 @@ GetMSCacheTicketFromCacheInfoEX2( HANDLE LogonHandle, ULONG PackageId,
 
     return(TRUE);
 }
-#endif /* HAVE_CACHE_INFO_EX2 */
 
 static krb5_error_code KRB5_CALLCONV krb5_lcc_close
 (krb5_context, krb5_ccache id);
@@ -1948,9 +1494,7 @@ typedef struct _krb5_lcc_cursor {
     union {
         PKERB_QUERY_TKT_CACHE_RESPONSE w2k;
         PKERB_QUERY_TKT_CACHE_EX_RESPONSE xp;
-#ifdef HAVE_CACHE_INFO_EX2
         PKERB_QUERY_TKT_CACHE_EX2_RESPONSE ex2;
-#endif /* HAVE_CACHE_INFO_EX2 */
     } response;
     unsigned int index;
     PKERB_EXTERNAL_TICKET mstgt;
@@ -1983,24 +1527,8 @@ krb5_lcc_resolve (krb5_context context, krb5_ccache *id, const char *residual)
     krb5_ccache lid;
     krb5_lcc_data *data;
     HANDLE LogonHandle;
-    ULONG  PackageId;
-    KERB_EXTERNAL_TICKET *msticket;
-    krb5_error_code retval = KRB5_OK;
-
-    if (!is_windows_2000() || is_broken_wow64())
-        return KRB5_FCC_NOFILE;
-
-#ifdef COMMENT
-    /* In at least one case on Win2003 it appears that it is possible
-     * for the logon session to be authenticated via NTLM and yet for
-     * there to be Kerberos credentials obtained by the LSA on behalf
-     * of the logged in user.  Therefore, we are removing this test
-     * which was meant to avoid the need to perform GetMSTGT() when
-     * there was no possibility of credentials being found.
-     */
-    if (!IsKerberosLogon())
-        return KRB5_FCC_NOFILE;
-#endif
+    ULONG  PackageId, i;
+    PKERB_QUERY_TKT_CACHE_EX_RESPONSE pResponse;
 
     if (!PackageConnectLookup(&LogonHandle, &PackageId))
         return KRB5_FCC_NOFILE;
@@ -2024,7 +1552,7 @@ krb5_lcc_resolve (krb5_context context, krb5_ccache *id, const char *residual)
     data = (krb5_lcc_data *)lid->data;
     data->LogonHandle = LogonHandle;
     data->PackageId = PackageId;
-    data->princ = 0;
+    data->princ = NULL;
 
     data->cc_name = (char *)malloc(strlen(residual)+1);
     if (data->cc_name == NULL) {
@@ -2035,25 +1563,18 @@ krb5_lcc_resolve (krb5_context context, krb5_ccache *id, const char *residual)
     }
     strcpy(data->cc_name, residual);
 
-    /*
-     * we must obtain a tgt from the cache in order to determine the principal
-     */
-    if (GetMSTGT(context, data->LogonHandle, data->PackageId, &msticket, FALSE)) {
-        /* convert the ticket */
-        krb5_creds creds;
-        if (!MSCredToMITCred(msticket, msticket->DomainName, context, &creds))
-            retval = KRB5_FCC_INTERNAL;
-        LsaFreeReturnBuffer(msticket);
+    /* If there are already tickets present, grab a client principal name. */
+    if (GetQueryTktCacheResponseEx(LogonHandle, PackageId, &pResponse)) {
+        /* Take the first client principal we find; they should all be the
+         * same anyway. */
+        for (i = 0; i < pResponse->CountOfTickets; i++) {
+            if (UnicodeStringToMITPrinc(&pResponse->Tickets[i].ClientName,
+                                        &pResponse->Tickets[i].ClientRealm,
+                                        context, &data->princ))
+                break;
 
-        if (retval == KRB5_OK)
-            krb5_copy_principal(context, creds.client, &data->princ);
-        krb5_free_cred_contents(context,&creds);
-    } else if (!does_retrieve_ticket_cache_ticket()) {
-        free(data->cc_name);
-        free(lid->data);
-        free(lid);
-        LsaDeregisterLogonProcess(LogonHandle);
-        return KRB5_FCC_NOFILE;
+        }
+        LsaFreeReturnBuffer(pResponse);
     }
 
     /*
@@ -2061,7 +1582,7 @@ krb5_lcc_resolve (krb5_context context, krb5_ccache *id, const char *residual)
      * if cache is non-existent/unusable
      */
     *id = lid;
-    return retval;
+    return KRB5_OK;
 }
 
 /*
@@ -2079,9 +1600,6 @@ krb5_lcc_initialize(krb5_context context, krb5_ccache id, krb5_principal princ)
     krb5_cc_cursor cursor;
     krb5_error_code code;
     krb5_creds cred;
-
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
 
     code = krb5_cc_start_seq_get(context, id, &cursor);
     if (code) {
@@ -2120,9 +1638,6 @@ krb5_lcc_close(krb5_context context, krb5_ccache id)
     register int closeval = KRB5_OK;
     register krb5_lcc_data *data;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     if (id) {
         data = (krb5_lcc_data *) id->data;
 
@@ -2148,9 +1663,6 @@ static krb5_error_code KRB5_CALLCONV
 krb5_lcc_destroy(krb5_context context, krb5_ccache id)
 {
     register krb5_lcc_data *data;
-
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
 
     if (id) {
         data = (krb5_lcc_data *) id->data;
@@ -2179,9 +1691,6 @@ krb5_lcc_start_seq_get(krb5_context context, krb5_ccache id, krb5_cc_cursor *cur
     krb5_lcc_cursor *lcursor;
     krb5_lcc_data *data = (krb5_lcc_data *)id->data;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     lcursor = (krb5_lcc_cursor *) malloc(sizeof(krb5_lcc_cursor));
     if (lcursor == NULL) {
         *cursor = 0;
@@ -2197,30 +1706,21 @@ krb5_lcc_start_seq_get(krb5_context context, krb5_ccache id, krb5_cc_cursor *cur
         return KRB5_CC_NOTFOUND;
     }
 
-#ifdef HAVE_CACHE_INFO_EX2
     if ( does_query_ticket_cache_ex2() ) {
-        if ( !GetQueryTktCacheResponseEX2(data->LogonHandle, data->PackageId, &lcursor->response.ex2) ) {
+        if (!GetQueryTktCacheResponseEx2(data->LogonHandle, data->PackageId,
+                                         &lcursor->response.ex2)) {
             LsaFreeReturnBuffer(lcursor->mstgt);
             free(lcursor);
             *cursor = 0;
             return KRB5_FCC_INTERNAL;
         }
     } else
-#endif /* HAVE_CACHE_INFO_EX2 */
-        if ( is_windows_xp() ) {
-            if ( !GetQueryTktCacheResponseXP(data->LogonHandle, data->PackageId, &lcursor->response.xp) ) {
-                LsaFreeReturnBuffer(lcursor->mstgt);
-                free(lcursor);
-                *cursor = 0;
-                return KRB5_FCC_INTERNAL;
-            }
-        } else {
-            if ( !GetQueryTktCacheResponseW2K(data->LogonHandle, data->PackageId, &lcursor->response.w2k) ) {
-                LsaFreeReturnBuffer(lcursor->mstgt);
-                free(lcursor);
-                *cursor = 0;
-                return KRB5_FCC_INTERNAL;
-            }
+        if (!GetQueryTktCacheResponseEx(data->LogonHandle, data->PackageId,
+                                        &lcursor->response.xp)) {
+            LsaFreeReturnBuffer(lcursor->mstgt);
+            free(lcursor);
+            *cursor = 0;
+            return KRB5_FCC_INTERNAL;
         }
     lcursor->index = 0;
     *cursor = (krb5_cc_cursor) lcursor;
@@ -2253,13 +1753,9 @@ krb5_lcc_next_cred(krb5_context context, krb5_ccache id, krb5_cc_cursor *cursor,
     KERB_EXTERNAL_TICKET *msticket;
     krb5_error_code  retval = KRB5_OK;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     data = (krb5_lcc_data *)id->data;
 
 next_cred:
-#ifdef HAVE_CACHE_INFO_EX2
     if ( does_query_ticket_cache_ex2() ) {
         if ( lcursor->index >= lcursor->response.ex2->CountOfTickets ) {
             if (retval == KRB5_OK)
@@ -2281,51 +1777,34 @@ next_cred:
             }
             return KRB5_OK;
         } else {
-            if (!GetMSCacheTicketFromCacheInfoEX2(data->LogonHandle, data->PackageId,
+            if (!GetMSCacheTicketFromCacheInfoEx2(data->LogonHandle,
+                                                  data->PackageId,
                                                   &lcursor->response.ex2->Tickets[lcursor->index++],&msticket)) {
                 retval = KRB5_FCC_INTERNAL;
                 goto next_cred;
             }
         }
-    } else
-#endif /* HAVE_CACHE_INFO_EX2 */
-        if ( is_windows_xp() ) {
-            if ( lcursor->index >= lcursor->response.xp->CountOfTickets ) {
-                if (retval == KRB5_OK)
-                    return KRB5_CC_END;
-                else {
-                    LsaFreeReturnBuffer(lcursor->mstgt);
-                    LsaFreeReturnBuffer(lcursor->response.xp);
-                    free(*cursor);
-                    *cursor = 0;
-                    return retval;
-                }
-            }
-
-            if (!GetMSCacheTicketFromCacheInfoXP(data->LogonHandle, data->PackageId,
-                                                 &lcursor->response.xp->Tickets[lcursor->index++],&msticket)) {
-                retval = KRB5_FCC_INTERNAL;
-                goto next_cred;
-            }
-        } else {
-            if ( lcursor->index >= lcursor->response.w2k->CountOfTickets ) {
-                if (retval == KRB5_OK)
-                    return KRB5_CC_END;
-                else {
-                    LsaFreeReturnBuffer(lcursor->mstgt);
-                    LsaFreeReturnBuffer(lcursor->response.w2k);
-                    free(*cursor);
-                    *cursor = 0;
-                    return retval;
-                }
-            }
-
-            if (!GetMSCacheTicketFromCacheInfoW2K(data->LogonHandle, data->PackageId,
-                                                  &lcursor->response.w2k->Tickets[lcursor->index++],&msticket)) {
-                retval = KRB5_FCC_INTERNAL;
-                goto next_cred;
+    } else {
+        if (lcursor->index >= lcursor->response.xp->CountOfTickets) {
+            if (retval == KRB5_OK) {
+                return KRB5_CC_END;
+            } else {
+                LsaFreeReturnBuffer(lcursor->mstgt);
+                LsaFreeReturnBuffer(lcursor->response.xp);
+                free(*cursor);
+                *cursor = 0;
+                return retval;
             }
         }
+
+        if (!GetMSCacheTicketFromCacheInfoEx(data->LogonHandle,
+                                             data->PackageId,
+                                             &lcursor->response.xp->Tickets[lcursor->index++],
+                                             &msticket)) {
+            retval = KRB5_FCC_INTERNAL;
+            goto next_cred;
+        }
+    }
 
     /* Don't return tickets with NULL Session Keys */
     if ( IsMSSessionKeyNull(&msticket->SessionKey) ) {
@@ -2334,19 +1813,16 @@ next_cred:
     }
 
     /* convert the ticket */
-#ifdef HAVE_CACHE_INFO_EX2
     if ( does_query_ticket_cache_ex2() ) {
         if (!MSCredToMITCred(msticket, lcursor->response.ex2->Tickets[lcursor->index-1].ClientRealm, context, creds))
             retval = KRB5_FCC_INTERNAL;
-    } else
-#endif /* HAVE_CACHE_INFO_EX2 */
-        if ( is_windows_xp() ) {
-            if (!MSCredToMITCred(msticket, lcursor->response.xp->Tickets[lcursor->index-1].ClientRealm, context, creds))
-                retval = KRB5_FCC_INTERNAL;
-        } else {
-            if (!MSCredToMITCred(msticket, lcursor->mstgt->DomainName, context, creds))
-                retval = KRB5_FCC_INTERNAL;
-        }
+    } else {
+        if (!MSCredToMITCred(msticket,
+                             lcursor->response.xp->Tickets[lcursor->index -
+                                 1].ClientRealm,
+                             context, creds))
+            retval = KRB5_FCC_INTERNAL;
+    }
     LsaFreeReturnBuffer(msticket);
     return retval;
 }
@@ -2369,20 +1845,12 @@ krb5_lcc_end_seq_get(krb5_context context, krb5_ccache id, krb5_cc_cursor *curso
 {
     krb5_lcc_cursor *lcursor = (krb5_lcc_cursor *) *cursor;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     if ( lcursor ) {
         LsaFreeReturnBuffer(lcursor->mstgt);
-#ifdef HAVE_CACHE_INFO_EX2
         if ( does_query_ticket_cache_ex2() )
             LsaFreeReturnBuffer(lcursor->response.ex2);
         else
-#endif /* HAVE_CACHE_INFO_EX2 */
-            if ( is_windows_xp() )
-                LsaFreeReturnBuffer(lcursor->response.xp);
-            else
-                LsaFreeReturnBuffer(lcursor->response.w2k);
+            LsaFreeReturnBuffer(lcursor->response.xp);
         free(*cursor);
     }
     *cursor = 0;
@@ -2398,9 +1866,6 @@ krb5_lcc_end_seq_get(krb5_context context, krb5_ccache id, krb5_cc_cursor *curso
 static krb5_error_code KRB5_CALLCONV
 krb5_lcc_generate_new (krb5_context context, krb5_ccache *id)
 {
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     return KRB5_CC_READONLY;
 }
 
@@ -2414,9 +1879,6 @@ krb5_lcc_generate_new (krb5_context context, krb5_ccache *id)
 static const char * KRB5_CALLCONV
 krb5_lcc_get_name (krb5_context context, krb5_ccache id)
 {
-
-    if (!is_windows_2000())
-        return "";
 
     if ( !id )
         return "";
@@ -2440,32 +1902,27 @@ krb5_lcc_get_name (krb5_context context, krb5_ccache id)
 static krb5_error_code KRB5_CALLCONV
 krb5_lcc_get_principal(krb5_context context, krb5_ccache id, krb5_principal *princ)
 {
+    PKERB_QUERY_TKT_CACHE_EX_RESPONSE pResponse;
     krb5_lcc_data *data = (krb5_lcc_data *)id->data;
-
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
+    ULONG  i;
 
     /* obtain principal */
     if (data->princ)
         return krb5_copy_principal(context, data->princ, princ);
     else {
-        /*
-         * we must obtain a tgt from the cache in order to determine the principal
-         */
-        KERB_EXTERNAL_TICKET *msticket;
-        if (GetMSTGT(context, data->LogonHandle, data->PackageId, &msticket, FALSE)) {
-            /* convert the ticket */
-            krb5_creds creds;
-            if (!MSCredToMITCred(msticket, msticket->DomainName, context, &creds))
-            {
-                LsaFreeReturnBuffer(msticket);
-                return KRB5_FCC_INTERNAL;
+        if (GetQueryTktCacheResponseEx(data->LogonHandle, data->PackageId,
+                                       &pResponse)) {
+            /* Take the first client principal we find; they should all be the
+             * same anyway. */
+            for (i = 0; i < pResponse->CountOfTickets; i++) {
+                if (UnicodeStringToMITPrinc(&pResponse->Tickets[i].ClientName,
+                                            &pResponse->Tickets[i].ClientRealm,
+                                            context, &data->princ))
+                    break;
             }
-            LsaFreeReturnBuffer(msticket);
-
-            krb5_copy_principal(context, creds.client, &data->princ);
-            krb5_free_cred_contents(context,&creds);
-            return krb5_copy_principal(context, data->princ, princ);
+            LsaFreeReturnBuffer(pResponse);
+            if (data->princ)
+                return krb5_copy_principal(context, data->princ, princ);
         }
     }
     return KRB5_CC_NOTFOUND;
@@ -2481,9 +1938,8 @@ krb5_lcc_retrieve(krb5_context context, krb5_ccache id, krb5_flags whichfields,
     KERB_EXTERNAL_TICKET *msticket = 0, *mstgt = 0, *mstmp = 0;
     krb5_creds * mcreds_noflags = 0;
     krb5_creds   fetchcreds;
-
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
+    PKERB_QUERY_TKT_CACHE_EX_RESPONSE pResponse = 0;
+    unsigned int i;
 
     memset(&fetchcreds, 0, sizeof(krb5_creds));
 
@@ -2527,48 +1983,39 @@ krb5_lcc_retrieve(krb5_context context, krb5_ccache id, krb5_flags whichfields,
     }
 
     /* convert the ticket */
-    if ( !is_windows_xp() || !does_retrieve_ticket_cache_ticket() ) {
-        if ( PreserveInitialTicketIdentity() )
-            GetMSTGT(context, data->LogonHandle, data->PackageId, &mstgt, FALSE);
+    /*
+     * We can obtain the correct client realm for a ticket by walking the
+     * cache contents until we find the matching service ticket.
+     */
 
-        if (!MSCredToMITCred(msticket, mstgt ? mstgt->DomainName : msticket->DomainName, context, &fetchcreds))
-        {
-            kret = KRB5_FCC_INTERNAL;
-            goto cleanup;
-        }
-    } else {
-        /* We can obtain the correct client realm for a ticket by walking the
-         * cache contents until we find the matching service ticket.
-         */
-        PKERB_QUERY_TKT_CACHE_EX_RESPONSE pResponse = 0;
-        unsigned int i;
-
-        if (!GetQueryTktCacheResponseXP( data->LogonHandle, data->PackageId, &pResponse)) {
-            kret = KRB5_FCC_INTERNAL;
-            goto cleanup;
-        }
-
-        for ( i=0; i<pResponse->CountOfTickets; i++ ) {
-            if (!GetMSCacheTicketFromCacheInfoXP(data->LogonHandle, data->PackageId,
-                                                 &pResponse->Tickets[i],&mstmp)) {
-                continue;
-            }
-
-            if ( KerbExternalTicketMatch(msticket,mstmp) )
-                break;
-
-            LsaFreeReturnBuffer(mstmp);
-            mstmp = 0;
-        }
-
-        if (!MSCredToMITCred(msticket, mstmp ? pResponse->Tickets[i].ClientRealm : msticket->DomainName, context, &fetchcreds))
-        {
-            LsaFreeReturnBuffer(pResponse);
-            kret = KRB5_FCC_INTERNAL;
-            goto cleanup;
-        }
-        LsaFreeReturnBuffer(pResponse);
+    if (!GetQueryTktCacheResponseEx(data->LogonHandle, data->PackageId,
+        &pResponse)) {
+        kret = KRB5_FCC_INTERNAL;
+        goto cleanup;
     }
+
+    for (i = 0; i < pResponse->CountOfTickets; i++) {
+        if (!GetMSCacheTicketFromCacheInfoEx(data->LogonHandle,
+                                             data->PackageId,
+                                             &pResponse->Tickets[i], &mstmp)) {
+            continue;
+        }
+
+        if (KerbExternalTicketMatch(msticket,mstmp))
+            break;
+
+        LsaFreeReturnBuffer(mstmp);
+        mstmp = 0;
+    }
+
+    if (!MSCredToMITCred(msticket, mstmp ?
+                         pResponse->Tickets[i].ClientRealm :
+                         msticket->DomainName, context, &fetchcreds)) {
+        LsaFreeReturnBuffer(pResponse);
+        kret = KRB5_FCC_INTERNAL;
+        goto cleanup;
+    }
+    LsaFreeReturnBuffer(pResponse);
 
 
     /* check to see if this ticket matches the request using logic from
@@ -2610,9 +2057,6 @@ krb5_lcc_store(krb5_context context, krb5_ccache id, krb5_creds *creds)
     KERB_EXTERNAL_TICKET *msticket = 0, *msticket2 = 0;
     krb5_creds * creds_noflags = 0;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     if (krb5_is_config_principal(context, creds->server)) {
         /* mslsa cannot store config creds, so we have to bail.
          * The 'right' thing to do would be to return an appropriate error,
@@ -2622,11 +2066,8 @@ krb5_lcc_store(krb5_context context, krb5_ccache id, krb5_creds *creds)
         return KRB5_OK;
     }
 
-#ifdef KERB_SUBMIT_TICKET
-    /* we can use the new KerbSubmitTicketMessage to store the ticket */
     if (KerbSubmitTicket( data->LogonHandle, data->PackageId, context, creds ))
         return KRB5_OK;
-#endif /* KERB_SUBMIT_TICKET */
 
     /* If not, lets try to obtain a matching ticket from the KDC */
     if ( creds->ticket_flags != 0 && creds->keyblock.enctype != 0 ) {
@@ -2665,16 +2106,9 @@ krb5_lcc_remove_cred(krb5_context context, krb5_ccache id, krb5_flags flags,
 {
     krb5_lcc_data *data = (krb5_lcc_data *)id->data;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
-    if (!is_windows_xp()) {
-        if ( PurgeTicket2000( data->LogonHandle, data->PackageId, context, creds) )
-            return KRB5_OK;
-    } else {
-        if ( PurgeTicketXP( data->LogonHandle, data->PackageId, context, flags, creds) )
-            return KRB5_OK;
-    }
+    if (PurgeTicketEx(data->LogonHandle, data->PackageId, context, flags,
+                      creds))
+        return KRB5_OK;
 
     return KRB5_CC_READONLY;
 }
@@ -2689,9 +2123,6 @@ krb5_lcc_set_flags(krb5_context context, krb5_ccache id, krb5_flags flags)
 {
     krb5_lcc_data *data = (krb5_lcc_data *)id->data;
 
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
-
     data->flags = flags;
     return KRB5_OK;
 }
@@ -2700,9 +2131,6 @@ static krb5_error_code KRB5_CALLCONV
 krb5_lcc_get_flags(krb5_context context, krb5_ccache id, krb5_flags *flags)
 {
     krb5_lcc_data *data = (krb5_lcc_data *)id->data;
-
-    if (!is_windows_2000())
-        return KRB5_FCC_NOFILE;
 
     *flags = data->flags;
     return KRB5_OK;

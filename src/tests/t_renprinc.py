@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Copyright (C) 2011 by the Massachusetts Institute of Technology.
 # All rights reserved.
 
@@ -20,7 +22,6 @@
 # this software for any purpose.  It is provided "as is" without express
 # or implied warranty.
 
-#!/usr/bin/python
 from k5test import *
 
 enctype = "aes128-cts"
@@ -31,16 +32,16 @@ salttypes = ('normal', 'v4', 'norealm', 'onlyrealm')
 # For a variety of salt types, test that we can rename a principal and
 # still get tickets with the same password.
 for st in salttypes:
-    realm.run_kadminl('addprinc -e %s:%s -pw %s %s' %
-                      (enctype, st, password(st), st))
+    realm.run([kadminl, 'addprinc', '-e', enctype + ':' + st,
+               '-pw', password(st), st])
     realm.kinit(st, password(st))
     newprinc = 'new' + st
-    realm.run_kadminl('renprinc -force %s %s' % (st, newprinc))
+    realm.run([kadminl, 'renprinc', st, newprinc])
     realm.kinit(newprinc, password(st))
 
 # Rename the normal salt again to test renaming a principal with
 # special salt type (which it will have after the first rename).
-realm.run_kadminl('renprinc -force newnormal newnormal2')
+realm.run([kadminl, 'renprinc', 'newnormal', 'newnormal2'])
 realm.kinit('newnormal2', password('normal'))
 
 success('Principal renaming tests')

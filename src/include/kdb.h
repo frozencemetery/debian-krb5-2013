@@ -137,6 +137,7 @@
 
 /* String attribute names recognized by krb5 */
 #define KRB5_KDB_SK_SESSION_ENCTYPES            "session_enctypes"
+#define KRB5_KDB_SK_REQUIRE_AUTH                "require_auth"
 
 #if !defined(_WIN32)
 
@@ -167,7 +168,7 @@ typedef struct krb5_string_attr_st {
  */
 typedef struct _krb5_key_data {
     krb5_int16            key_data_ver;         /* Version */
-    krb5_int16            key_data_kvno;        /* Key Version */
+    krb5_ui_2             key_data_kvno;        /* Key Version */
     krb5_int16            key_data_type[2];     /* Array of types */
     krb5_ui_2             key_data_length[2];   /* Array of lengths */
     krb5_octet          * key_data_contents[2]; /* Array of pointers */
@@ -1223,9 +1224,11 @@ typedef struct _kdb_vftabl {
      *
      *   server: The DB entry of the service principal.
      *
-     *   krbtgt: For TGS requests, the DB entry of the (possibly foreign)
-     *     ticket granting service of the TGT.  For AS requests, the DB entry
-     *     of the service principal.
+     *   krbtgt: For TGS requests, the DB entry of the server of the ticket in
+     *     the PA-TGS-REQ padata; this is usually a local or cross-realm krbtgt
+     *     principal, but not always.  For AS requests, the DB entry of the
+     *     service principal; this is usually a local krbtgt principal, but not
+     *     always.
      *
      *   client_key: The reply key for the KDC request, before any FAST armor
      *     is applied.  For AS requests, this may be the client's long-term key
@@ -1234,9 +1237,9 @@ typedef struct _kdb_vftabl {
      *
      *   server_key: The server key used to encrypt the returned ticket.
      *
-     *   krbtgt_key: For TGS requests, the key of the (possibly foreign) ticket
-     *     granting service of the TGT.  for AS requests, the service
-     *     principal's key.
+     *   krbtgt_key: For TGS requests, the key used to decrypt the ticket in
+     *     the PA-TGS-REQ padata.  For AS requests, the server key used to
+     *     encrypt the returned ticket.
      *
      *   session_key: The session key of the ticket being granted to the
      *     requestor.
