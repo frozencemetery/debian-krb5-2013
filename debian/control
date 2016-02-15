@@ -237,7 +237,6 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends},
  libkrb5support0 (= ${binary:Version})
 Suggests: krb5-doc, krb5-user
-Conflicts: libkrb53
 Recommends: krb5-locales
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
@@ -334,7 +333,6 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
 Suggests: krb5-doc, krb5-user
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Conflicts: libkrb53
 Description: MIT Kerberos runtime libraries - Crypto Library
  Kerberos is a system for authenticating users and services on a network.
  Kerberos is a trusted third-party service.  That means that there is a
@@ -369,7 +367,6 @@ Section: libs
 Breaks: libgssapi-krb5-2 (<< 1.13~alpha1-1),
  libkadm5srv-mit9 (<< 1.13~alpha1-1), libkadm5clnt-mit9 (<< 1.13~alpha1-1),
  libk5crypto3 (<< 1.13~alpha1-1), libkdb5-7 (<< 1.13~alpha1-1)
-Conflicts: libkrb53
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Multi-Arch: same

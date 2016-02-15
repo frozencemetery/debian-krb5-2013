@@ -33,8 +33,9 @@ krb5 (1.14+dfsg-1) experimental; urgency=medium
     Repeating these requests will eventually cause kadmind to exhaust all
     available memory. (Closes: #813126)
 
+  * Remove all references to libkrb53, Closes: #708175
 
- -- Sam Hartman <hartmans@debian.org>  Mon, 15 Feb 2016 15:18:58 -0500
+ -- Sam Hartman <hartmans@debian.org>  Mon, 15 Feb 2016 15:49:06 -0500
 
 krb5 (1.13.2+dfsg-4) unstable; urgency=high
 
