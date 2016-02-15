@@ -1,3 +1,9 @@
+krb5 (1.14+dfsg-1) UNRELEASED; urgency=medium
+
+  * New upstream version, Closes: #812131
+
+ -- Sam Hartman <hartmans@debian.org>  Fri, 12 Feb 2016 18:52:35 -0500
+
 krb5 (1.13.2+dfsg-4) unstable; urgency=high
 
   * Import upstream patches fixing regressions in the previous upload:

@@ -10,6 +10,7 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  decode_krb5_as_req@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_authdata@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_authenticator@krb5_3_MIT 1.6.dfsg.2
+ decode_krb5_cammac@krb5_3_MIT 1.14+dfsg
  decode_krb5_cred@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_enc_cred_part@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_enc_data@krb5_3_MIT 1.6.dfsg.2
@@ -43,11 +44,13 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  decode_krb5_sam_challenge_2@krb5_3_MIT 1.11+dfsg
  decode_krb5_sam_challenge_2_body@krb5_3_MIT 1.11+dfsg
  decode_krb5_sam_response_2@krb5_3_MIT 1.7dfsg
+ decode_krb5_secure_cookie@krb5_3_MIT 1.14+dfsg
  decode_krb5_setpw_req@krb5_3_MIT 1.7dfsg
  decode_krb5_tgs_rep@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_tgs_req@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_ticket@krb5_3_MIT 1.6.dfsg.2
  decode_krb5_typed_data@krb5_3_MIT 1.7dfsg
+ decode_utf8_strings@krb5_3_MIT 1.14+dfsg
  encode_krb5_ad_kdcissued@krb5_3_MIT 1.8+dfsg
  encode_krb5_ad_signedpath@krb5_3_MIT 1.8+dfsg
  encode_krb5_ad_signedpath_data@krb5_3_MIT 1.8+dfsg
@@ -58,6 +61,7 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  encode_krb5_as_req@krb5_3_MIT 1.6.dfsg.2
  encode_krb5_authdata@krb5_3_MIT 1.6.dfsg.2
  encode_krb5_authenticator@krb5_3_MIT 1.6.dfsg.2
+ encode_krb5_cammac@krb5_3_MIT 1.14+dfsg
  encode_krb5_checksum@krb5_3_MIT 1.8+dfsg
  encode_krb5_cred@krb5_3_MIT 1.6.dfsg.2
  encode_krb5_enc_cred_part@krb5_3_MIT 1.6.dfsg.2
@@ -91,11 +95,13 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  encode_krb5_sam_challenge_2@krb5_3_MIT 1.9+dfsg~beta1
  encode_krb5_sam_challenge_2_body@krb5_3_MIT 1.9+dfsg~beta1
  encode_krb5_sam_response_2@krb5_3_MIT 1.7dfsg
+ encode_krb5_secure_cookie@krb5_3_MIT 1.14+dfsg
  encode_krb5_sp80056a_other_info@krb5_3_MIT 1.10+dfsg~alpha1
  encode_krb5_tgs_rep@krb5_3_MIT 1.6.dfsg.2
  encode_krb5_tgs_req@krb5_3_MIT 1.6.dfsg.2
  encode_krb5_ticket@krb5_3_MIT 1.6.dfsg.2
  encode_krb5_typed_data@krb5_3_MIT 1.10+dfsg~alpha1
+ encode_utf8_strings@krb5_3_MIT 1.14+dfsg
  et_asn1_error_table@krb5_3_MIT 1.6.dfsg.2
  et_k524_error_table@krb5_3_MIT 1.6.dfsg.2
  et_kdb5_error_table@krb5_3_MIT 1.6.dfsg.2
@@ -116,10 +122,13 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  k5_expand_path_tokens@krb5_3_MIT 1.11+dfsg
  k5_expand_path_tokens_extra@krb5_3_MIT 1.11+dfsg
  k5_free_algorithm_identifier@krb5_3_MIT 1.11+dfsg
+ k5_free_cammac@krb5_3_MIT 1.14+dfsg
+ k5_free_data_ptr_list@krb5_3_MIT 1.14+dfsg
  k5_free_kkdcp_message@krb5_3_MIT 1.13~alpha1+dfsg
  k5_free_otp_tokeninfo@krb5_3_MIT 1.11+dfsg
  k5_free_pa_otp_challenge@krb5_3_MIT 1.11+dfsg
  k5_free_pa_otp_req@krb5_3_MIT 1.11+dfsg
+ k5_free_secure_cookie@krb5_3_MIT 1.14+dfsg
  k5_free_serverlist@krb5_3_MIT 1.10+dfsg~alpha1
  k5_hostrealm_free_context@krb5_3_MIT 1.12~alpha1+dfsg
  k5_init_trace@krb5_3_MIT 1.12~alpha1+dfsg
@@ -137,6 +146,7 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  k5_plugin_register_dyn@krb5_3_MIT 1.10+dfsg~alpha1
  k5_unmarshal_cred@krb5_3_MIT 1.13~alpha1+dfsg
  k5_unmarshal_princ@krb5_3_MIT 1.13~alpha1+dfsg
+ k5_zapfree_pa_data@krb5_3_MIT 1.14+dfsg
  krb524_convert_creds_kdc@krb5_3_MIT 1.6.dfsg.2
  krb524_init_ets@krb5_3_MIT 1.6.dfsg.2
  krb5_3_MIT@krb5_3_MIT 1.6.dfsg.2
@@ -470,6 +480,7 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  krb5_pac_verify@krb5_3_MIT 1.7dfsg
  krb5_parse_name@krb5_3_MIT 1.6.dfsg.2
  krb5_parse_name_flags@krb5_3_MIT 1.7dfsg
+ krb5_prepend_error_message@krb5_3_MIT 1.14+dfsg
  krb5_principal2salt@krb5_3_MIT 1.6.dfsg.2
  krb5_principal2salt_norealm@krb5_3_MIT 1.6.dfsg.2
  krb5_principal_compare@krb5_3_MIT 1.6.dfsg.2
@@ -603,8 +614,11 @@ libkrb5.so.3 libkrb5-3 #MINVER#
  krb5_verify_init_creds@krb5_3_MIT 1.6.dfsg.2
  krb5_verify_init_creds_opt_init@krb5_3_MIT 1.6.dfsg.2
  krb5_verify_init_creds_opt_set_ap_req_nofail@krb5_3_MIT 1.6.dfsg.2
+ krb5_vprepend_error_message@krb5_3_MIT 1.14+dfsg
  krb5_vset_error_message@krb5_3_MIT 1.6.dfsg.2
+ krb5_vwrap_error_message@krb5_3_MIT 1.14+dfsg
  krb5_walk_realm_tree@krb5_3_MIT 1.6.dfsg.2
+ krb5_wrap_error_message@krb5_3_MIT 1.14+dfsg
  krb5_write_message@krb5_3_MIT 1.6.dfsg.2
  krb5int_accessor@krb5_3_MIT 1.6.dfsg.2
  krb5int_cc_default@krb5_3_MIT 1.6.dfsg.2

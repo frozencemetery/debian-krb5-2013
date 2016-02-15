@@ -36,7 +36,7 @@ Package: krb5-kdc
 Architecture: any
 Priority: optional
 Depends: ${misc:Depends}, ${shlibs:Depends}, libkrb5-3 (= ${binary:Version}),
- libkadm5srv-mit9,
+ libkadm5srv-mit10,
  krb5-config, krb5-user, lsb-base (>= 3.0-6), libverto-libev1 | libverto-libevent1,
  libkdb5-8 (>= 1.13.1+dfsg-1)
 Suggests: openbsd-inetd | inet-superserver, krb5-admin-server,
@@ -98,8 +98,8 @@ Architecture: any
 Depends: ${misc:Depends}, libkrb5-3 (= ${binary:Version}),
  libk5crypto3 (= ${binary:Version}), libgssapi-krb5-2 (= ${binary:Version}),
  libgssrpc4 (= ${binary:Version}),
- libkadm5srv-mit9  (= ${binary:Version}),
- libkadm5clnt-mit9 (= ${binary:Version}),
+ libkadm5srv-mit10  (= ${binary:Version}),
+ libkadm5clnt-mit10 (= ${binary:Version}),
  comerr-dev, 
 Priority: optional
 Suggests: krb5-doc
@@ -290,7 +290,7 @@ Description: MIT Kerberos runtime libraries - GSS enabled ONCRPC
  This package contains an RPC library used by the Kerberos administrative
  programs and potentially other applications.
 
-Package: libkadm5srv-mit9
+Package: libkadm5srv-mit10
 Section: libs
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
@@ -308,7 +308,7 @@ Description: MIT Kerberos runtime libraries - KDC and Admin Server
  This package contains the runtime library used by Kerberos administrative
  servers.
 
-Package: libkadm5clnt-mit9
+Package: libkadm5clnt-mit10
 Section: libs
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}

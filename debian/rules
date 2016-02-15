@@ -46,9 +46,9 @@ endif
 # sure to update this list if upstream adds any more files we don't want.
 EXCLUDE = -Xtmac.doc -Xexamples/krb5 -Xgnats/mit -Xkrb5-send-pr \
 	-Xsserver -Xsim_server -Xuuserver \
-	-Xsclient -Xsim_client -Xuuclient
+	-Xsclient -Xsim_client -Xuuclient -Xpreauth/test.so
 
-LIB_PACKAGES = libkrb5-3 libgssapi-krb5-2 libkadm5clnt-mit9 libkadm5srv-mit9 libkdb5-8 libgssrpc4  \
+LIB_PACKAGES = libkrb5-3 libgssapi-krb5-2 libkadm5clnt-mit10 libkadm5srv-mit10 libkdb5-8 libgssrpc4  \
 	libkrb5support0  libk5crypto3 libkrad0
 
 # We touch each configure and Autoconf-related file so that we do not attempt

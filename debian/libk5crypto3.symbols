@@ -13,6 +13,7 @@ libk5crypto.so.3 libk5crypto3 #MINVER#
  krb5_c_crypto_length_iov@k5crypto_3_MIT 1.7+dfsg
  krb5_c_decrypt@k5crypto_3_MIT 1.6.dfsg.2
  krb5_c_decrypt_iov@k5crypto_3_MIT 1.7+dfsg
+ krb5_c_derive_prfplus@k5crypto_3_MIT 1.14+dfsg-1
  krb5_c_encrypt@k5crypto_3_MIT 1.6.dfsg.2
  krb5_c_encrypt_iov@k5crypto_3_MIT 1.7+dfsg
  krb5_c_encrypt_length@k5crypto_3_MIT 1.6.dfsg.2
@@ -30,6 +31,7 @@ libk5crypto.so.3 libk5crypto3 #MINVER#
  krb5_c_padding_length@k5crypto_3_MIT 1.7+dfsg
  krb5_c_prf@k5crypto_3_MIT 1.6.dfsg.2
  krb5_c_prf_length@k5crypto_3_MIT 1.6.dfsg.2
+ krb5_c_prfplus@k5crypto_3_MIT 1.14+dfsg-1
  krb5_c_random_add_entropy@k5crypto_3_MIT 1.6.dfsg.2
  krb5_c_random_make_octets@k5crypto_3_MIT 1.6.dfsg.2
  krb5_c_random_os_entropy@k5crypto_3_MIT 1.6.dfsg.2
