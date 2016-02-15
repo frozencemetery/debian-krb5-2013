@@ -1,8 +1,40 @@
-krb5 (1.14+dfsg-1) UNRELEASED; urgency=medium
+krb5 (1.14+dfsg-1) experimental; urgency=medium
 
   * New upstream version, Closes: #812131
+  * Apply upstream patches:
+    - upstream/0010-Fix-mechglue-gss_acquire_cred_impersonate_name.patch
+    - 0011-Correctly-use-k5_wrapmsg-in-ldap_principal2.c.patch
+    - upstream/0012-Set-TL_DATA-mask-flag-for-master-key-operations.patch
+    - upstream/0013-Check-context-handle-in-gss_export_sec_context.patch
+    - upstream/0014-Check-internal-context-on-init-context-errors.patch
+    - upstream/0015-Fix-interposed-gss_accept_sec_context.patch
+    - upstream/0016-Work-around-uninitialized-warning-in-cc_kcm.c.patch
+    - upstream/0017-Increase-hostname-length-in-ipropd_svc.c.patch
+    - upstream/0018-Make-ksu-work-with-prompting-clpreauth-modules.patch
+    - upstream/0019-Fix-memory-leak-in-SPNEGO-gss_init_sec_context.patch
+    - upstream/0020-Fix-EOF-check-in-kadm5.acl-line-processing.patch
+    - upstream/0021-Fix-iprop-server-stub-error-management.patch
+  - upstream/0022-Verify-decoded-kadmin-C-strings-CVE-2015-8629.patch
+    - upstream/0023-Check-for-null-kadm5-policy-name-CVE-2015-8630.patch
+    -upstream/0024-Fix-leaks-in-kadmin-server-stubs-CVE-2015-8631.patch
+  * Verify decoded kadmin C strings [CVE-2015-8629]
+    CVE-2015-8629: An authenticated attacker can cause kadmind to read
+    beyond the end of allocated memory by sending a string without a
+    terminating zero byte. Information leakage may be possible for an
+    attacker with permission to modify the database. (Closes: #813296)
+  * Check for null kadm5 policy name [CVE-2015-8630]
+    CVE-2015-8630: An authenticated attacker with permission to modify a
+    principal entry can cause kadmind to dereference a null pointer by
+    supplying a null policy value but including KADM5_POLICY in the mask.
+    (Closes: #813127)
+  * Fix leaks in kadmin server stubs [CVE-2015-8631]
+    CVE-2015-8631: An authenticated attacker can cause kadmind to leak
+    memory by supplying a null principal name in a request which uses one.
+    Repeating these requests will eventually cause kadmind to exhaust all
+    available memory. (Closes: #813126)
 
- -- Sam Hartman <hartmans@debian.org>  Fri, 12 Feb 2016 18:52:35 -0500
+
+ -- Sam Hartman <hartmans@debian.org>  Mon, 15 Feb 2016 15:18:58 -0500
 
 krb5 (1.13.2+dfsg-4) unstable; urgency=high
 
