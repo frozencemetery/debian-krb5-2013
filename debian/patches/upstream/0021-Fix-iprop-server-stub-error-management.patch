@@ -1,0 +1,41 @@
+From c513a8610302598421e19239146db5498ca5128a Mon Sep 17 00:00:00 2001
+From: Greg Hudson <ghudson@mit.edu>
+Date: Thu, 14 Jan 2016 17:51:53 -0500
+Subject: Fix iprop server stub error management
+
+The ipropd stubs free client_name and server_name in the cleanup
+handler, so should not free them in out-of-memory conditions.
+Reported by Will Fiveash.
+
+(cherry picked from commit d998b088adb875bc0a4e13c184075f91fb23336b)
+
+ticket: 8347
+version_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/kadmin/server/ipropd_svc.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/kadmin/server/ipropd_svc.c b/src/kadmin/server/ipropd_svc.c
+index 4e79da6..7c7f850 100644
+--- a/src/kadmin/server/ipropd_svc.c
++++ b/src/kadmin/server/ipropd_svc.c
+@@ -163,8 +163,6 @@ iprop_get_updates_1_svc(kdb_last_t *arg, struct svc_req *rqstp)
+ 	client_name = buf_to_string(&client_desc);
+ 	service_name = buf_to_string(&service_desc);
+ 	if (client_name == NULL || service_name == NULL) {
+-	    free(client_name);
+-	    free(service_name);
+ 	    krb5_klog_syslog(LOG_ERR,
+ 			     _("%s: out of memory recording principal names"),
+ 			     whoami);
+@@ -291,8 +289,6 @@ ipropx_resync(uint32_t vers, struct svc_req *rqstp)
+ 	client_name = buf_to_string(&client_desc);
+ 	service_name = buf_to_string(&service_desc);
+ 	if (client_name == NULL || service_name == NULL) {
+-	    free(client_name);
+-	    free(service_name);
+ 	    DPRINT("%s: out of memory\n", whoami);
+ 	    krb5_klog_syslog(LOG_ERR,
+ 			     _("%s: out of memory recording principal names"),

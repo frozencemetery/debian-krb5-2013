@@ -163,8 +163,6 @@ iprop_get_updates_1_svc(kdb_last_t *arg, struct svc_req *rqstp)
 	client_name = buf_to_string(&client_desc);
 	service_name = buf_to_string(&service_desc);
 	if (client_name == NULL || service_name == NULL) {
-	    free(client_name);
-	    free(service_name);
 	    krb5_klog_syslog(LOG_ERR,
 			     _("%s: out of memory recording principal names"),
 			     whoami);
@@ -250,7 +248,7 @@ ipropx_resync(uint32_t vers, struct svc_req *rqstp)
 {
     static kdb_fullresync_result_t ret;
     char *ubuf = 0;
-    char clhost[MAXHOSTNAMELEN] = {0};
+    char clhost[NI_MAXHOST] = {0};
     int pret, fret;
     FILE *p;
     kadm5_server_handle_t handle = global_server_handle;
@@ -291,8 +289,6 @@ ipropx_resync(uint32_t vers, struct svc_req *rqstp)
 	client_name = buf_to_string(&client_desc);
 	service_name = buf_to_string(&service_desc);
 	if (client_name == NULL || service_name == NULL) {
-	    free(client_name);
-	    free(service_name);
 	    DPRINT("%s: out of memory\n", whoami);
 	    krb5_klog_syslog(LOG_ERR,
 			     _("%s: out of memory recording principal names"),

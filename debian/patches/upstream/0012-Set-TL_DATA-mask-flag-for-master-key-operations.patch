@@ -1,0 +1,45 @@
+From 44376f4c4613839222b1786f5a44c750b04a5f19 Mon Sep 17 00:00:00 2001
+From: Simo Sorce <simo@redhat.com>
+Date: Wed, 9 Dec 2015 18:09:18 -0500
+Subject: Set TL_DATA mask flag for master key operations
+
+When kdb5_util adds or removes master keys, it modifies tl-data but
+doesn't set the KADM5_TL_DATA mask flag, causing KDB modules that rely
+on this signaling (such as the LDAP module) not to store the tl-data
+changes.  Fix this issue by setting the mask bit in add_new_mkey() and
+kdb5_purge_mkeys().
+
+[ghudson@mit.edu: edit commit message]
+
+(cherry picked from commit c877f13c8985d820583b0d7ac1bb4c5dc36e677e)
+
+ticket: 8327
+version_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/kadmin/dbutil/kdb5_mkey.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/kadmin/dbutil/kdb5_mkey.c b/src/kadmin/dbutil/kdb5_mkey.c
+index 2f90cb0..0449732 100644
+--- a/src/kadmin/dbutil/kdb5_mkey.c
++++ b/src/kadmin/dbutil/kdb5_mkey.c
+@@ -178,7 +178,7 @@ add_new_mkey(krb5_context context, krb5_db_entry *master_entry,
+                                            mkey_aux_data_head))) {
+         goto clean_n_exit;
+     }
+-    master_entry->mask |= KADM5_KEY_DATA;
++    master_entry->mask |= KADM5_KEY_DATA | KADM5_TL_DATA;
+ 
+ clean_n_exit:
+     krb5_dbe_free_mkey_aux_list(context, mkey_aux_data_head);
+@@ -1366,7 +1366,7 @@ kdb5_purge_mkeys(int argc, char *argv[])
+         goto cleanup_return;
+     }
+ 
+-    master_entry->mask |= KADM5_KEY_DATA;
++    master_entry->mask |= KADM5_KEY_DATA | KADM5_TL_DATA;
+ 
+     if ((retval = krb5_db_put_principal(util_context, master_entry))) {
+         (void) krb5_db_fini(util_context);

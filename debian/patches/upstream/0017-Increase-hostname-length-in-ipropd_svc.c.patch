@@ -1,0 +1,31 @@
+From b83721ecf811ec8d68fcfc2f9ef27ed6a5ecc876 Mon Sep 17 00:00:00 2001
+From: Tom Yu <tlyu@mit.edu>
+Date: Wed, 6 Jan 2016 15:46:40 -0500
+Subject: Increase hostname length in ipropd_svc.c
+
+On some systems, MAXHOSTNAMELEN is too short for valid fully qualified
+domain names.  Use NI_MAXHOST instead in ipropd_svc.c.
+
+(cherry picked from commit 39802ad406c294306a407ea3d1199941d8b5d773)
+
+ticket: 8336
+version_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/kadmin/server/ipropd_svc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/kadmin/server/ipropd_svc.c b/src/kadmin/server/ipropd_svc.c
+index 209c19a..4e79da6 100644
+--- a/src/kadmin/server/ipropd_svc.c
++++ b/src/kadmin/server/ipropd_svc.c
+@@ -250,7 +250,7 @@ ipropx_resync(uint32_t vers, struct svc_req *rqstp)
+ {
+     static kdb_fullresync_result_t ret;
+     char *ubuf = 0;
+-    char clhost[MAXHOSTNAMELEN] = {0};
++    char clhost[NI_MAXHOST] = {0};
+     int pret, fret;
+     FILE *p;
+     kadm5_server_handle_t handle = global_server_handle;

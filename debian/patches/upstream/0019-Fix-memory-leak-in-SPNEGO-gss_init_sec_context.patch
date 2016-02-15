@@ -1,0 +1,35 @@
+From 78ab81419a68ecfde89f5a65e3f7385515a966dc Mon Sep 17 00:00:00 2001
+From: Greg Hudson <ghudson@mit.edu>
+Date: Wed, 25 Nov 2015 14:43:35 -0500
+Subject: Fix memory leak in SPNEGO gss_init_sec_context()
+
+After the initial call to spnego_gss_init_sec_context(), the context
+handle can leak if init_ctx_cont() returns an error, because the
+cleanup handler assumes that spnego_ctx contains the value of
+*context_handle.  Fix this leak by setting spnego_ctx before the if
+block which contains that call.  Reported by Adam Bernstein.
+
+(cherry picked from commit 159dbbd5ff14fdc2fa71fb3a8804eb401c914399)
+
+ticket: 8281
+version_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/lib/gssapi/spnego/spnego_mech.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/lib/gssapi/spnego/spnego_mech.c b/src/lib/gssapi/spnego/spnego_mech.c
+index a71a0c4..5f8c51b 100644
+--- a/src/lib/gssapi/spnego/spnego_mech.c
++++ b/src/lib/gssapi/spnego/spnego_mech.c
+@@ -1047,7 +1047,8 @@ spnego_gss_init_sec_context(
+ 
+ 	/* Step 1: perform mechanism negotiation. */
+ 	spcred = (spnego_gss_cred_id_t)claimant_cred_handle;
+-	if (*context_handle == GSS_C_NO_CONTEXT) {
++	spnego_ctx = (spnego_gss_ctx_id_t)*context_handle;
++	if (spnego_ctx == NULL) {
+ 		ret = init_ctx_new(minor_status, spcred,
+ 				   context_handle, &send_token);
+ 		if (ret != GSS_S_CONTINUE_NEEDED) {

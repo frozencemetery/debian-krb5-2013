@@ -1,0 +1,32 @@
+From 31d63328f0100ad52a2c990c11a74bb1a99b3eae Mon Sep 17 00:00:00 2001
+From: Tom Yu <tlyu@mit.edu>
+Date: Wed, 9 Dec 2015 13:49:22 -0500
+Subject: Correctly use k5_wrapmsg() in ldap_principal2.c
+
+Commit ebcdf02f8ec212555b1762007fa8454615900f36 incorrectly used
+k5_prependmsg() in an error handling clause in
+krb5_ldap_get_principal().  Use k5_wrapmsg() instead.
+
+(cherry picked from commit 412c19f93a0d7fed853388194f55eaf0d778b9e6)
+
+ticket: 8301
+version_fixed: 1.14.1
+---
+ src/plugins/kdb/ldap/libkdb_ldap/ldap_principal2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/kdb/ldap/libkdb_ldap/ldap_principal2.c b/src/plugins/kdb/ldap/libkdb_ldap/ldap_principal2.c
+index 99d06c5..5def4b7 100644
+--- a/src/plugins/kdb/ldap/libkdb_ldap/ldap_principal2.c
++++ b/src/plugins/kdb/ldap/libkdb_ldap/ldap_principal2.c
+@@ -684,8 +684,8 @@ krb5_ldap_put_principal(krb5_context context, krb5_db_entry *entry,
+                 if (st == KRB5_KDB_NOENTRY || st == KRB5_KDB_CONSTRAINT_VIOLATION) {
+                     int ost = st;
+                     st = EINVAL;
+-                    k5_prependmsg(context, ost, st, _("'%s' not found"),
+-                                  xargs.containerdn);
++                    k5_wrapmsg(context, ost, st, _("'%s' not found"),
++                               xargs.containerdn);
+                 }
+                 goto cleanup;
+             }

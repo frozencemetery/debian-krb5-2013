@@ -1,0 +1,36 @@
+From 362a057d0c272522297cad2807a40c714a6c5580 Mon Sep 17 00:00:00 2001
+From: Robbie Harwood <rharwood@redhat.com>
+Date: Wed, 13 Jan 2016 18:17:09 -0500
+Subject: Fix EOF check in kadm5.acl line processing
+
+On platforms where the char type is unsigned, the check for EOF (which
+is negative) will always fail, leaving a 255 byte at the end of the
+line.  This can cause a syntax error, in turn causing the contents of
+kadm5.acl to be ignored.  Fix this bug by removing the cast on EOF.
+
+[ghudson@mit.edu: more precisely describe consequences of bug in
+commit message]
+
+(cherry picked from commit 8fd85a77789496b8d7f8092f6e8a2824bc09a6cf)
+
+ticket: 8346
+version_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/lib/kadm5/srv/server_acl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lib/kadm5/srv/server_acl.c b/src/lib/kadm5/srv/server_acl.c
+index b6c2bb2..e41a94d 100644
+--- a/src/lib/kadm5/srv/server_acl.c
++++ b/src/lib/kadm5/srv/server_acl.c
+@@ -115,7 +115,7 @@ kadm5int_acl_get_line(fp, lnp)
+             int byte;
+             byte = fgetc(fp);
+             acl_buf[i] = byte;
+-            if (byte == (char)EOF) {
++            if (byte == EOF) {
+                 if (i > 0 && acl_buf[i-1] == '\\')
+                     i--;
+                 break;          /* it gets nulled-out below */

@@ -1,0 +1,52 @@
+From 71344a807803eb29d59d76efbde41d295608af1f Mon Sep 17 00:00:00 2001
+From: Tomas Kuthan <tkuthan@gmail.com>
+Date: Tue, 29 Dec 2015 11:47:49 +0100
+Subject: Check context handle in gss_export_sec_context()
+
+After commit 4f35b27a9ee38ca0b557ce8e6d059924a63d4eff, the
+context_handle parameter in gss_export_sec_context() is dereferenced
+before arguments are validated by val_exp_sec_ctx_args().  With a null
+context_handle, the new code segfaults instead of failing gracefully.
+Revert this part of the commit and only dereference context_handle if
+it is non-null.
+
+(cherry picked from commit b6f29cbd2ab132e336b5435447348400e9a9e241)
+
+ticket: 8334
+version_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/lib/gssapi/mechglue/g_exp_sec_context.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib/gssapi/mechglue/g_exp_sec_context.c b/src/lib/gssapi/mechglue/g_exp_sec_context.c
+index e5f95ad..b637452 100644
+--- a/src/lib/gssapi/mechglue/g_exp_sec_context.c
++++ b/src/lib/gssapi/mechglue/g_exp_sec_context.c
+@@ -79,7 +79,7 @@ gss_buffer_t		interprocess_token;
+ {
+     OM_uint32		status;
+     OM_uint32 		length;
+-    gss_union_ctx_id_t	ctx = (gss_union_ctx_id_t) *context_handle;
++    gss_union_ctx_id_t	ctx = NULL;
+     gss_mechanism	mech;
+     gss_buffer_desc	token = GSS_C_EMPTY_BUFFER;
+     char		*buf;
+@@ -94,6 +94,7 @@ gss_buffer_t		interprocess_token;
+      * call it.
+      */
+ 
++    ctx = (gss_union_ctx_id_t) *context_handle;
+     mech = gssint_get_mechanism (ctx->mech_type);
+     if (!mech)
+ 	return GSS_S_BAD_MECH;
+@@ -131,7 +132,7 @@ gss_buffer_t		interprocess_token;
+ 
+ cleanup:
+     (void) gss_release_buffer(minor_status, &token);
+-    if (ctx->internal_ctx_id == GSS_C_NO_CONTEXT) {
++    if (ctx != NULL && ctx->internal_ctx_id == GSS_C_NO_CONTEXT) {
+ 	/* If the mech deleted its context, delete the union context. */
+ 	free(ctx->mech_type->elements);
+ 	free(ctx->mech_type);

@@ -1,0 +1,35 @@
+From 8ebae70f613c702b1afb032b99e3f2f5fabe528b Mon Sep 17 00:00:00 2001
+From: Greg Hudson <ghudson@mit.edu>
+Date: Fri, 8 Jan 2016 11:54:55 -0500
+Subject: Make ksu work with prompting clpreauth modules
+
+Commit 5fd5a67c5a93514e7d0a64425baa007ad91f57de switched ksu from
+using krb5_get_in_tkt_with_password() to
+krb5_get_init_creds_password(), but did not supply a prompter
+argument.  Pass krb5_prompter_posix so that clpreauth modules can
+prompt for additional information during authentication.
+
+(cherry picked from commit 23a16fb5eac733880e34a770882ed17b93b5d66c)
+
+ticket: 8340
+verion_fixed: 1.14.1
+
+Patch-Category: upstream
+---
+ src/clients/ksu/krb_auth_su.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/clients/ksu/krb_auth_su.c b/src/clients/ksu/krb_auth_su.c
+index 50dbefc..7af4819 100644
+--- a/src/clients/ksu/krb_auth_su.c
++++ b/src/clients/ksu/krb_auth_su.c
+@@ -195,7 +195,8 @@ krb5_boolean ksu_get_tgt_via_passwd(context, client, options, zero_password,
+     }
+ 
+     code = krb5_get_init_creds_password(context, &creds, client, password,
+-                                        NULL, NULL, 0, NULL, options);
++                                        krb5_prompter_posix, NULL, 0, NULL,
++                                        options);
+     memset(password, 0, sizeof(password));
+ 
+ 

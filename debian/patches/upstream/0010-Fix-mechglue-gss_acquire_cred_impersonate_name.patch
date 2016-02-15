@@ -1,0 +1,34 @@
+From 048acacabc1c21a0ebadcb24d6f63642913765aa Mon Sep 17 00:00:00 2001
+From: Simo Sorce <simo@redhat.com>
+Date: Fri, 13 Nov 2015 14:44:54 -0500
+Subject: Fix mechglue gss_acquire_cred_impersonate_name
+
+Checking for the generic gss_acquire_cred() function is no guarantee
+that gss_acquire_cred_impersonate_name() is also implemented.
+
+[ghudson@mit.edu: edit commit message]
+
+(cherry picked from commit 46a4e225d2ecaa4077aa65f12f64273bf4911d3a)
+
+ticket: 8276
+version_fixed: 1.14
+status: resolved
+
+Patch-Category: upstream
+---
+ src/lib/gssapi/mechglue/g_acquire_cred_imp_name.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lib/gssapi/mechglue/g_acquire_cred_imp_name.c b/src/lib/gssapi/mechglue/g_acquire_cred_imp_name.c
+index ddaac25..0dd4f87 100644
+--- a/src/lib/gssapi/mechglue/g_acquire_cred_imp_name.c
++++ b/src/lib/gssapi/mechglue/g_acquire_cred_imp_name.c
+@@ -353,7 +353,7 @@ gss_add_cred_impersonate_name(OM_uint32 *minor_status,
+     mech = gssint_get_mechanism(desired_mech);
+     if (!mech)
+ 	return GSS_S_BAD_MECH;
+-    else if (!mech->gss_acquire_cred)
++    else if (!mech->gss_acquire_cred_impersonate_name)
+ 	return (GSS_S_UNAVAILABLE);
+ 
+     if (input_cred_handle == GSS_C_NO_CREDENTIAL) {
