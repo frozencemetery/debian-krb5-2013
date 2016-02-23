@@ -14,3 +14,6 @@ upstream/0013-Fix-build_principal-memory-bug-CVE-2015-2697.patch
 upstream/0014-Fix-two-IAKERB-comments.patch
 upstream/0015-Fix-IAKERB-context-export-import-CVE-2015-2698.patch
 upstream/0016-Fix-SPNEGO-context-import.patch
+upstream/0017-Verify-decoded-kadmin-C-strings-CVE-2015-8629.patch
+upstream/0018-Check-for-null-kadm5-policy-name-CVE-2015-8630.patch
+upstream/0019-Fix-leaks-in-kadmin-server-stubs-CVE-2015-8631.patch
